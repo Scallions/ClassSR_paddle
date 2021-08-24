@@ -1,11 +1,11 @@
 import numpy as np
 import lmdb
-import torch
-import torch.utils.data as data
+import paddle
+from paddle.io import Dataset
 import data.util as util
 
 
-class LQDataset(data.Dataset):
+class LQDataset(Dataset):
     '''Read LQ images only in the test phase.'''
 
     def __init__(self, opt):
@@ -14,7 +14,7 @@ class LQDataset(data.Dataset):
         self.data_type = self.opt['data_type']
         self.paths_LQ, self.paths_GT = None, None
         self.LQ_env = None  # environment for lmdb
-
+        # TODO check utils files
         self.paths_LQ, self.sizes_LQ = util.get_image_paths(self.data_type, opt['dataroot_LQ'])
         assert self.paths_LQ, 'Error: LQ paths are empty.'
 
