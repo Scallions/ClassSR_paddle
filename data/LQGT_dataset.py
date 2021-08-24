@@ -2,12 +2,12 @@ import random
 import numpy as np
 import cv2
 import lmdb
-import torch
-import torch.utils.data as data
+import paddle
+from paddle.io import Dataset
 import data.util as util
 
 
-class LQGTDataset(data.Dataset):
+class LQGTDataset(Dataset):
     """
     Read LQ (Low Quality, e.g. LR (Low Resolution), blurry, etc) and GT image pairs.
     If only GT images are provided, generate LQ images on-the-fly.
@@ -121,8 +121,8 @@ class LQGTDataset(data.Dataset):
         if img_GT.shape[2] == 3:
             img_GT = img_GT[:, :, [2, 1, 0]]
             img_LQ = img_LQ[:, :, [2, 1, 0]]
-        img_GT = torch.from_numpy(np.ascontiguousarray(np.transpose(img_GT, (2, 0, 1)))).float()
-        img_LQ = torch.from_numpy(np.ascontiguousarray(np.transpose(img_LQ, (2, 0, 1)))).float()
+        img_GT = paddle.to_tensor(np.ascontiguousarray(np.transpose(img_GT, (2, 0, 1))),paddle.float32)
+        img_LQ = paddle.to_tensor(np.ascontiguousarray(np.transpose(img_LQ, (2, 0, 1))),paddle.float32)
 
         if LQ_path is None:
             LQ_path = GT_path
