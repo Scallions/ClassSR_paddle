@@ -1,11 +1,11 @@
 import numpy as np
 import lmdb
-import torch
-import torch.utils.data as data
+import paddle
+from paddle.io import Dataset
 import data.util as util
 
 
-class LQ_label_Dataset(data.Dataset):
+class LQ_label_Dataset(Dataset):
     '''Read LQ images only in the test phase.'''
 
     def __init__(self, opt):
@@ -47,17 +47,17 @@ class LQ_label_Dataset(data.Dataset):
         # BGR to RGB, HWC to CHW, numpy to tensor
         if img_LQ.shape[2] == 3:
             img_LQ = img_LQ[:, :, [2, 1, 0]]
-        img_LQ = torch.from_numpy(np.ascontiguousarray(np.transpose(img_LQ, (2, 0, 1)))).float()
+        img_LQ = paddle.to_tensor(np.ascontiguousarray(np.transpose(img_LQ, (2, 0, 1))),paddle.float32)
 
         label=self.label[index]
         if str(label)=="1\n":
-            label=torch.from_numpy(np.array([0])).long()
+            label=paddle.to_tensor(np.array([0]),paddle.int64)
         if str(label)=="2\n":
-            label=torch.from_numpy(np.array([1])).long()
+            label=paddle.to_tensor(np.array([1]),paddle.int64)
         if str(label)=="3\n":
-            label=torch.from_numpy(np.array([2])).long()
+            label=paddle.to_tensor(np.array([2]),paddle.int64)
         if str(label)=="4\n":
-            label=torch.from_numpy(np.array([3])).long()
+            label=paddle.to_tensor(np.array([3]),paddle.int64)
 
 
         return {'LQ': img_LQ, 'LQ_path': LQ_path, 'label': label}
