@@ -409,7 +409,7 @@ def imresize(img, scale, antialiasing=True):
     # input: img: CHW RGB [0,1]
     # output: CHW RGB [0,1] w/o round
 
-    in_C, in_H, in_W = img.size()
+    in_C, in_H, in_W = img.shape
     _, out_H, out_W = in_C, math.ceil(in_H * scale), math.ceil(in_W * scale)
     kernel_width = 4
     kernel = 'cubic'
@@ -432,19 +432,19 @@ def imresize(img, scale, antialiasing=True):
 
     sym_patch = img[:, :sym_len_Hs, :]
     # TODO check long type
-    inv_idx = paddle.arange(sym_patch.size(1) - 1, -1, -1).astype('long')
+    inv_idx = paddle.arange(sym_patch.shape[1] - 1, -1, -1).astype('long')
     sym_patch_inv = sym_patch.index_select(1, inv_idx)
     img_aug = paddle.slice(img_aug,[1],0,sym_len_Hs).copy_(sym_patch_inv)
     #img_aug.narrow(1, 0, sym_len_Hs).copy_(sym_patch_inv)
 
     sym_patch = img[:, -sym_len_He:, :]
-    inv_idx = paddle.arange(sym_patch.size(1) - 1, -1, -1).astype('long')
+    inv_idx = paddle.arange(sym_patch.shape[1] - 1, -1, -1).astype('long')
     sym_patch_inv = sym_patch.index_select(1, inv_idx)
     img_aug = paddle.slice(img_aug,[1],sym_len_Hs + in_H, sym_len_He).copy_(sym_patch_inv)
     #img_aug.narrow(1, sym_len_Hs + in_H, sym_len_He).copy_(sym_patch_inv)
     # TODO mabye there is a bug
     out_1 = paddle.to_tensor(in_C, out_H, in_W)
-    kernel_width = weights_H.size(1)
+    kernel_width = weights_H.shape[1]
     for i in range(out_H):
         idx = int(indices_H[i][0])
         out_1[0, i, :] = img_aug[0, idx:idx + kernel_width, :].transpose(0, 1).mv(weights_H[i])
@@ -458,17 +458,19 @@ def imresize(img, scale, antialiasing=True):
     #out_1_aug.narrow(2, sym_len_Ws, in_W).copy_(out_1)
 
     sym_patch = out_1[:, :, :sym_len_Ws]
-    inv_idx = paddle.arange(sym_patch.size(2) - 1, -1, -1).astype('float32')
+    inv_idx = paddle.arange(sym_patch.shape[2] - 1, -1, -1).astype('float32')
     sym_patch_inv = sym_patch.index_select(2, inv_idx)
-    out_1_aug.narrow(2, 0, sym_len_Ws).copy_(sym_patch_inv)
+    out_1_aug = paddle.slice(out_1_aug,[2],0,sym_len_Ws).copy_(sym_patch_inv)
+    #out_1_aug.narrow(2, 0, sym_len_Ws).copy_(sym_patch_inv)
 
     sym_patch = out_1[:, :, -sym_len_We:]
-    inv_idx = paddle.arange(sym_patch.size(2) - 1, -1, -1).long()
+    inv_idx = paddle.arange(sym_patch.shape[2] - 1, -1, -1).astype('float32')
     sym_patch_inv = sym_patch.index_select(2, inv_idx)
-    out_1_aug.narrow(2, sym_len_Ws + in_W, sym_len_We).copy_(sym_patch_inv)
+    out_1_aug = paddle.slice(out_1_aug,[2],sym_len_Ws + in_W, sym_len_We).copy_(sym_patch_inv)
+    #out_1_aug.narrow(2, sym_len_Ws + in_W, sym_len_We).copy_(sym_patch_inv)
 
     out_2 = paddle.to_tensor(in_C, out_H, out_W)
-    kernel_width = weights_W.size(1)
+    kernel_width = weights_W.shape[1]
     for i in range(out_W):
         idx = int(indices_W[i][0])
         out_2[0, :, i] = out_1_aug[0, :, idx:idx + kernel_width].mv(weights_W[i])
@@ -484,7 +486,7 @@ def imresize_np(img, scale, antialiasing=True):
     # output: HWC BGR [0,1] w/o round
     img = paddle.to_tensor(img)
 
-    in_H, in_W, in_C = img.size()
+    in_H, in_W, in_C = img.shape
     _, out_H, out_W = in_C, math.ceil(in_H * scale), math.ceil(in_W * scale)
     kernel_width = 4
     kernel = 'cubic'
@@ -506,18 +508,18 @@ def imresize_np(img, scale, antialiasing=True):
     img_aug.narrow(0, sym_len_Hs, in_H).copy_(img)
 
     sym_patch = img[:sym_len_Hs, :, :]
-    inv_idx = paddle.arange(sym_patch.size(0) - 1, -1, -1).astype('float32')
+    inv_idx = paddle.arange(sym_patch.shape[0] - 1, -1, -1).astype('float32')
     sym_patch_inv = sym_patch.index_select(0, inv_idx)
     img_aug.narrow(0, 0, sym_len_Hs).copy_(sym_patch_inv)
 
     sym_patch = img[-sym_len_He:, :, :]
-    inv_idx = paddle.arange(sym_patch.size(0) - 1, -1, -1).astype('float32')
+    inv_idx = paddle.arange(sym_patch.shape[0] - 1, -1, -1).astype('float32')
     sym_patch_inv = sym_patch.index_select(0, inv_idx)
     img_aug.narrow(0, sym_len_Hs + in_H, sym_len_He).copy_(sym_patch_inv)
 
     #out_1 = torch.FloatTensor(out_H, in_W, in_C)
     out_1 = paddle.zeros((out_H,in_W,in_C),paddle.float32)
-    kernel_width = weights_H.size(1)
+    kernel_width = weights_H.shape[1]
     for i in range(out_H):
         idx = int(indices_H[i][0])
         out_1[i, :, 0] = img_aug[idx:idx + kernel_width, :, 0].transpose(0, 1).mv(weights_H[i])
@@ -531,18 +533,18 @@ def imresize_np(img, scale, antialiasing=True):
     out_1_aug.narrow(1, sym_len_Ws, in_W).copy_(out_1)
 
     sym_patch = out_1[:, :sym_len_Ws, :]
-    inv_idx = paddle.arange(sym_patch.size(1) - 1, -1, -1).astype('float32')
+    inv_idx = paddle.arange(sym_patch.shape[1] - 1, -1, -1).astype('float32')
     sym_patch_inv = sym_patch.index_select(1, inv_idx)
     out_1_aug.narrow(1, 0, sym_len_Ws).copy_(sym_patch_inv)
 
     sym_patch = out_1[:, -sym_len_We:, :]
-    inv_idx = paddle.arange(sym_patch.size(1) - 1, -1, -1).astype('float32')
+    inv_idx = paddle.arange(sym_patch.shape[1] - 1, -1, -1).astype('float32')
     sym_patch_inv = sym_patch.index_select(1, inv_idx)
     out_1_aug.narrow(1, sym_len_Ws + in_W, sym_len_We).copy_(sym_patch_inv)
 
     out_2 = paddle.zeros((out_H, out_W, in_C),paddle.float32)
     #out_2 = torch.FloatTensor(out_H, out_W, in_C)
-    kernel_width = weights_W.size(1)
+    kernel_width = weights_W.shape[1]
     for i in range(out_W):
         idx = int(indices_W[i][0])
         out_2[:, i, 0] = out_1_aug[:, idx:idx + kernel_width, 0].mv(weights_W[i])
