@@ -68,8 +68,8 @@ def flow_warp(x, flow, interp_mode='bilinear', padding_mode='zeros'):
     Returns:
         Tensor: warped image or feature map
     """
-    assert x.size()[-2:] == flow.size()[1:3]
-    B, C, H, W = x.size()
+    assert x.shape[-2:] == flow.shape[1:3]
+    B, C, H, W = x.shape
     # mesh grid
     grid_y, grid_x = paddle.meshgrid(paddle.arange(0, H), paddle.arange(0, W))
     grid = paddle.stack((grid_x, grid_y), 2).astype('float32') # W(x), H(y), 2
@@ -261,8 +261,8 @@ def flow_warp(x, flow, interp_mode='bilinear', padding_mode='zeros'):
     Returns:
         Tensor: warped image or feature map
     """
-    assert x.size()[-2:] == flow.size()[1:3]
-    B, C, H, W = x.size()
+    assert x.shape[-2:] == flow.shape[1:3]
+    B, C, H, W = x.shape
     # mesh grid
     grid_y, grid_x = paddle.meshgrid(paddle.arange(0, H), paddle.arange(0, W))
     grid = paddle.stack((grid_x, grid_y), 2).astype('float32')  # W(x), H(y), 2
