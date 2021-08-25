@@ -387,14 +387,14 @@ def calculate_weights_indices(in_length, out_length, scale, kernel, kernel_width
     # If a column in weights is all zero, get rid of it. only consider the first and last column.
     weights_zero_tmp = paddle.sum((weights == 0), 0)
     if not math.isclose(weights_zero_tmp[0], 0, rel_tol=1e-6):
-        indices = paddle.slice(indices,[1], 1, P - 2)
+        indices = paddle.slice(indices,[1], [1], [P - 2])
         #indices = indices.narrow(1, 1, P - 2)
-        weights = paddle.slice(weights,[1],1,P-2)
+        weights = paddle.slice(weights,[1],[1],[P-2])
         #weights = weights.narrow(1, 1, P - 2)
     if not math.isclose(weights_zero_tmp[-1], 0, rel_tol=1e-6):
-        indices = paddle.slice(indices, [1], 0, P - 2)
+        indices = paddle.slice(indices, [1], [0],[P - 2])
         #indices = indices.narrow(1, 0, P - 2)
-        weights = paddle.slice(weights, [1], 0, P - 2)
+        weights = paddle.slice(weights, [1], [0], [P - 2])
         #weights = weights.narrow(1, 0, P - 2)
     #weights = weights.contiguous()
     #indices = indices.contiguous()
@@ -427,20 +427,20 @@ def imresize(img, scale, antialiasing=True):
     # process H dimension
     # symmetric copying
     img_aug = paddle.zeros((in_C, in_H + sym_len_Hs + sym_len_He, in_W), paddle.float32)
-    img_aug = paddle.slice(img_aug,[1],sym_len_Hs,in_H).copy_(img)
+    img_aug = paddle.slice(img_aug,[1],[sym_len_Hs],[in_H]).copy_(img)
     #img_aug.narrow(1, sym_len_Hs, in_H).copy_(img)
 
     sym_patch = img[:, :sym_len_Hs, :]
     # TODO: check long type
     inv_idx = paddle.arange(sym_patch.shape[1] - 1, -1, -1).astype('long')
     sym_patch_inv = sym_patch.index_select(1, inv_idx)
-    img_aug = paddle.slice(img_aug,[1],0,sym_len_Hs).copy_(sym_patch_inv)
+    img_aug = paddle.slice(img_aug,[1],[0],[sym_len_Hs]).copy_(sym_patch_inv)
     #img_aug.narrow(1, 0, sym_len_Hs).copy_(sym_patch_inv)
 
     sym_patch = img[:, -sym_len_He:, :]
     inv_idx = paddle.arange(sym_patch.shape[1] - 1, -1, -1).astype('long')
     sym_patch_inv = sym_patch.index_select(1, inv_idx)
-    img_aug = paddle.slice(img_aug,[1],sym_len_Hs + in_H, sym_len_He).copy_(sym_patch_inv)
+    img_aug = paddle.slice(img_aug,[1],[sym_len_Hs + in_H], [sym_len_He]).copy_(sym_patch_inv)
     #img_aug.narrow(1, sym_len_Hs + in_H, sym_len_He).copy_(sym_patch_inv)
     # TODO: mabye there is a bug
     out_1 = paddle.to_tensor(in_C, out_H, in_W)
@@ -454,19 +454,19 @@ def imresize(img, scale, antialiasing=True):
     # process W dimension
     # symmetric copying
     out_1_aug = paddle.zeros((in_C, out_H, in_W + sym_len_Ws + sym_len_We),paddle.float32)
-    out_1_aug = paddle.slice(out_1_aug,[2],sym_len_Ws,in_W).copy_(out_1)
+    out_1_aug = paddle.slice(out_1_aug,[2],[sym_len_Ws],[in_W]).copy_(out_1)
     #out_1_aug.narrow(2, sym_len_Ws, in_W).copy_(out_1)
 
     sym_patch = out_1[:, :, :sym_len_Ws]
     inv_idx = paddle.arange(sym_patch.shape[2] - 1, -1, -1).astype('float32')
     sym_patch_inv = sym_patch.index_select(2, inv_idx)
-    out_1_aug = paddle.slice(out_1_aug,[2],0,sym_len_Ws).copy_(sym_patch_inv)
+    out_1_aug = paddle.slice(out_1_aug,[2],[0],[sym_len_Ws]).copy_(sym_patch_inv)
     #out_1_aug.narrow(2, 0, sym_len_Ws).copy_(sym_patch_inv)
 
     sym_patch = out_1[:, :, -sym_len_We:]
     inv_idx = paddle.arange(sym_patch.shape[2] - 1, -1, -1).astype('float32')
     sym_patch_inv = sym_patch.index_select(2, inv_idx)
-    out_1_aug = paddle.slice(out_1_aug,[2],sym_len_Ws + in_W, sym_len_We).copy_(sym_patch_inv)
+    out_1_aug = paddle.slice(out_1_aug,[2],[sym_len_Ws + in_W], [sym_len_We]).copy_(sym_patch_inv)
     #out_1_aug.narrow(2, sym_len_Ws + in_W, sym_len_We).copy_(sym_patch_inv)
 
     out_2 = paddle.to_tensor(in_C, out_H, out_W)
@@ -552,3 +552,8 @@ def imresize_np(img, scale, antialiasing=True):
         out_2[:, i, 2] = out_1_aug[:, idx:idx + kernel_width, 2].mv(weights_W[i])
 
     return out_2.numpy()
+
+
+
+
+
