@@ -27,7 +27,7 @@ for scale in [1, 0.9, 0.8, 0.7, 0.6]:
         rlt_GT = util.imresize_np(img_GT, scale, antialiasing=True)
         print(str(scale) + "_" + os.path.basename(path_GT))
         
-        if scale == 1：
+        if scale == 1:
             cv2.imwrite(os.path.join(save_GT_folder,os.path.basename(path_GT)), rlt_GT)
-        else：
+        else:
             cv2.imwrite(os.path.join(save_GT_folder, str(scale) + "_" + os.path.basename(path_GT)), rlt_GT)

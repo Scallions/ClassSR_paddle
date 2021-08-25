@@ -6,7 +6,7 @@ from paddle.io import Dataset,DataLoader
 
 def create_dataloader(dataset, dataset_opt, opt=None, sampler=None):
     phase = dataset_opt['phase']
-    #TODO distributed training
+    #TODO: distributed training
     if phase == 'train':
         if opt['dist']:
             world_size = paddle.distributed.get_world_size()
@@ -39,12 +39,6 @@ def create_dataloader(dataset):
         elif mode == 'LQ_label':
             from data.LQ_label_dataset import LQ_label_Dataset as D
         # datasets for video restoration
-        elif mode == 'REDS':
-            from data.REDS_dataset import REDSDataset as D
-        elif mode == 'Vimeo90K':
-            from data.Vimeo90K_dataset import Vimeo90KDataset as D
-        elif mode == 'video_test':
-            from data.video_test_dataset import VideoTestDataset as D
         else:
             raise NotImplementedError('Dataset [{:s}] is not recognized.'.format(mode))
         dataset = D(dataset_opt)
