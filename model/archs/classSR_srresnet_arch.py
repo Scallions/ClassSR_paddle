@@ -80,8 +80,8 @@ class Classifier(nn.Layer):
         arch_util.initialize_weights([self.CondNet], 0.1)
     def forward(self, x):
         out = self.CondNet(x)
-        out = nn.AvgPool2D(out.size()[2])(out)
-        out = out.view(out.size(0), -1)
+        out = nn.AvgPool2D(out.shape[2])(out)
+        out = out.reshape((out.shape[0], -1))
         out = self.lastOut(out)
         return out
 
