@@ -1,8 +1,8 @@
 import logging
 from collections import OrderedDict
-import torch
-import torch.nn as nn
-from torch.nn.parallel import DataParallel, DistributedDataParallel
+import paddle 
+import paddle.nn as nn
+from paddle.distributed import fleet
 import models.networks as networks
 import models.lr_scheduler as lr_scheduler
 from .base_model import BaseModel
@@ -31,7 +31,7 @@ class ClassSR_Model(BaseModel):
 
 
         if opt['dist']:
-            self.rank = torch.distributed.get_rank()
+            self.rank = 2
         else:
             self.rank = -1  # non dist training
         train_opt = opt['train']
@@ -40,9 +40,7 @@ class ClassSR_Model(BaseModel):
         self.netG = networks.define_G(opt).to(self.device)
 
         if opt['dist']:
-            self.netG = DistributedDataParallel(self.netG, device_ids=[torch.cuda.current_device()])
-        else:
-            self.netG = DataParallel(self.netG)
+            self.netG = fleet.distributed_model(self.netG)
         # print network
         self.print_network()
         self.load()
@@ -85,12 +83,16 @@ class ClassSR_Model(BaseModel):
                 else:
                     if self.rank <= 0:
                         logger.warning('Params [{:s}] will not optimize.'.format(k))
-            self.optimizer_G = torch.optim.Adam(optim_params, lr=train_opt['lr_G'],
+            # TODO: adam 参数设置
+            self.optimizer_G = paddle.optimizer.Adam(optim_params, learning_rate=train_opt['lr_G'],
                                                 weight_decay=wd_G,
                                                 betas=(train_opt['beta1'], train_opt['beta2']))
+            if opt['dist']:
+                self.optimizer_G = fleet.distributed_optimizer(self.optimizer_G)
             self.optimizers.append(self.optimizer_G)
 
             # schedulers
+            # TODO: scheduler
             if train_opt['lr_scheme'] == 'MultiStepLR':
                 for optimizer in self.optimizers:
                     self.schedulers.append(

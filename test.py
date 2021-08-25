@@ -4,7 +4,7 @@ import time
 import argparse
 from collections import OrderedDict
 
-import options.options as option
+import config.config as option
 import utils.util as util
 from data.util import bgr2ycbcr
 from data import create_dataset, create_dataloader
@@ -118,7 +118,7 @@ for test_loader in test_loaders:
                         format(img_name, num_res[0], num_res[1],num_res[2],flops,percent))
 
             else:
-                logger.info('{:20s} - PSNR: {:.6f} dB; SSIM: {:.6f}.'.format(img_name, psnr, ssim))
+                logger.info('{:20s} - PSNR: {:.6f} dB;.'.format(img_name, psnr))
 
         else:
             logger.info(img_name)

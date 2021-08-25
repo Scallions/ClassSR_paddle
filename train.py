@@ -9,9 +9,10 @@ import torch.distributed as dist
 import torch.multiprocessing as mp
 import paddle 
 import paddle.distributed as dist
+from paddle.distributed import fleet
 from data.data_sampler import DistIterSampler
 
-import options.options as option
+import config.config as option
 from utils import util
 from data import create_dataloader, create_dataset
 from models import create_model
@@ -19,19 +20,16 @@ import numpy as np
 
 def init_dist(backend='nccl', **kwargs):
     """initialization for distributed training"""
-    if mp.get_start_method(allow_none=True) != 'spawn':
-        mp.set_start_method('spawn')
     rank = int(os.environ['RANK'])
-    num_gpus = torch.cuda.device_count()
-    torch.cuda.set_device(rank % num_gpus)
-    dist.init_process_group(backend=backend, **kwargs)
+    strategy = fleet.DistributedStrategy()
+    fleet.init(is_collective=True, strategy=strategy)
 
 
 def main():
     #### options
     parser = argparse.ArgumentParser()
     parser.add_argument('-opt', type=str, help='Path to option YAML file.')
-    parser.add_argument('--launcher', choices=['none', 'pytorch'], default='none',
+    parser.add_argument('--launcher', choices=['none', 'fleet'], default='none',
                         help='job launcher')
     parser.add_argument('--local_rank', type=int, default=0)
     args = parser.parse_args()
@@ -46,13 +44,13 @@ def main():
         print('Disabled distributed training.')
     else:
         opt['dist'] = True
+        rank = 2
         init_dist()
-        world_size = torch.distributed.get_world_size()
-        rank = torch.distributed.get_rank()
 
     #### loading resume state if exists
     if opt['path'].get('resume_state', None):
         # distributed resuming: all load into default GPU
+        # TODO: resume
         device_id = torch.cuda.current_device()
         resume_state = torch.load(opt['path']['resume_state'],
                                   map_location=lambda storage, loc: storage.cuda(device_id))
@@ -75,14 +73,8 @@ def main():
         logger.info(option.dict2str(opt))
         # tensorboard logger
         if opt['use_tb_logger'] and 'debug' not in opt['name']:
-            version = float(torch.__version__[0:3])
-            if version >= 1.1:  # PyTorch 1.1
-                from torch.utils.tensorboard import SummaryWriter
-            else:
-                logger.info(
-                    'You are using PyTorch {}. Tensorboard will use [tensorboardX]'.format(version))
-                from tensorboardX import SummaryWriter
-            tb_logger = SummaryWriter(log_dir='../tb_logger/' + opt['name'])
+            from visualdl import LogWriter
+            tb_logger = LogWriter(logdir='../tb_logger/' + opt['name'])
     else:
         util.setup_logger('base', opt['path']['log'], 'train', level=logging.INFO, screen=True)
         logger = logging.getLogger('base')
@@ -98,9 +90,6 @@ def main():
         logger.info('Random seed: {}'.format(seed))
     util.set_random_seed(seed)
 
-    torch.backends.cudnn.benchmark = True
-    # torch.backends.cudnn.deterministic = True
-
     #### create train and val dataloader
     dataset_ratio = 200  # enlarge the size of each epoch
     for phase, dataset_opt in opt['datasets'].items():
@@ -110,8 +99,7 @@ def main():
             total_iters = int(opt['train']['niter'])
             total_epochs = int(math.ceil(total_iters / train_size))
             if opt['dist']:
-                train_sampler = DistIterSampler(train_set, world_size, rank, dataset_ratio)
-                total_epochs = int(math.ceil(total_iters / (train_size * dataset_ratio)))
+                train_sampler = DistIterSampler(train_set, 2, rank, dataset_ratio)
             else:
                 train_sampler = None
             train_loader = create_dataloader(train_set, dataset_opt, opt, train_sampler)
