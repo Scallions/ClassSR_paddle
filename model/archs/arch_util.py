@@ -1,10 +1,8 @@
-import torch
-import torch.nn as nn
-import torch.nn.init as init
-import torch.nn.functional as F
 import math
-
-from torch.autograd import Variable
+import paddle
+import paddle.nn as nn
+import paddle.nn.functional as F
+import initalize as init
 
 
 
@@ -12,18 +10,18 @@ def initialize_weights(net_l, scale=1):
     if not isinstance(net_l, list):
         net_l = [net_l]
     for net in net_l:
-        for m in net.modules():
-            if isinstance(m, nn.Conv2d):
+        for m in net.sublayers():
+            if isinstance(m, nn.Conv2D):
                 init.kaiming_normal_(m.weight, a=0, mode='fan_in')
                 m.weight.data *= scale  # for residual block
                 if m.bias is not None:
-                    m.bias.data.zero_()
+                    init.constant_(m.bias,value=0.)
             elif isinstance(m, nn.Linear):
                 init.kaiming_normal_(m.weight, a=0, mode='fan_in')
                 m.weight.data *= scale
                 if m.bias is not None:
-                    m.bias.data.zero_()
-            elif isinstance(m, nn.BatchNorm2d):
+                    init.constant_(m.bias,value=0.)
+            elif isinstance(m, nn.BatchNorm2D):
                 init.constant_(m.weight, 1)
                 init.constant_(m.bias.data, 0.0)
 
@@ -35,7 +33,7 @@ def make_layer(block, n_layers):
     return nn.Sequential(*layers)
 
 
-class ResidualBlock_noBN(nn.Module):
+class ResidualBlock_noBN(nn.Layer):
     '''Residual block w/o BN
     ---Conv-ReLU-Conv-+-
      |________________|
@@ -43,15 +41,18 @@ class ResidualBlock_noBN(nn.Module):
 
     def __init__(self, nf=64):
         super(ResidualBlock_noBN, self).__init__()
-        self.conv1 = nn.Conv2d(nf, nf, 3, 1, 1, bias=True)
-        self.conv2 = nn.Conv2d(nf, nf, 3, 1, 1, bias=True)
-
+        self.conv1 = nn.Conv2D(nf, nf, 3, 1, 1, bias_attr=True)
+        self.conv2 = nn.Conv2D(nf, nf, 3, 1, 1, bias_attr=True)
+        init.kaiming_normal_(self.conv1.weight, a=0, mode='fan_in')
+        init.constant_(self.conv1.bias, value=0.)
+        init.kaiming_normal_(self.conv2.weight, a=0, mode='fan_in')
+        init.constant_(self.conv2.bias, value=0.)
         # initialization
-        initialize_weights([self.conv1, self.conv2], 0.1)
+        #initialize_weights([self.conv1, self.conv2], scale=0.1)
 
     def forward(self, x):
         identity = x
-        out = F.relu(self.conv1(x), inplace=True)
+        out = F.relu(self.conv1(x))
         out = self.conv2(out)
         return identity + out
 
@@ -70,15 +71,15 @@ def flow_warp(x, flow, interp_mode='bilinear', padding_mode='zeros'):
     assert x.size()[-2:] == flow.size()[1:3]
     B, C, H, W = x.size()
     # mesh grid
-    grid_y, grid_x = torch.meshgrid(torch.arange(0, H), torch.arange(0, W))
-    grid = torch.stack((grid_x, grid_y), 2).float()  # W(x), H(y), 2
+    grid_y, grid_x = paddle.meshgrid(paddle.arange(0, H), paddle.arange(0, W))
+    grid = paddle.stack((grid_x, grid_y), 2).astype('float32') # W(x), H(y), 2
     grid.requires_grad = False
     grid = grid.type_as(x)
     vgrid = grid + flow
     # scale grid to [-1,1]
     vgrid_x = 2.0 * vgrid[:, :, :, 0] / max(W - 1, 1) - 1.0
     vgrid_y = 2.0 * vgrid[:, :, :, 1] / max(H - 1, 1) - 1.0
-    vgrid_scaled = torch.stack((vgrid_x, vgrid_y), dim=3)
+    vgrid_scaled = paddle.stack((vgrid_x, vgrid_y), axis=3)
     output = F.grid_sample(x, vgrid_scaled, mode=interp_mode, padding_mode=padding_mode)
     return output
 
@@ -86,17 +87,17 @@ def flow_warp(x, flow, interp_mode='bilinear', padding_mode='zeros'):
 
 # rcan arch
 def default_conv(in_channels, out_channels, kernel_size, bias=True):
-    return nn.Conv2d(
+    return nn.Conv2D(
         in_channels, out_channels, kernel_size,
-        padding=(kernel_size//2), bias=bias)
+        padding=(kernel_size//2), bias_attr=bias)
 
-class MeanShift(nn.Conv2d):
+class MeanShift(nn.Conv2D):
     def __init__(self, rgb_range, rgb_mean, rgb_std, sign=-1):
         super(MeanShift, self).__init__(3, 3, kernel_size=1)
-        std = torch.Tensor(rgb_std)
-        self.weight.data = torch.eye(3).view(3, 3, 1, 1)
+        std = paddle.to_tensor(rgb_std)
+        self.weight.data = paddle.eye(3).view(3, 3, 1, 1)
         self.weight.data.div_(std.view(3, 1, 1, 1))
-        self.bias.data = sign * rgb_range * torch.Tensor(rgb_mean)
+        self.bias.data = sign * rgb_range * paddle.to_tensor(rgb_mean)
         self.bias.data.div_(std)
         self.requires_grad = False
 
@@ -105,15 +106,15 @@ class BasicBlock(nn.Sequential):
         self, in_channels, out_channels, kernel_size, stride=1, bias=False,
         bn=True, act=nn.ReLU(True)):
 
-        m = [nn.Conv2d(
+        m = [nn.Conv2D(
             in_channels, out_channels, kernel_size,
-            padding=(kernel_size//2), stride=stride, bias=bias)
+            padding=(kernel_size//2), stride=stride, bias_attr=bias)
         ]
-        if bn: m.append(nn.BatchNorm2d(out_channels))
+        if bn: m.append(nn.BatchNorm2D(out_channels))
         if act is not None: m.append(act)
         super(BasicBlock, self).__init__(*m)
 
-class ResBlock(nn.Module):
+class ResBlock(nn.Layer):
     def __init__(
         self, conv, n_feat, kernel_size,
         bias=True, bn=False, act=nn.ReLU(True), res_scale=1):
@@ -122,7 +123,7 @@ class ResBlock(nn.Module):
         m = []
         for i in range(2):
             m.append(conv(n_feat, n_feat, kernel_size, bias=bias))
-            if bn: m.append(nn.BatchNorm2d(n_feat))
+            if bn: m.append(nn.BatchNorm2D(n_feat))
             if i == 0: m.append(act)
 
         self.body = nn.Sequential(*m)
@@ -142,31 +143,33 @@ class Upsampler(nn.Sequential):
             for _ in range(int(math.log(scale, 2))):
                 m.append(conv(n_feat, 4 * n_feat, 3, bias))
                 m.append(nn.PixelShuffle(2))
-                if bn: m.append(nn.BatchNorm2d(n_feat))
-                if act: m.append(act())
+                if bn: m.append(nn.BatchNorm2D(n_feat))
+                # TODO check original code act()
+                if act: m.append(act)
         elif scale == 3:
             m.append(conv(n_feat, 9 * n_feat, 3, bias))
             m.append(nn.PixelShuffle(3))
-            if bn: m.append(nn.BatchNorm2d(n_feat))
-            if act: m.append(act())
+            if bn: m.append(nn.BatchNorm2D(n_feat))
+            # TODO check original code act()
+            if act: m.append(act)
         else:
             raise NotImplementedError
 
         super(Upsampler, self).__init__(*m)
 
 
-class EResidualBlock(nn.Module):
+class EResidualBlock(nn.Layer):
     def __init__(self,
                  in_channels, out_channels,
                  group=1):
         super(EResidualBlock, self).__init__()
 
         self.body = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, 3, 1, 1, groups=group),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(out_channels, out_channels, 3, 1, 1, groups=group),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(out_channels, out_channels, 1, 1, 0),
+            nn.Conv2D(in_channels, out_channels, 3, 1, 1, groups=group),
+            nn.ReLU(),
+            nn.Conv2D(out_channels, out_channels, 3, 1, 1, groups=group),
+            nn.ReLU(),
+            nn.Conv2D(out_channels, out_channels, 1, 1, 0),
         )
 
     def forward(self, x):
@@ -183,20 +186,22 @@ class Upsampler(nn.Sequential):
             for _ in range(int(math.log(scale, 2))):
                 m.append(conv(n_feat, 4 * n_feat, 3, bias))
                 m.append(nn.PixelShuffle(2))
-                if bn: m.append(nn.BatchNorm2d(n_feat))
-                if act: m.append(act())
+                if bn: m.append(nn.BatchNorm2D(n_feat))
+                # TODO check act
+                if act: m.append(act)
         elif scale == 3:
             m.append(conv(n_feat, 9 * n_feat, 3, bias))
             m.append(nn.PixelShuffle(3))
-            if bn: m.append(nn.BatchNorm2d(n_feat))
-            if act: m.append(act())
+            if bn: m.append(nn.BatchNorm2D(n_feat))
+            # TODO check act
+            if act: m.append(act)
         else:
             raise NotImplementedError
 
         super(Upsampler, self).__init__(*m)
 
 
-class UpsampleBlock(nn.Module):
+class UpsampleBlock(nn.Layer):
     def __init__(self,
                  n_channels, scale, multi_scale,
                  group=1):
@@ -223,7 +228,7 @@ class UpsampleBlock(nn.Module):
             return self.up(x)
 
 
-class _UpsampleBlock(nn.Module):
+class _UpsampleBlock(nn.Layer):
     def __init__(self,
                  n_channels, scale,
                  group=1):
@@ -232,10 +237,10 @@ class _UpsampleBlock(nn.Module):
         modules = []
         if scale == 2 or scale == 4 or scale == 8:
             for _ in range(int(math.log(scale, 2))):
-                modules += [nn.Conv2d(n_channels, 4 * n_channels, 3, 1, 1, groups=group), nn.ReLU(inplace=True)]
+                modules += [nn.Conv2D(n_channels, 4 * n_channels, 3, 1, 1, groups=group), nn.ReLU(inplace=True)]
                 modules += [nn.PixelShuffle(2)]
         elif scale == 3:
-            modules += [nn.Conv2d(n_channels, 9 * n_channels, 3, 1, 1, groups=group), nn.ReLU(inplace=True)]
+            modules += [nn.Conv2D(n_channels, 9 * n_channels, 3, 1, 1, groups=group), nn.ReLU(inplace=True)]
             modules += [nn.PixelShuffle(3)]
 
         self.body = nn.Sequential(*modules)
@@ -259,14 +264,14 @@ def flow_warp(x, flow, interp_mode='bilinear', padding_mode='zeros'):
     assert x.size()[-2:] == flow.size()[1:3]
     B, C, H, W = x.size()
     # mesh grid
-    grid_y, grid_x = torch.meshgrid(torch.arange(0, H), torch.arange(0, W))
-    grid = torch.stack((grid_x, grid_y), 2).float()  # W(x), H(y), 2
+    grid_y, grid_x = paddle.meshgrid(paddle.arange(0, H), paddle.arange(0, W))
+    grid = paddle.stack((grid_x, grid_y), 2).astype('float32')  # W(x), H(y), 2
     grid.requires_grad = False
     grid = grid.type_as(x)
     vgrid = grid + flow
     # scale grid to [-1,1]
     vgrid_x = 2.0 * vgrid[:, :, :, 0] / max(W - 1, 1) - 1.0
     vgrid_y = 2.0 * vgrid[:, :, :, 1] / max(H - 1, 1) - 1.0
-    vgrid_scaled = torch.stack((vgrid_x, vgrid_y), dim=3)
+    vgrid_scaled = paddle.stack((vgrid_x, vgrid_y), axis=3)
     output = F.grid_sample(x, vgrid_scaled, mode=interp_mode, padding_mode=padding_mode)
     return output
