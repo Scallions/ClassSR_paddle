@@ -1,4 +1,4 @@
-import torch
+import paddle
 import models.archs.SRResNet_arch as SRResNet_arch
 import models.archs.classSR_fsrcnn_arch as classSR_3class_arch
 import models.archs.classSR_rcan_arch as classSR_rcan_arch

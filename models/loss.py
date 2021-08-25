@@ -1,5 +1,5 @@
-import torch
-import torch.nn as nn
+import paddle
+import paddle.nn as nn
 
 class class_loss_3class(nn.Module):
     #Class loss
@@ -46,7 +46,7 @@ class CharbonnierLoss(nn.Module):
 
     def forward(self, x, y):
         diff = x - y
-        loss = torch.sum(torch.sqrt(diff * diff + self.eps))
+        loss = paddle.sum(paddle.sqrt(diff * diff + self.eps))
         return loss
 
 
@@ -76,9 +76,9 @@ class GANLoss(nn.Module):
         if self.gan_type == 'wgan-gp':
             return target_is_real
         if target_is_real:
-            return torch.empty_like(input).fill_(self.real_label_val)
+            return paddle.empty_like(input).fill_(self.real_label_val)
         else:
-            return torch.empty_like(input).fill_(self.fake_label_val)
+            return paddle.empty_like(input).fill_(self.fake_label_val)
 
     def forward(self, input, target_is_real):
         target_label = self.get_target_label(input, target_is_real)
@@ -87,10 +87,11 @@ class GANLoss(nn.Module):
 
 
 class GradientPenaltyLoss(nn.Module):
-    def __init__(self, device=torch.device('cpu')):
+    def __init__(self, device='cpu'):
         super(GradientPenaltyLoss, self).__init__()
-        self.register_buffer('grad_outputs', torch.Tensor())
-        self.grad_outputs = self.grad_outputs.to(device)
+        self.register_buffer('grad_outputs', paddle.Tensor())
+        # TODO: device
+        self.grad_outputs = self.grad_outputs.set_device(device)
 
     def get_grad_outputs(self, input):
         if self.grad_outputs.size() != input.size():
@@ -99,7 +100,8 @@ class GradientPenaltyLoss(nn.Module):
 
     def forward(self, interp, interp_crit):
         grad_outputs = self.get_grad_outputs(interp_crit)
-        grad_interp = torch.autograd.grad(outputs=interp_crit, inputs=interp,
+        # TODO: grad
+        grad_interp = paddle.autograd.grad(outputs=interp_crit, inputs=interp,
                                           grad_outputs=grad_outputs, create_graph=True,
                                           retain_graph=True, only_inputs=True)[0]
         grad_interp = grad_interp.view(grad_interp.size(0), -1)

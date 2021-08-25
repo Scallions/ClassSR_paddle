@@ -7,7 +7,6 @@ import models.networks as networks
 import models.lr_scheduler as lr_scheduler
 from .base_model import BaseModel
 from models.loss import CharbonnierLoss,class_loss_3class,average_loss_3class
-from torchsummary import summary
 from models.archs import arch_util
 import cv2
 import numpy as np
@@ -167,9 +166,9 @@ class ClassSR_Model(BaseModel):
             if img.shape[2] > 3:
                 img = img[:, :, :3]
             img = img[:, :, [2, 1, 0]]
-            img = torch.from_numpy(np.ascontiguousarray(np.transpose(img, (2, 0, 1)))).float()[None, ...].to(
+            img = paddle.to_tensor(np.ascontiguousarray(np.transpose(img, (2, 0, 1)))).float()[None, ...].to(
                 self.device)
-            with torch.no_grad():
+            with paddle.no_grad():
                 srt, type = self.netG(img, False)
 
             if self.which_model == 'classSR_3class_rcan':
@@ -181,10 +180,10 @@ class ClassSR_Model(BaseModel):
             if index == 0:
                 type_res = type
             else:
-                type_res = torch.cat((type_res, type), 0)
+                type_res = paddle.concat((type_res, type), 0)
 
             psnr=util.calculate_psnr(sr_img, GT_img)
-            flag=torch.max(type, 1)[1].data.squeeze()
+            flag=paddle.max(type, 1)[1].data.squeeze()
             if flag == 0:
                 psnr_type1 += psnr
             if flag == 1:
@@ -325,17 +324,17 @@ class ClassSR_Model(BaseModel):
                          i * step * self.scale + patch_size * self.scale - 9]  # xl,yl,xr,yr
                 zeros1 = np.zeros((sr_img.shape), 'float32')
 
-                if torch.max(type, 1)[1].data.squeeze()[index2] == 0:
+                if paddle.max(type, 1)[1].data.squeeze()[index2] == 0:
                     # mask1 = cv2.rectangle(zeros1, (bbox1[0], bbox1[1]), (bbox1[2], bbox1[3]),
                     #                      color=(0, 0, 0), thickness=1)
                     mask2 = cv2.rectangle(zeros1, (bbox1[0]+1, bbox1[1]+1), (bbox1[2]-1, bbox1[3]-1),
                                          color=(0, 255, 0), thickness=-1)# simple green
-                elif torch.max(type, 1)[1].data.squeeze()[index2] == 1:
+                elif paddle.max(type, 1)[1].data.squeeze()[index2] == 1:
                     # mask1 = cv2.rectangle(zeros1, (bbox1[0], bbox1[1]), (bbox1[2], bbox1[3]),
                     #                       color=(0, 0, 0), thickness=1)
                     mask2 = cv2.rectangle(zeros1, (bbox1[0]+1, bbox1[1]+1), (bbox1[2]-1, bbox1[3]-1),
                                           color=(0, 255, 255), thickness=-1)# medium yellow
-                elif torch.max(type, 1)[1].data.squeeze()[index2] == 2:
+                elif paddle.max(type, 1)[1].data.squeeze()[index2] == 2:
                     # mask1 = cv2.rectangle(zeros1, (bbox1[0], bbox1[1]), (bbox1[2], bbox1[3]),
                     #                       color=(0, 0, 0), thickness=1)
                     mask2 = cv2.rectangle(zeros1, (bbox1[0]+1, bbox1[1]+1), (bbox1[2]-1, bbox1[3]-1),
@@ -351,7 +350,7 @@ class ClassSR_Model(BaseModel):
         num1 = 0
         num2 = 0
 
-        for i in torch.max(type_res, 1)[1].data.squeeze():
+        for i in paddle.max(type_res, 1)[1].data.squeeze():
             if i == 0:
                 num0 += 1
             if i == 1:

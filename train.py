@@ -4,9 +4,6 @@ import argparse
 import random
 import logging
 
-import torch
-import torch.distributed as dist
-import torch.multiprocessing as mp
 import paddle 
 import paddle.distributed as dist
 from paddle.distributed import fleet
@@ -21,6 +18,7 @@ import numpy as np
 def init_dist(backend='nccl', **kwargs):
     """initialization for distributed training"""
     rank = int(os.environ['RANK'])
+    paddle.device.set_device(f"gpu:{rank}")
     strategy = fleet.DistributedStrategy()
     fleet.init(is_collective=True, strategy=strategy)
 
@@ -44,15 +42,16 @@ def main():
         print('Disabled distributed training.')
     else:
         opt['dist'] = True
-        rank = 2
+        rank = paddle.distributed.ParallelEnv().rank
+        world_size = paddle.distributed.ParallelEnv().world_size
         init_dist()
 
     #### loading resume state if exists
     if opt['path'].get('resume_state', None):
         # distributed resuming: all load into default GPU
         # TODO: resume
-        device_id = torch.cuda.current_device()
-        resume_state = torch.load(opt['path']['resume_state'],
+        device_id = paddle.distributed.ParallelEnv().device_id
+        resume_state = paddle.load(opt['path']['resume_state'],
                                   map_location=lambda storage, loc: storage.cuda(device_id))
         option.check_resume(opt, resume_state['iter'])  # check resume options
     else:
@@ -99,7 +98,8 @@ def main():
             total_iters = int(opt['train']['niter'])
             total_epochs = int(math.ceil(total_iters / train_size))
             if opt['dist']:
-                train_sampler = DistIterSampler(train_set, 2, rank, dataset_ratio)
+                train_sampler = DistIterSampler(train_set, world_size, rank, dataset_ratio)
+                total_epochs = int(math.ceil(total_iters / (train_size * dataset_ratio)))
             else:
                 train_sampler = None
             train_loader = create_dataloader(train_set, dataset_opt, opt, train_sampler)
@@ -181,7 +181,7 @@ def main():
                             idx_d, max_idx = val_data['idx'].split('/')
                             idx_d, max_idx = int(idx_d), int(max_idx)
                             if psnr_rlt.get(folder, None) is None:
-                                psnr_rlt[folder] = torch.zeros(max_idx, dtype=torch.float32,
+                                psnr_rlt[folder] = paddle.zeros(max_idx, dtype=paddle.float32,
                                                                device='cuda')
                             # tmp = torch.zeros(max_idx, dtype=torch.float32, device='cuda')
                             model.feed_data(val_data)
@@ -204,7 +204,7 @@ def main():
                             psnr_rlt_avg = {}
                             psnr_total_avg = 0.
                             for k, v in psnr_rlt.items():
-                                psnr_rlt_avg[k] = torch.mean(v).cpu().item()
+                                psnr_rlt_avg[k] = paddle.mean(v).cpu().item()
                                 psnr_total_avg += psnr_rlt_avg[k]
                             psnr_total_avg /= len(psnr_rlt)
                             log_s = '# Validation # PSNR: {:.4e}:'.format(psnr_total_avg)
@@ -249,7 +249,6 @@ def main():
                             tb_logger.add_scalar('psnr_avg', psnr_total_avg, current_step)
                             for k, v in psnr_rlt_avg.items():
                                 tb_logger.add_scalar(k, v, current_step)
-
                 else:
                     # does not support multi-GPU validation
                     pbar = util.ProgressBar(len(val_loader))
@@ -262,10 +261,8 @@ def main():
                         img_name = os.path.splitext(os.path.basename(val_data['LQ_path'][0]))[0]
                         img_dir = os.path.join(opt['path']['val_images'], img_name)
                         util.mkdir(img_dir)
-
                         model.feed_data(val_data)
                         model.test()
-
                         visuals = model.get_current_visuals()
                         sr_img = visuals['rlt'] # uint8
                         gt_img = visuals['GT'] # uint8
@@ -274,17 +271,13 @@ def main():
                         num_ress[0] += num_res[0]
                         num_ress[1] += num_res[1]
                         num_ress[2] += num_res[2]
-
                         psnr_ress[0] += psnr_res[0]
                         psnr_ress[1] += psnr_res[1]
                         psnr_ress[2] += psnr_res[2]
-
-
                         # Save SR images for reference
                         save_img_path = os.path.join(img_dir,
                                                      '{:s}_{:d}.png'.format(img_name, current_step))
                         util.save_img(sr_img, save_img_path)
-
                         # calculate PSNR
                         sr_img, gt_img = util.crop_border([sr_img, gt_img], opt['scale'])
                         avg_psnr += util.calculate_psnr(sr_img, gt_img)
@@ -316,8 +309,6 @@ def main():
                         tb_logger.add_scalar('Class1_PSNR', psnr_ress[0]/num_ress[0], current_step)
                         tb_logger.add_scalar('Class1_PSNR', psnr_ress[1]/num_ress[1], current_step)
                         tb_logger.add_scalar('class1_PSNR', psnr_ress[2]/num_ress[2], current_step)
-
-
 
             #### save models and training states
             if current_step % opt['logger']['save_checkpoint_freq'] == 0:

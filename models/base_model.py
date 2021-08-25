@@ -1,14 +1,13 @@
 import os
 from collections import OrderedDict
-import torch
-import torch.nn as nn
-from torch.nn.parallel import DistributedDataParallel
+import paddle 
+import paddle.nn as nn
 
 
 class BaseModel():
     def __init__(self, opt):
         self.opt = opt
-        self.device = torch.device('cuda' if opt['gpu_ids'] is not None else 'cpu')
+        self.device = 'cuda' if opt['gpu_ids'] is not None else 'cpu'
         self.is_train = opt['is_train']
         self.schedulers = []
         self.optimizers = []
@@ -67,24 +66,25 @@ class BaseModel():
 
     def get_network_description(self, network):
         """Get the string and total parameters of the network"""
-        if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
-            network = network.module
+        # if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
+        #     network = network.module
         return str(network), sum(map(lambda x: x.numel(), network.parameters()))
 
     def save_network(self, network, network_label, iter_label):
         save_filename = '{}_{}.pth'.format(iter_label, network_label)
         save_path = os.path.join(self.opt['path']['models'], save_filename)
-        if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
-            network = network.module
+        # TODO: 对并行save
+        # if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
+        #     network = network.module
         state_dict = network.state_dict()
         for key, param in state_dict.items():
             state_dict[key] = param.cpu()
-        torch.save(state_dict, save_path)
+        paddle.save(state_dict, save_path)
 
     def load_network(self, load_path, network, strict=True):
-        if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
-            network = network.module
-        load_net = torch.load(load_path)
+        # if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
+        #     network = network.module
+        load_net = paddle.load(load_path)
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():
             if k.startswith('module.'):
@@ -94,9 +94,9 @@ class BaseModel():
         network.load_state_dict(load_net_clean, strict=strict)
 
     def load_network_classifier(self,load_path, network, strict=True):
-        if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
-            network = network.module.classifier
-        load_net = torch.load(load_path)
+        # if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
+        #     network = network.module.classifier
+        load_net = paddle.load(load_path)
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():
             if k.startswith('module.'):
@@ -106,9 +106,9 @@ class BaseModel():
         network.load_state_dict(load_net_clean, strict=strict)
 
     def load_network_classifier_rcan(self, load_path, network, strict=True):
-        if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
-            network1 = network.module.classifier
-        load_net = torch.load(load_path)
+        # if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
+        #     network = network.module.classifier
+        load_net = paddle.load(load_path)
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():
             if k.startswith('classifier'):
@@ -116,12 +116,12 @@ class BaseModel():
                 load_net_clean[k[11:]] = v
             else:
                 pass
-        network1.load_state_dict(load_net_clean, strict=strict)
+        network.load_state_dict(load_net_clean, strict=strict)
 
     def load_network_classifier_(self, load_path, network, strict=True):
-        if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
-            network1 = network.module
-        load_net = torch.load(load_path)
+        # if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
+        #     network = network.module
+        load_net = paddle.load(load_path)
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():
             if k.startswith('classifier'):
@@ -129,14 +129,14 @@ class BaseModel():
                 load_net_clean[k[11:]] = v
             else:
                 pass
-        network1.load_state_dict(load_net_clean, strict=strict)
+        network.load_state_dict(load_net_clean, strict=strict)
 
     def load_network_classSR_2class(self,load_path, network, strict=True):
 
         if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
             network1 = network.module.net1
             network2 = network.module.net2
-        load_net = torch.load(load_path[0])
+        load_net = paddle.load(load_path[0])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():
             if k.startswith('module.'):
@@ -145,7 +145,7 @@ class BaseModel():
                 load_net_clean[k] = v
         network1.load_state_dict(load_net_clean, strict=strict)
 
-        load_net = torch.load(load_path[1])
+        load_net = paddle.load(load_path[1])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():
             if k.startswith('module.'):
@@ -160,7 +160,7 @@ class BaseModel():
             network1 = network.module.net1
             network2 = network.module.net2
             network3 = network.module.net3
-        load_net = torch.load(load_path[0])
+        load_net = paddle.load(load_path[0])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():
             if k.startswith('module.'):
@@ -169,7 +169,7 @@ class BaseModel():
                 load_net_clean[k] = v
         network1.load_state_dict(load_net_clean, strict=strict)
 
-        load_net = torch.load(load_path[1])
+        load_net = paddle.load(load_path[1])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():
             if k.startswith('module.'):
@@ -178,7 +178,7 @@ class BaseModel():
                 load_net_clean[k] = v
         network2.load_state_dict(load_net_clean, strict=strict)
 
-        load_net = torch.load(load_path[2])
+        load_net = paddle.load(load_path[2])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():
             if k.startswith('module.'):
@@ -195,7 +195,7 @@ class BaseModel():
             network3 = network.module.net3
             network4 = network.module.net4
 
-        load_net = torch.load(load_path[0])
+        load_net = paddle.load(load_path[0])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():
             if k.startswith('module.'):
@@ -204,7 +204,7 @@ class BaseModel():
                 load_net_clean[k] = v
         network1.load_state_dict(load_net_clean, strict=strict)
 
-        load_net = torch.load(load_path[1])
+        load_net = paddle.load(load_path[1])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():
             if k.startswith('module.'):
@@ -213,7 +213,7 @@ class BaseModel():
                 load_net_clean[k] = v
         network2.load_state_dict(load_net_clean, strict=strict)
 
-        load_net = torch.load(load_path[2])
+        load_net = paddle.load(load_path[2])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():
             if k.startswith('module.'):
@@ -222,7 +222,7 @@ class BaseModel():
                 load_net_clean[k] = v
         network3.load_state_dict(load_net_clean, strict=strict)
 
-        load_net = torch.load(load_path[3])
+        load_net = paddle.load(load_path[3])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():
             if k.startswith('module.'):
@@ -239,7 +239,7 @@ class BaseModel():
             network3 = network.module.net3
             network4 = network.module.net4
             network5 = network.module.net5
-        load_net = torch.load(load_path[0])
+        load_net = paddle.load(load_path[0])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():
             if k.startswith('module.'):
@@ -248,7 +248,7 @@ class BaseModel():
                 load_net_clean[k] = v
         network1.load_state_dict(load_net_clean, strict=strict)
 
-        load_net = torch.load(load_path[1])
+        load_net = paddle.load(load_path[1])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():
             if k.startswith('module.'):
@@ -257,7 +257,7 @@ class BaseModel():
                 load_net_clean[k] = v
         network2.load_state_dict(load_net_clean, strict=strict)
 
-        load_net = torch.load(load_path[2])
+        load_net = paddle.load(load_path[2])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():
             if k.startswith('module.'):
@@ -266,7 +266,7 @@ class BaseModel():
                 load_net_clean[k] = v
         network3.load_state_dict(load_net_clean, strict=strict)
 
-        load_net = torch.load(load_path[3])
+        load_net = paddle.load(load_path[3])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():
             if k.startswith('module.'):
@@ -275,7 +275,7 @@ class BaseModel():
                 load_net_clean[k] = v
         network4.load_state_dict(load_net_clean, strict=strict)
 
-        load_net = torch.load(load_path[4])
+        load_net = paddle.load(load_path[4])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():
             if k.startswith('module.'):
@@ -295,7 +295,7 @@ class BaseModel():
             state['optimizers'].append(o.state_dict())
         save_filename = '{}.state'.format(iter_step)
         save_path = os.path.join(self.opt['path']['training_state'], save_filename)
-        torch.save(state, save_path)
+        paddle.save(state, save_path)
 
     def resume_training(self, resume_state):
         """Resume the optimizers and schedulers for training"""

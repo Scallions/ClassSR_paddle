@@ -7,7 +7,6 @@ import models.networks as networks
 import models.lr_scheduler as lr_scheduler
 from .base_model import BaseModel
 from models.loss import CharbonnierLoss
-from torchsummary import summary
 import utils.util as util
 import time
 
