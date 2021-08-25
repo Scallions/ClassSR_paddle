@@ -78,7 +78,7 @@ class Classifier(nn.Layer):
     def forward(self, x):
         out = self.CondNet(x)
         out = nn.AvgPool2D(out.shape[2])(out)
-        out = out.view(out.shape[0], -1)
+        out = out.reshape((out.shape[0], -1))
         out = self.lastOut(out)
         return out
 
