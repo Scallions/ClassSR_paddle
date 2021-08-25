@@ -1,18 +1,18 @@
 import math
-import torch.nn as nn
+import paddle.nn as nn
 import models.archs.arch_util as arch_util
 
 ## Channel Attention (CA) Layer
-class CALayer(nn.Module):
+class CALayer(nn.Layer):
     def __init__(self, channel, reduction=16):
         super(CALayer, self).__init__()
         # global average pooling: feature --> point
-        self.avg_pool = nn.AdaptiveAvgPool2d(1)
+        self.avg_pool = nn.AdaptiveAvgPool2D(1)
         # feature channel downscale and upscale --> channel weight
         self.conv_du = nn.Sequential(
-                nn.Conv2d(channel, channel // reduction, 1, padding=0, bias=True),
-                nn.ReLU(inplace=True),
-                nn.Conv2d(channel // reduction, channel, 1, padding=0, bias=True),
+                nn.Conv2D(channel, channel // reduction, 1, padding=0, bias_attr=True),
+                nn.ReLU(),
+                nn.Conv2D(channel // reduction, channel, 1, padding=0, bias_attr=True),
                 nn.Sigmoid()
         )
 
@@ -22,7 +22,7 @@ class CALayer(nn.Module):
         return x * y
 
 ## Residual Channel Attention Block (RCAB)
-class RCAB(nn.Module):
+class RCAB(nn.Layer):
     def __init__(
         self, conv, n_feat, kernel_size, reduction,
         bias=True, bn=False, act=nn.ReLU(True), res_scale=1):
@@ -31,7 +31,7 @@ class RCAB(nn.Module):
         modules_body = []
         for i in range(2):
             modules_body.append(conv(n_feat, n_feat, kernel_size, bias=bias))
-            if bn: modules_body.append(nn.BatchNorm2d(n_feat))
+            if bn: modules_body.append(nn.BatchNorm2D(n_feat))
             if i == 0: modules_body.append(act)
         modules_body.append(CALayer(n_feat, reduction))
         self.body = nn.Sequential(*modules_body)
@@ -44,7 +44,7 @@ class RCAB(nn.Module):
         return res
 
 ## Residual Group (RG)
-class ResidualGroup(nn.Module):
+class ResidualGroup(nn.Layer):
     def __init__(self, conv, n_feat, kernel_size, reduction, act, res_scale, n_resblocks):
         super(ResidualGroup, self).__init__()
         modules_body = []
@@ -68,20 +68,21 @@ class Upsampler(nn.Sequential):
             for _ in range(int(math.log(scale, 2))):
                 m.append(conv(n_feat, 4 * n_feat, 3, bias))
                 m.append(nn.PixelShuffle(2))
-                if bn: m.append(nn.BatchNorm2d(n_feat))
-                if act: m.append(act())
+                if bn: m.append(nn.BatchNorm2D(n_feat))
+                # TODO check act
+                if act: m.append(act)
         elif scale == 3:
             m.append(conv(n_feat, 9 * n_feat, 3, bias))
             m.append(nn.PixelShuffle(3))
-            if bn: m.append(nn.BatchNorm2d(n_feat))
-            if act: m.append(act())
+            if bn: m.append(nn.BatchNorm2D(n_feat))
+            if act: m.append(act)
         else:
             raise NotImplementedError
 
         super(Upsampler, self).__init__(*m)
 
 ## Residual Channel Attention Network (RCAN)
-class RCAN(nn.Module):
+class RCAN(nn.Layer):
     ''' modified RCAN '''
     
     def __init__(self, n_resgroups, n_resblocks, n_feats, res_scale, n_colors, rgb_range, scale, reduction, conv=arch_util.default_conv):

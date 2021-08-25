@@ -3,52 +3,56 @@ import paddle.nn as nn
 import paddle.nn.functional as F
 import models.archs.arch_util as arch_util
 import paddle
-from models.archs.RCAN_arch import RCAN
+from models.archs.FSRCNN_arch import FSRCNN_net
 import numpy as np
 import time
 
-class classSR_3class_rcan(nn.Layer):
+class classSR_3class_fsrcnn_net(nn.Layer):
     def __init__(self, in_nc=3, out_nc=3):
-        super(classSR_3class_rcan, self).__init__()
+        super(classSR_3class_fsrcnn_net, self).__init__()
         self.upscale=4
         self.classifier=Classifier()
-
-        self.net1 = RCAN(n_resgroups=10, n_resblocks=20, n_feats=36, res_scale=1, n_colors=3, rgb_range=1,
-                         scale=4, reduction=16)
-        self.net2 = RCAN(n_resgroups=10, n_resblocks=20, n_feats=50, res_scale=1, n_colors=3, rgb_range=1,
-                         scale=4, reduction=16)
-        self.net3 = RCAN(n_resgroups=10, n_resblocks=20, n_feats=64, res_scale=1, n_colors=3, rgb_range=1,
-                         scale=4, reduction=16)
+        self.net1 = FSRCNN_net(in_nc,self.upscale,16,12,4)
+        self.net2 = FSRCNN_net(in_nc,self.upscale,36,12,4)
+        self.net3 = FSRCNN_net(in_nc,self.upscale,56,12,4)
 
     def forward(self, x,is_train):
         if is_train:
-            self.net1.eval()
-            self.net2.eval()
-            self.net3.eval()
-            class_type = self.classifier(x/255.)
-            p = F.softmax(class_type, axis=1)
-            out1 = self.net1(x)
-            out2 = self.net2(x)
-            out3 = self.net3(x)
-
-            p1 = p[:, 0].unsqueeze(1).unsqueeze(2).unsqueeze(3)
-            p2 = p[:, 1].unsqueeze(1).unsqueeze(2).unsqueeze(3)
-            p3 = p[:, 2].unsqueeze(1).unsqueeze(2).unsqueeze(3)
-            out = p1 * out1 + p2 * out2 + p3 * out3
-            return out, p
-        else:
             for i in range(len(x)):
-                type = self.classifier(x[i].unsqueeze(0)/255.) #rcan
+                # print(x[i].unsqueeze(0).shape)
+                type = self.classifier(x[i].unsqueeze(0))
+                p = F.softmax(type, axis=1)
+                p1 = p[0][0]
+                p2 = p[0][1]
+                p3 = p[0][2]
+
+                out1 = self.net1(x[i].unsqueeze(0))
+                out2 = self.net2(x[i].unsqueeze(0))
+                out3 = self.net3(x[i].unsqueeze(0))
+
+
+                out = out1 * p1 + out2 * p2 + out3 * p3
+
+                if i == 0:
+                    out_res = out
+                    type_res = p
+                else:
+                    out_res = paddle.concat((out_res, out), 0)
+                    type_res = paddle.concat((type_res, p), 0)
+        else:
+
+            for i in range(len(x)):
+                type = self.classifier(x[i].unsqueeze(0))
 
                 flag = paddle.max(type, 1)[1].squeeze()
-                p = F.softmax(type, axis=1)
-                # flag=np.random.randint(0,2)
-                #flag=0
+                p = F.softmax(type,axis=1)
+                #flag=np.random.randint(0,2)
+                #flag=2
                 if flag == 0:
                     out = self.net1(x[i].unsqueeze(0))
-                elif flag == 1:
+                elif flag==1:
                     out = self.net2(x[i].unsqueeze(0))
-                elif flag == 2:
+                elif flag==2:
                     out = self.net3(x[i].unsqueeze(0))
                 if i == 0:
                     out_res = out
@@ -79,3 +83,5 @@ class Classifier(nn.Layer):
         out = out.view(out.size(0), -1)
         out = self.lastOut(out)
         return out
+
+
