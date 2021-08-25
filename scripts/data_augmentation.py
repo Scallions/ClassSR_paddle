@@ -4,7 +4,6 @@ import pickle
 import random
 import numpy as np
 import glob
-import torch
 import cv2
 import sys
 sys.path.append("..")
