@@ -104,7 +104,7 @@ class GradientPenaltyLoss(nn.Module):
         grad_interp = paddle.autograd.grad(outputs=interp_crit, inputs=interp,
                                           grad_outputs=grad_outputs, create_graph=True,
                                           retain_graph=True, only_inputs=True)[0]
-        grad_interp = grad_interp.view(grad_interp.size(0), -1)
+        grad_interp = grad_interp.reshape((grad_interp.size(0), -1))
         grad_interp_norm = grad_interp.norm(2, dim=1)
 
         loss = ((grad_interp_norm - 1)**2).mean()
