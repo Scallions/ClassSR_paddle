@@ -206,9 +206,6 @@ def make_grid(tensor, nrow=8, padding=2,
                 break
             grid = paddle.slice(grid,[1],[y * height + padding],[height - padding])
             grid = paddle.slice(grid,[2],[x * width + padding], [width - padding]).copy_(tensor[k])
-            #grid.narrow(1, y * height + padding, height - padding)\
-            #    .narrow(2, x * width + padding, width - padding)\
-            #    .copy_(tensor[k])
             k = k + 1
     return grid
 
