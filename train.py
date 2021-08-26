@@ -98,7 +98,9 @@ def main():
             total_iters = int(opt['train']['niter'])
             total_epochs = int(math.ceil(total_iters / train_size))
             if opt['dist']:
-                train_sampler = DistIterSampler(train_set, world_size, rank, dataset_ratio)
+                # train_sampler = DistIterSampler(train_set, world_size, rank, dataset_ratio)
+                train_sampler = paddle.io.DistributedBatchSampler(
+                    train_set, batch_size=dataset_opt['batch_size'], shuffle=True, drop_last=True)
                 total_epochs = int(math.ceil(total_iters / (train_size * dataset_ratio)))
             else:
                 train_sampler = None

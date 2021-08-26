@@ -1,19 +1,19 @@
 """
-Modified from torch.utils.data.distributed.DistributedSampler
+Modified from paddle.utils.data.distributed.DistributedSampler
 Support enlarging the dataset for *iteration-oriented* training, for saving time when restart the
 dataloader after each epoch
 """
 import math
-import torch
-from torch.utils.data.sampler import Sampler
-import torch.distributed as dist
+import paddle
+from paddle.io import Sampler
+import paddle.distributed as dist
 
 
 class DistIterSampler(Sampler):
     """Sampler that restricts data loading to a subset of the dataset.
 
     It is especially useful in conjunction with
-    :class:`torch.nn.parallel.DistributedDataParallel`. In such case, each
+    :class:`paddle.nn.parallel.DistributedDataParallel`. In such case, each
     process can pass a DistributedSampler instance as a DataLoader sampler,
     and load a subset of the original dataset that is exclusive to it.
 
@@ -45,9 +45,9 @@ class DistIterSampler(Sampler):
 
     def __iter__(self):
         # deterministically shuffle based on epoch
-        g = torch.Generator()
+        g = paddle.Generator()
         g.manual_seed(self.epoch)
-        indices = torch.randperm(self.total_size, generator=g).tolist()
+        indices = paddle.randperm(self.total_size, generator=g).tolist()
 
         dsize = len(self.dataset)
         indices = [v % dsize for v in indices]
