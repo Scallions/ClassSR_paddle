@@ -134,3 +134,6 @@ dataset/
 
 ## ide config
 .vscode/
+
+## train log ? dataset needed
+script/divide_train.log
