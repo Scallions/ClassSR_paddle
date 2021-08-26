@@ -220,11 +220,11 @@ class ClassSR_Model(BaseModel):
 
     def print_network(self):
         s, n = self.get_network_description(self.netG)
-        if isinstance(self.netG, nn.DataParallel) or isinstance(self.netG, DistributedDataParallel):
-            net_struc_str = '{} - {}'.format(self.netG.__class__.__name__,
-                                             self.netG.module.__class__.__name__)
-        else:
-            net_struc_str = '{}'.format(self.netG.__class__.__name__)
+        # if isinstance(self.netG, nn.DataParallel) or isinstance(self.netG, DistributedDataParallel):
+        #     net_struc_str = '{} - {}'.format(self.netG.__class__.__name__,
+        #                                      self.netG.module.__class__.__name__)
+        # else:
+        net_struc_str = '{}'.format(self.netG.__class__.__name__)
         if self.rank <= 0:
             logger.info('Network G structure: {}, with parameters: {:,d}'.format(net_struc_str, n))
             logger.info(s)

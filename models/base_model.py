@@ -133,9 +133,11 @@ class BaseModel():
 
     def load_network_classSR_2class(self,load_path, network, strict=True):
 
-        if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
-            network1 = network.module.net1
-            network2 = network.module.net2
+        # if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
+        #     network1 = network.module.net1
+        #     network2 = network.module.net2
+        network1 = network.net1
+        network2 = network.net2
         load_net = paddle.load(load_path[0])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():
@@ -156,10 +158,13 @@ class BaseModel():
 
     def load_network_classSR_3class(self,load_path, network, strict=True):
 
-        if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
-            network1 = network.module.net1
-            network2 = network.module.net2
-            network3 = network.module.net3
+        # if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
+        #     network1 = network.module.net1
+        #     network2 = network.module.net2
+        #     network3 = network.module.net3
+        network1 = network.net1
+        network2 = network.net2
+        network3 = network.net3
         load_net = paddle.load(load_path[0])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():
@@ -189,12 +194,15 @@ class BaseModel():
 
     def load_network_classSR_4class(self,load_path, network, strict=True):
 
-        if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
-            network1 = network.module.net1
-            network2 = network.module.net2
-            network3 = network.module.net3
-            network4 = network.module.net4
-
+        # if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
+        #     network1 = network.module.net1
+        #     network2 = network.module.net2
+        #     network3 = network.module.net3
+        #     network4 = network.module.net4
+        network1 = network.net1
+        network2 = network.net2
+        network3 = network.net3
+        network4 = network.net4
         load_net = paddle.load(load_path[0])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():
@@ -233,12 +241,17 @@ class BaseModel():
 
     def load_network_classSR_5class(self,load_path, network, strict=True):
 
-        if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
-            network1 = network.module.net1
-            network2 = network.module.net2
-            network3 = network.module.net3
-            network4 = network.module.net4
-            network5 = network.module.net5
+        # if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
+        #     network1 = network.module.net1
+        #     network2 = network.module.net2
+        #     network3 = network.module.net3
+        #     network4 = network.module.net4
+        #     network5 = network.module.net5
+        network1 = network.net1
+        network2 = network.net2
+        network3 = network.net3
+        network4 = network.net4
+        network5 = network.net5
         load_net = paddle.load(load_path[0])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
         for k, v in load_net.items():
