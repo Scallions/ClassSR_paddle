@@ -369,19 +369,19 @@ def calculate_weights_indices(in_length, out_length, scale, kernel, kernel_width
 
     # The indices of the input pixels involved in computing the k-th output
     # pixel are in row k of the indices matrix.
-    indices = left.view(out_length, 1).expand(out_length, P) + paddle.linspace(0, P - 1, P).view(
-        1, P).expand(out_length, P)
+    indices = left.reshape((out_length, 1)).expand(out_length, P) + paddle.linspace(0, P - 1, P).reshape((
+        1, P)).expand(out_length, P)
 
     # The weights used to compute the k-th output pixel are in row k of the
     # weights matrix.
-    distance_to_center = u.view(out_length, 1).expand(out_length, P) - indices
+    distance_to_center = u.reshape((out_length, 1)).expand(out_length, P) - indices
     # apply cubic kernel
     if (scale < 1) and (antialiasing):
         weights = scale * cubic(distance_to_center * scale)
     else:
         weights = cubic(distance_to_center)
     # Normalize the weights matrix so that each row sums to 1.
-    weights_sum = paddle.sum(weights, 1).view(out_length, 1)
+    weights_sum = paddle.sum(weights, 1).reshape((out_length, 1))
     weights = weights / weights_sum.expand(out_length, P)
 
     # If a column in weights is all zero, get rid of it. only consider the first and last column.
