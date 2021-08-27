@@ -524,7 +524,7 @@ def imresize_np(img, scale, antialiasing=True):
     inv_idx = paddle.arange(sym_patch.shape[0] - 1, -1, -1)
     sym_patch_inv = sym_patch.index_select(inv_idx, 0)
     # img_aug.narrow(0, sym_len_Hs + in_H, sym_len_He).copy_(sym_patch_inv)
-    img_aug[sym_len_Hs+in_H:sym_len_He+in_H+sym_len_He,:,:] = sym_patch_inv.astype("float32")
+    img_aug[sym_len_Hs+in_H:sym_len_Hs+in_H+sym_len_He,:,:] = sym_patch_inv.astype("float32")
 
     #out_1 = torch.FloatTensor(out_H, in_W, in_C)
     out_1 = paddle.zeros((out_H,in_W,in_C),paddle.float32)
