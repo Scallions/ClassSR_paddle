@@ -2,12 +2,12 @@ import math
 from collections import Counter
 from collections import defaultdict
 import paddle
-import torch
+# import torch
 #from paddle.optimizer.lr import LR
-from torch.optim.lr_scheduler import _LRScheduler
+# from torch.optim.lr_scheduler import _LRScheduler
+from paddle.optimizer.lr import LRScheduler
 
-
-class MultiStepLR_Restart(_LRScheduler):
+class MultiStepLR_Restart(LRScheduler):
     def __init__(self, optimizer, milestones, restarts=None, weights=None, gamma=0.1,
                  clear_state=False, last_epoch=-1):
         self.milestones = Counter(milestones)
@@ -34,7 +34,7 @@ class MultiStepLR_Restart(_LRScheduler):
         ]
 
 
-class CosineAnnealingLR_Restart(_LRScheduler):
+class CosineAnnealingLR_Restart(LRScheduler):
     def __init__(self, optimizer, T_period, restarts=None, weights=None, eta_min=0, last_epoch=-1):
         self.T_period = T_period
         self.T_max = self.T_period[0]  # current T period
@@ -43,13 +43,18 @@ class CosineAnnealingLR_Restart(_LRScheduler):
         self.restarts = [v + 1 for v in self.restarts]
         self.restart_weights = weights if weights else [1]
         self.last_restart = 0
+        # TODO: add optimizer
+        self.optimizer = optimizer
         assert len(self.restarts) == len(
             self.restart_weights), 'restarts and their weights do not match.'
-        super(CosineAnnealingLR_Restart, self).__init__(optimizer, last_epoch)
+        # TODO: change to paddle
+        super(CosineAnnealingLR_Restart, self).__init__(optimizer.get_lr(), last_epoch)
 
     def get_lr(self):
         if self.last_epoch == 0:
-            return self.base_lrs
+            # TODO: base lrs ?
+            # return self.base_lrs
+            return 1e-4
         elif self.last_epoch in self.restarts:
             self.last_restart = self.last_epoch
             self.T_max = self.T_period[self.restarts.index(self.last_epoch) + 1]
@@ -60,15 +65,17 @@ class CosineAnnealingLR_Restart(_LRScheduler):
                 group['lr'] + (base_lr - self.eta_min) * (1 - math.cos(math.pi / self.T_max)) / 2
                 for base_lr, group in zip(self.base_lrs, self.optimizer.param_groups)
             ]
+        # TODO: parameter list
         return [(1 + math.cos(math.pi * (self.last_epoch - self.last_restart) / self.T_max)) /
                 (1 + math.cos(math.pi * ((self.last_epoch - self.last_restart) - 1) / self.T_max)) *
                 (group['lr'] - self.eta_min) + self.eta_min
-                for group in self.optimizer.param_groups]
+                for group in self.optimizer._parameter_list]
+                # for group in self.optimizer.param_groups]
 
 
 if __name__ == "__main__":
-    optimizer = torch.optim.Adam([torch.zeros(3, 64, 3, 3)], lr=2e-4, weight_decay=0,
-                                 betas=(0.9, 0.99))
+    optimizer = paddle.optimizer.Adam(paddle.zeros(3, 64, 3, 3), learning_rate=2e-4, weight_decay=0,
+                                 beta1=0.9, beta2=0.99)
     ##############################
     # MultiStepLR_Restart
     ##############################

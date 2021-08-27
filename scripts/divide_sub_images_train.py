@@ -6,15 +6,15 @@ import shutil
 
 
 #divide training data
-LR_folder="/data0/xtkong/data/DIV2K_scale_sub/LR"
-GT_folder="/data0/xtkong/data/DIV2K_scale_sub/GT"
+LR_folder="dataset/DIV2K_scale_sub/LR"
+GT_folder="dataset/DIV2K_scale_sub/GT"
 
-save_list=["/data0/xtkong/data/DIV2K_scale_sub_psnr_LR_class3",
-           "/data0/xtkong/data/DIV2K_scale_sub_psnr_LR_class2",
-           "/data0/xtkong/data/DIV2K_scale_sub_psnr_LR_class1",
-           "/data0/xtkong/data/DIV2K_scale_sub_psnr_GT_class3",
-           "/data0/xtkong/data/DIV2K_scale_sub_psnr_GT_class2",
-           "/data0/xtkong/data/DIV2K_scale_sub_psnr_GT_class1"]
+save_list=["dataset/DIV2K_scale_sub_psnr_LR_class3",
+           "dataset/DIV2K_scale_sub_psnr_LR_class2",
+           "dataset/DIV2K_scale_sub_psnr_LR_class1",
+           "dataset/DIV2K_scale_sub_psnr_GT_class3",
+           "dataset/DIV2K_scale_sub_psnr_GT_class2",
+           "dataset/DIV2K_scale_sub_psnr_GT_class1"]
 for i in save_list:
     if os.path.exists(i):
         pass
@@ -23,7 +23,7 @@ for i in save_list:
 threshold=[27.16882,35.149761]
 
 #f1 = open("/data0/xtkong/ClassSR-github/codes/data_scripts/divide_val.log")
-f1 = open("/data0/xtkong/ClassSR-github/codes/data_scripts/divide_train.log")
+f1 = open("scripts/divide_train.log")
 a1 = f1.readlines()
 index=0
 for i in a1:

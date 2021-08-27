@@ -36,13 +36,16 @@ class ClassSR_Model(BaseModel):
         train_opt = opt['train']
 
         # define network and load pretrained models
-        self.netG = networks.define_G(opt).to(self.device)
+        # TODO: 切换设备
+        # self.netG = networks.define_G(opt).to(self.device)
+        self.netG = networks.define_G(opt)
 
         if opt['dist']:
             self.netG = fleet.distributed_model(self.netG)
         # print network
         self.print_network()
-        self.load()
+        # TODO: change no load
+        # self.load()
 
         if self.is_train:
             self.l1w = float(opt["train"]["l1w"])
@@ -53,17 +56,18 @@ class ClassSR_Model(BaseModel):
             self.netG.train()
 
             # loss
+            # TODO: remove to device
             loss_type = train_opt['pixel_criterion']
             if loss_type == 'l1':
-                self.cri_pix = nn.L1Loss().to(self.device)
+                self.cri_pix = nn.L1Loss()#.to(self.device)
             elif loss_type == 'l2':
-                self.cri_pix = nn.MSELoss().to(self.device)
+                self.cri_pix = nn.MSELoss()#.to(self.device)
             elif loss_type == 'cb':
-                self.cri_pix = CharbonnierLoss().to(self.device)
+                self.cri_pix = CharbonnierLoss()#.to(self.device)
             elif loss_type == 'ClassSR_loss':
-                self.cri_pix = nn.L1Loss().to(self.device)
-                self.class_loss = class_loss_3class().to(self.device)
-                self.average_loss = average_loss_3class().to(self.device)
+                self.cri_pix = nn.L1Loss()#.to(self.device)
+                self.class_loss = class_loss_3class()#.to(self.device)
+                self.average_loss = average_loss_3class()#.to(self.device)
             else:
                 raise NotImplementedError('Loss type [{:s}] is not recognized.'.format(loss_type))
 
@@ -73,19 +77,22 @@ class ClassSR_Model(BaseModel):
             optim_params = []
             if opt['fix_SR_module']:
                 for k, v in self.netG.named_parameters():  # can optimize for a part of the model
-                    if v.requires_grad and "class" not in k:
-                        v.requires_grad=False
+                    # if v.requires_grad and "class" not in k:
+                    if not v.stop_gradient and "class" not in k:
+                        # v.requires_grad=False
+                        v.stop_gradient = True
 
             for k, v in self.netG.named_parameters():  # can optimize for a part of the model
-                if v.requires_grad:
+                # if v.requires_grad:
+                if not v.stop_gradient:
                     optim_params.append(v)
                 else:
                     if self.rank <= 0:
                         logger.warning('Params [{:s}] will not optimize.'.format(k))
             # TODO: adam 参数设置
-            self.optimizer_G = paddle.optimizer.Adam(optim_params, learning_rate=train_opt['lr_G'],
+            self.optimizer_G = paddle.optimizer.Adam(parameters=optim_params, learning_rate=train_opt['lr_G'],
                                                 weight_decay=wd_G,
-                                                betas=(train_opt['beta1'], train_opt['beta2']))
+                                                beta1=train_opt['beta1'], beta2=train_opt['beta2'])
             if opt['dist']:
                 self.optimizer_G = fleet.distributed_optimizer(self.optimizer_G)
             self.optimizers.append(self.optimizer_G)
@@ -226,7 +233,7 @@ class ClassSR_Model(BaseModel):
         # else:
         net_struc_str = '{}'.format(self.netG.__class__.__name__)
         if self.rank <= 0:
-            logger.info('Network G structure: {}, with parameters: {:,d}'.format(net_struc_str, n))
+            logger.info('Network G structure: {}, with parameters: {:,d}'.format(net_struc_str, n.item()))
             logger.info(s)
 
     def load(self):

@@ -1,7 +1,7 @@
 import paddle
 import paddle.nn as nn
 
-class class_loss_3class(nn.Module):
+class class_loss_3class(nn.Layer):
     #Class loss
     def __init__(self):
         super(class_loss_3class, self).__init__()
@@ -17,7 +17,7 @@ class class_loss_3class(nn.Module):
         return loss / n
 
 
-class average_loss_3class(nn.Module):
+class average_loss_3class(nn.Layer):
     #Average loss
     def __init__(self):
         super(average_loss_3class, self).__init__()
@@ -37,7 +37,7 @@ class average_loss_3class(nn.Module):
 
         return (abs(sum1-n/m) + abs(sum2-n/m) + abs(sum3-n/m)) / ((n/m)*4)
 
-class CharbonnierLoss(nn.Module):
+class CharbonnierLoss(nn.Layer):
     """Charbonnier Loss (L1)"""
 
     def __init__(self, eps=1e-6):
@@ -51,7 +51,7 @@ class CharbonnierLoss(nn.Module):
 
 
 # Define GAN loss: [vanilla | lsgan | wgan-gp]
-class GANLoss(nn.Module):
+class GANLoss(nn.Layer):
     def __init__(self, gan_type, real_label_val=1.0, fake_label_val=0.0):
         super(GANLoss, self).__init__()
         self.gan_type = gan_type.lower()
@@ -86,7 +86,7 @@ class GANLoss(nn.Module):
         return loss
 
 
-class GradientPenaltyLoss(nn.Module):
+class GradientPenaltyLoss(nn.Layer):
     def __init__(self, device='cpu'):
         super(GradientPenaltyLoss, self).__init__()
         self.register_buffer('grad_outputs', paddle.Tensor())

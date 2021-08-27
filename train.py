@@ -26,7 +26,7 @@ def init_dist(backend='nccl', **kwargs):
 def main():
     #### options
     parser = argparse.ArgumentParser()
-    parser.add_argument('-opt', type=str, default=r'C:\Users\asus\Desktop\Paddle_ClassSR_GIT\config\train\train_ClassSR_RCAN.yml',help='Path to option YAML file.')
+    parser.add_argument('-opt', type=str, default=r'config/train/train_ClassSR_RCAN.yml',help='Path to option YAML file.')
     parser.add_argument('--launcher', choices=['none', 'fleet'], default='none',
                         help='job launcher')
     parser.add_argument('--local_rank', type=int, default=0)

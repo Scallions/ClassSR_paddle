@@ -20,10 +20,10 @@ def main():
     # compression time. If read raw images during training, use 0 for faster IO speed.
     if mode == 'pair':
         # cut testing data for single SR models
-        GT_folder = '/data0/xtkong/data/DIV2K_valid_HR'  # fix to your path
-        LR_folder = '/data0/xtkong/data/DIV2K_valid_LR_bicubic/X4'  # fix to your path
-        save_GT_folder = '/data0/xtkong/data/DIV2K_valid_HR_sub/GT'
-        save_LR_folder = '/data0/xtkong/data/DIV2K_valid_HR_sub/LR'
+        GT_folder = 'dataset/DIV2K_valid/HR/X4'  # fix to your path
+        LR_folder = 'dataset/DIV2K_valid/LR/X4'  # fix to your path
+        save_GT_folder = 'dataset/DIV2K_valid_sub/GT'
+        save_LR_folder = 'dataset/DIV2K_valid_sub/LR'
 
         scale_ratio = 4
         crop_sz = 128  # the size of each sub-image (GT)
@@ -67,8 +67,8 @@ def main():
             data_util._get_paths_from_images(
                 save_LR_folder)), 'different length of save_GT_folder and save_LR_folder.'
     elif mode == 'single':
-        opt['input_folder'] = '/data0/xtkong/data/DIV2K_HR/DIV2K_valid_HR'
-        opt['save_folder'] = '/data0/xtkong/data/DIV2K_valid_sub/GT'
+        opt['input_folder'] = 'dataset/DIV2K_valid_HR'
+        opt['save_folder'] = 'dataset/DIV2K_valid_sub/GT'
         opt['crop_sz'] = 256  # the size of each sub-image
         opt['step'] = 256  # step of the sliding crop window
         opt['thres_sz'] = 48  # size threshold

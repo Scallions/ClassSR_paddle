@@ -57,7 +57,8 @@ class SRModel(BaseModel):
             wd_G = train_opt['weight_decay_G'] if train_opt['weight_decay_G'] else 0
             optim_params = []
             for k, v in self.netG.named_parameters():  # can optimize for a part of the model
-                if v.requires_grad:
+                # if v.requires_grad:
+                if not v.stop_gradient:
                     optim_params.append(v)
                 else:
                     if self.rank <= 0:

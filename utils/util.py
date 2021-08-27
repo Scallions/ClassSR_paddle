@@ -175,7 +175,8 @@ def make_grid(tensor, nrow=8, padding=2,
 
         def norm_ip(img, min, max):
             img.clamp_(min=min, max=max)
-            img.add_(-min).div_(max - min + 1e-5)
+            img.add_(-min)
+            img = img.divide(max - min + 1e-5)
 
         def norm_range(t, range):
             if range is not None:
@@ -261,7 +262,7 @@ def DUF_downsample(x, scale=4):
         return fi.gaussian_filter(inp, nsig)
 
     B, T, C, H, W = x.size()
-    x = x.view(-1, 1, H, W)
+    x = x.reshape([-1, 1, H, W])
     pad_w, pad_h = 6 + scale * 2, 6 + scale * 2  # 6 is the pad of the gaussian filter
     r_h, r_w = 0, 0
     if scale == 3:
@@ -272,7 +273,7 @@ def DUF_downsample(x, scale=4):
     gaussian_filter = paddle.to_tensor(gkern(13, 0.4 * scale)).type_as(x).unsqueeze(0).unsqueeze(0)
     x = F.conv2d(x, gaussian_filter, stride=scale)
     x = x[:, :, 2:-2, 2:-2]
-    x = x.view(B, T, C, x.size(2), x.size(3))
+    x = x.reshape([B, T, C, x.size(2), x.size(3)])
     return x
 
 
