@@ -175,14 +175,14 @@ class ClassSR_Model(BaseModel):
             if img.shape[2] > 3:
                 img = img[:, :, :3]
             img = img[:, :, [2, 1, 0]]
-            img = paddle.to_tensor(np.ascontiguousarray(np.transpose(img, (2, 0, 1)))).float()[None, ...]
+            img = paddle.to_tensor(np.ascontiguousarray(np.transpose(img, (2, 0, 1)))).astype('float32')[None, ...]
             with paddle.no_grad():
                 srt, type = self.netG(img, False)
 
             if self.which_model == 'classSR_3class_rcan':
-                sr_img = util.tensor2img(srt.detach()[0].float().cpu(), out_type=np.uint8, min_max=(0, 255))
+                sr_img = util.tensor2img(srt.detach()[0].astype('float32'), out_type=np.uint8, min_max=(0, 255))
             else:
-                sr_img = util.tensor2img(srt.detach()[0].float().cpu())
+                sr_img = util.tensor2img(srt.detach()[0].astype('float32'))
             sr_list.append(sr_img)
 
             if index == 0:
