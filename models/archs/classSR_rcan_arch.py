@@ -40,7 +40,8 @@ class classSR_3class_rcan(nn.Layer):
             for i in range(len(x)):
                 type = self.classifier(x[i].unsqueeze(0)/255.) #rcan
 
-                flag = paddle.max(type, 1)[1].squeeze()
+                flag = paddle.argmax(type, 1).squeeze().numpy()
+
                 p = F.softmax(type, axis=1)
                 # flag=np.random.randint(0,2)
                 #flag=0
@@ -72,7 +73,6 @@ class Classifier(nn.Layer):
                                      nn.Conv2D(128, 128, 1), nn.LeakyReLU(0.1, True),
                                      nn.Conv2D(128, 128, 1), nn.LeakyReLU(0.1, True),
                                      nn.Conv2D(128, 32, 1))
-        # TODO: remove init emm
         arch_util.initialize_weights([self.CondNet], 0.1)
     def forward(self, x):
         out = self.CondNet(x)
