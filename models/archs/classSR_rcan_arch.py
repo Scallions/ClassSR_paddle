@@ -72,6 +72,7 @@ class Classifier(nn.Layer):
                                      nn.Conv2D(128, 128, 1), nn.LeakyReLU(0.1, True),
                                      nn.Conv2D(128, 128, 1), nn.LeakyReLU(0.1, True),
                                      nn.Conv2D(128, 32, 1))
+        # TODO: remove init emm
         arch_util.initialize_weights([self.CondNet], 0.1)
     def forward(self, x):
         out = self.CondNet(x)

@@ -12,7 +12,7 @@ class class_loss_3class(nn.Layer):
         type_all = type_res
         loss = 0
         for i in range(n):
-            sum_re = abs(type_all[i][0]-type_all[i][1]) + abs(type_all[i][0]-type_all[i][2]) + abs(type_all[i][1]-type_all[i][2])
+            sum_re = paddle.abs(type_all[i][0]-type_all[i][1]) + paddle.abs(type_all[i][0]-type_all[i][2]) + paddle.abs(type_all[i][1]-type_all[i][2])
             loss += (m - sum_re)
         return loss / n
 
@@ -35,7 +35,7 @@ class average_loss_3class(nn.Layer):
             sum2 += type_all[i][1]
             sum3 += type_all[i][2]
 
-        return (abs(sum1-n/m) + abs(sum2-n/m) + abs(sum3-n/m)) / ((n/m)*4)
+        return (paddle.abs(sum1-n/m) + paddle.abs(sum2-n/m) + paddle.abs(sum3-n/m)) / ((n/m)*4)
 
 class CharbonnierLoss(nn.Layer):
     """Charbonnier Loss (L1)"""

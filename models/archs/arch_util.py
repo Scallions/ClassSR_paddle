@@ -15,11 +15,13 @@ def initialize_weights(net_l, scale=1):
                 init.kaiming_normal_(m.weight, a=0, mode='fan_in')
                 # TODO: 初始化权重
                 # m.weight.data *= scale  # for residual block
+                m.weight.set_value(scale*m.weight)
                 if m.bias is not None:
                     init.constant_(m.bias,value=0.)
             elif isinstance(m, nn.Linear):
                 init.kaiming_normal_(m.weight, a=0, mode='fan_in')
-                # m.weight.data *= scale
+                # m.weight.data *= scale  # for residual block
+                m.weight.set_value(scale*m.weight)
                 if m.bias is not None:
                     init.constant_(m.bias,value=0.)
             elif isinstance(m, nn.BatchNorm2D):
@@ -98,10 +100,12 @@ class MeanShift(nn.Conv2D):
         super(MeanShift, self).__init__(3, 3, kernel_size=1)
         std = paddle.to_tensor(rgb_std)
         # TODO: weight.data shift
-        # self.weight.data = paddle.eye(3).reshape([3, 3, 1, 1])
-        # self.weight.data = self.weight.data.(std.reshape([3, 1, 1, 1]))
-        # self.bias.data = sign * rgb_range * paddle.to_tensor(rgb_mean)
+        # self.weight.data = paddle.eye(3).view(3, 3, 1, 1)
+        # self.weight.data.div_(std.view(3, 1, 1, 1))
+        # self.bias.data = sign * rgb_range * paddle.Tensor(rgb_mean)
         # self.bias.data.div_(std)
+        self.weight.set_value(paddle.divide(paddle.eye(3).reshape([3, 3, 1, 1]), std.reshape([3, 1, 1, 1])))
+        self.bias.set_value(paddle.divide(sign * rgb_range * paddle.to_tensor(rgb_mean), std))
         # self.requires_grad = False
         self.stop_gradient = True
 

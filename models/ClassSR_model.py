@@ -113,21 +113,23 @@ class ClassSR_Model(BaseModel):
                         lr_scheduler.CosineAnnealingLR_Restart(
                             optimizer, train_opt['T_period'], eta_min=train_opt['eta_min'],
                             restarts=train_opt['restarts'], weights=train_opt['restart_weights']))
+                    optimizer._learning_rate = self.schedulers[-1]
             else:
                 raise NotImplementedError('MultiStepLR learning rate scheme is enough.')
 
             self.log_dict = OrderedDict()
 
     def feed_data(self, data, need_GT=True):
-        self.var_L = data['LQ'].to(self.device)
+        # TODO: to device
+        self.var_L = data['LQ']#.to(self.device)
         self.LQ_path = data['LQ_path'][0]
         if need_GT:
-            self.real_H = data['GT'].to(self.device)  # GT
+            self.real_H = data['GT']#.to(self.device)  # GT
             self.GT_path = data['GT_path'][0]
 
 
     def optimize_parameters(self, step):
-        self.optimizer_G.zero_grad()
+        self.optimizer_G.clear_grad()
         self.fake_H, self.type = self.netG(self.var_L, self.is_train)
         #print(self.type)
         l_pix = self.cri_pix(self.fake_H, self.real_H)

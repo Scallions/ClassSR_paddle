@@ -123,6 +123,7 @@ class RCAN(nn.Layer):
         self.body = nn.Sequential(*modules_body)
         self.tail = nn.Sequential(*modules_tail)
         
+        # TODO: remove init emm for test
         arch_util.initialize_weights([self.head, self.body, self.tail], 0.1)
     def forward(self, x):
         x = self.sub_mean(x)

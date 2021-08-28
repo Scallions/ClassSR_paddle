@@ -145,6 +145,7 @@ def main():
             if current_step > total_iters:
                 break
             #### update learning rate
+            # TODO: update lr
             model.update_learning_rate(current_step, warmup_iter=opt['train']['warmup_iter'])
 
             #### training

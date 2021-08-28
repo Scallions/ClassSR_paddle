@@ -54,7 +54,7 @@ class CosineAnnealingLR_Restart(LRScheduler):
         if self.last_epoch == 0:
             # TODO: base lrs ?
             # return self.base_lrs
-            return 1e-4
+            return [self.base_lr]
         elif self.last_epoch in self.restarts:
             self.last_restart = self.last_epoch
             self.T_max = self.T_period[self.restarts.index(self.last_epoch) + 1]
@@ -68,8 +68,8 @@ class CosineAnnealingLR_Restart(LRScheduler):
         # TODO: parameter list
         return [(1 + math.cos(math.pi * (self.last_epoch - self.last_restart) / self.T_max)) /
                 (1 + math.cos(math.pi * ((self.last_epoch - self.last_restart) - 1) / self.T_max)) *
-                (group['lr'] - self.eta_min) + self.eta_min
-                for group in self.optimizer._parameter_list]
+                (self.optimizer.get_lr()[0] - self.eta_min) + self.eta_min
+                ]
                 # for group in self.optimizer.param_groups]
 
 
