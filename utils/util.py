@@ -190,15 +190,15 @@ def make_grid(tensor, nrow=8, padding=2,
         else:
             norm_range(tensor, range)
 
-    if tensor.size(0) == 1:
+    if tensor.shape[0] == 1:
         return tensor.squeeze(0)
 
     # make the mini-batch of images into a grid
-    nmaps = tensor.size(0)
+    nmaps = tensor.shape[0]
     xmaps = min(nrow, nmaps)
     ymaps = int(math.ceil(float(nmaps) / xmaps))
-    height, width = int(tensor.size(2) + padding), int(tensor.size(3) + padding)
-    num_channels = tensor.size(1)
+    height, width = int(tensor.shape[2] + padding), int(tensor.shape[3] + padding)
+    num_channels = tensor.shape[1]
     grid = tensor.new_full((num_channels, height * ymaps + padding, width * xmaps + padding), pad_value)
     k = 0
     for y in range(ymaps):
@@ -218,7 +218,9 @@ def tensor2img(tensor, out_type=np.uint8, min_max=(0, 1)):
     Input: 4D(B,(3/1),H,W), 3D(C,H,W), or 2D(H,W), any range, RGB channel order
     Output: 3D(H,W,C) or 2D(H,W), [0,255], np.uint8 (default)
     '''
-    tensor = tensor.squeeze().float().cpu().clamp_(*min_max)  # clamp
+    #tensor = tensor.squeeze().float().cpu().clamp_(*min_max)  # clamp
+    tensor = tensor.squeeze().astype('float32')
+    tensor = paddle.clip(tensor, min=min_max[0], max=min_max[1])
     tensor = (tensor - min_max[0]) / (min_max[1] - min_max[0])  # to range [0,1]
     n_dim = tensor.dim()
     if n_dim == 4:
