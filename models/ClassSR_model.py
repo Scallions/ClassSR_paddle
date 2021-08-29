@@ -73,7 +73,7 @@ class ClassSR_Model(BaseModel):
 
 
             # optimizers
-            wd_G = train_opt['weight_decay_G'] if train_opt['weight_decay_G'] else 0
+            wd_G = train_opt['weight_decay_G'] if train_opt['weight_decay_G'] else 0.
             optim_params = []
             if opt['fix_SR_module']:
                 for k, v in self.netG.named_parameters():  # can optimize for a part of the model
@@ -89,33 +89,33 @@ class ClassSR_Model(BaseModel):
                 else:
                     if self.rank <= 0:
                         logger.warning('Params [{:s}] will not optimize.'.format(k))
-            # TODO: adam 参数设置
-            self.optimizer_G = paddle.optimizer.Adam(parameters=optim_params, learning_rate=train_opt['lr_G'],
-                                                weight_decay=wd_G,
-                                                beta1=train_opt['beta1'], beta2=train_opt['beta2'])
-            if opt['dist']:
-                self.optimizer_G = fleet.distributed_optimizer(self.optimizer_G)
-            self.optimizers.append(self.optimizer_G)
 
             # schedulers
             # TODO: scheduler
-            if train_opt['lr_scheme'] == 'MultiStepLR':
-                for optimizer in self.optimizers:
-                    self.schedulers.append(
-                        lr_scheduler.MultiStepLR_Restart(optimizer, train_opt['lr_steps'],
-                                                         restarts=train_opt['restarts'],
-                                                         weights=train_opt['restart_weights'],
-                                                         gamma=train_opt['lr_gamma'],
-                                                         clear_state=train_opt['clear_state']))
-            elif train_opt['lr_scheme'] == 'CosineAnnealingLR_Restart':
-                for optimizer in self.optimizers:
-                    self.schedulers.append(
-                        lr_scheduler.CosineAnnealingLR_Restart(
-                            optimizer, train_opt['T_period'], eta_min=train_opt['eta_min'],
-                            restarts=train_opt['restarts'], weights=train_opt['restart_weights']))
-                    optimizer._learning_rate = self.schedulers[-1]
+            # if train_opt['lr_scheme'] == 'MultiStepLR':
+            #     for optimizer in self.optimizers:
+            #         self.schedulers.append(
+            #             lr_scheduler.MultiStepLR_Restart(optimizer, train_opt['lr_steps'],
+            #                                              restarts=train_opt['restarts'],
+            #                                              weights=train_opt['restart_weights'],
+            #                                              gamma=train_opt['lr_gamma'],
+            #                                              clear_state=train_opt['clear_state']))
+            if train_opt['lr_scheme'] == 'CosineAnnealingLR_Restart':
+                self.schedulers.append(
+                    lr_scheduler.CosineAnnealingDecay(train_opt['lr_G'],
+                        train_opt['T_period'], eta_min=train_opt['eta_min'],
+                        restarts=train_opt['restarts'], weights=train_opt['restart_weights']))
+                    #optimizer._learning_rate = self.schedulers[-1]
             else:
                 raise NotImplementedError('MultiStepLR learning rate scheme is enough.')
+
+            # TODO: adam 参数设置
+            self.optimizer_G = paddle.optimizer.Adam(learning_rate=self.schedulers[0], parameters=optim_params,
+                                                     weight_decay=wd_G,
+                                                     beta1=train_opt['beta1'], beta2=train_opt['beta2'])
+            if opt['dist']:
+                self.optimizer_G = fleet.distributed_optimizer(self.optimizer_G)
+            self.optimizers.append(self.optimizer_G)
 
             self.log_dict = OrderedDict()
 
@@ -175,15 +175,14 @@ class ClassSR_Model(BaseModel):
             if img.shape[2] > 3:
                 img = img[:, :, :3]
             img = img[:, :, [2, 1, 0]]
-            img = paddle.to_tensor(np.ascontiguousarray(np.transpose(img, (2, 0, 1)))).float()[None, ...].to(
-                self.device)
+            img = paddle.to_tensor(np.ascontiguousarray(np.transpose(img, (2, 0, 1)))).astype('float32')[None, ...]
             with paddle.no_grad():
                 srt, type = self.netG(img, False)
 
             if self.which_model == 'classSR_3class_rcan':
-                sr_img = util.tensor2img(srt.detach()[0].float().cpu(), out_type=np.uint8, min_max=(0, 255))
+                sr_img = util.tensor2img(srt.detach()[0].astype('float32'), out_type=np.uint8, min_max=(0, 255))
             else:
-                sr_img = util.tensor2img(srt.detach()[0].float().cpu())
+                sr_img = util.tensor2img(srt.detach()[0].astype('float32'))
             sr_list.append(sr_img)
 
             if index == 0:
@@ -359,7 +358,7 @@ class ClassSR_Model(BaseModel):
         num1 = 0
         num2 = 0
 
-        for i in paddle.max(type_res, 1)[1].data.squeeze():
+        for i in paddle.argmax(type_res, 1).squeeze():
             if i == 0:
                 num0 += 1
             if i == 1:
@@ -368,5 +367,3 @@ class ClassSR_Model(BaseModel):
                 num2 += 1
 
         return [num0, num1,num2]
-
-

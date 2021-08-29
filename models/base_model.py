@@ -62,7 +62,8 @@ class BaseModel():
             self._set_lr(warm_up_lr_l)
 
     def get_current_learning_rate(self):
-        return [param_group['lr'] for param_group in self.optimizers[0].param_groups]
+        return [self.schedulers[0].get_lr()]
+        #return [param_group['lr'] for param_group in self.optimizers[0].param_groups]
 
     def get_network_description(self, network):
         """Get the string and total parameters of the network"""
