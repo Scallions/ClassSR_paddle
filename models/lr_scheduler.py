@@ -45,6 +45,7 @@ class CosineAnnealingLR_Restart(LRScheduler):
         self.last_restart = 0
         # TODO: add optimizer
         self.optimizer = optimizer
+        self.optimizer._learning_rate = self
         assert len(self.restarts) == len(
             self.restart_weights), 'restarts and their weights do not match.'
         # TODO: change to paddle
