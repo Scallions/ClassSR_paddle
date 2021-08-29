@@ -28,7 +28,7 @@ class ClassSR_Model(BaseModel):
         self.name = opt['name']
         self.which_model = opt['network_G']['which_model_G']
 
-
+        # TODO: get rank
         if opt['dist']:
             self.rank = 2
         else:
@@ -45,7 +45,7 @@ class ClassSR_Model(BaseModel):
         # print network
         self.print_network()
         # TODO: change no load
-        # self.load()
+        self.load()
 
         if self.is_train:
             self.l1w = float(opt["train"]["l1w"])

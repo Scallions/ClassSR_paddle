@@ -24,7 +24,6 @@ util.setup_logger('base', opt['path']['log'], 'test_' + opt['name'], level=loggi
                   screen=True, tofile=True)
 logger = logging.getLogger('base')
 logger.info(option.dict2str(opt))
-
 opt_net = opt['network_G']
 which_model = opt_net['which_model_G']
 
@@ -50,6 +49,9 @@ for test_loader in test_loaders:
     test_results['psnr_y'] = []
     test_results['ssim_y'] = []
 
+    avg_psnr = 0.
+    idx = 0
+    num_ress = [0, 0, 0]
 
 
     for data in test_loader:
@@ -57,13 +59,17 @@ for test_loader in test_loaders:
         model.feed_data(data, need_GT=need_GT)
         img_path = data['GT_path'][0] if need_GT else data['LQ_path'][0]
         img_name = osp.splitext(osp.basename(img_path))[0]
+
         model.test()
         visuals = model.get_current_visuals(need_GT=need_GT)
 
-        if which_model == 'RCAN':
-            sr_img = util.tensor2img(visuals['rlt'], out_type=np.uint8, min_max=(0, 255))  # uint8
-        else:
-            sr_img = util.tensor2img(visuals['rlt'])  # uint8
+        sr_img = visuals['rlt']  # uint8
+        if opt['add_mask']:
+            sr_img_mask=visuals['rlt_mask']
+
+        num_res = visuals['num_res']
+        psnr_res = visuals['psnr_res']
+
 
         # save images
         suffix = opt['suffix']
@@ -72,43 +78,72 @@ for test_loader in test_loaders:
         else:
             save_img_path = osp.join(dataset_dir, img_name + '.png')
         util.save_img(sr_img, save_img_path)
+        if opt['add_mask']:
+            util.save_img(sr_img_mask, save_img_path.split('.pn')[0]+'_mask.png')
 
 
-
+        # calculate PSNR and SSIM
         if need_GT:
-            if which_model == 'RCAN':
-                gt_img = util.tensor2img(visuals['GT'], out_type=np.uint8, min_max=(0, 255))  # uint8
-            else:
-                gt_img = util.tensor2img(visuals['GT'])
-
+            gt_img = visuals['GT']
             sr_img, gt_img = util.crop_border([sr_img, gt_img], opt['scale'])
             psnr = util.calculate_psnr(sr_img, gt_img)
-            ssim = util.calculate_ssim(sr_img, gt_img)
+            #ssim = util.calculate_ssim(sr_img, gt_img)
             test_results['psnr'].append(psnr)
-            test_results['ssim'].append(ssim)
+            #test_results['ssim'].append(ssim)
 
             if gt_img.shape[2] == 3:  # RGB image
                 sr_img_y = bgr2ycbcr(sr_img / 255., only_y=True)
                 gt_img_y = bgr2ycbcr(gt_img / 255., only_y=True)
 
                 psnr_y = util.calculate_psnr(sr_img_y * 255, gt_img_y * 255)
-                ssim_y = util.calculate_ssim(sr_img_y * 255, gt_img_y * 255)
+                #ssim_y = util.calculate_ssim(sr_img_y * 255, gt_img_y * 255)
                 test_results['psnr_y'].append(psnr_y)
-                test_results['ssim_y'].append(ssim_y)
+                #test_results['ssim_y'].append(ssim_y)
+                # logger.info(
+                #     '{:20s} - PSNR: {:.6f} dB; SSIM: {:.6f}; PSNR_Y: {:.6f} dB; SSIM_Y: {:.6f}.'.
+                #     format(img_name, psnr, ssim, psnr_y, ssim_y))
                 logger.info(
-                    '{:20s} - PSNR: {:.6f} dB; SSIM: {:.6f}; PSNR_Y: {:.6f} dB; SSIM_Y: {:.6f}.'.
-                    format(img_name, psnr, ssim, psnr_y, ssim_y))
+                    '{:20s} - PSNR: {:.6f} dB;  PSNR_Y: {:.6f} dB; .'.
+                        format(img_name, psnr, psnr_y))
+                # logger.info(
+                #     '{:.6f}'.
+                #         format(psnr_y))
+                num_ress[0] += num_res[0]
+                num_ress[1] += num_res[1]
+                num_ress[2] += num_res[2]
+
+                flops,percent=util.cal_FLOPs(which_model,num_res)
+                logger.info(
+                    '{0} - type1: {1} type2: {2} type3: {3} FLOPs: {4} Percent: {5}.'.
+                        format(img_name, num_res[0], num_res[1],num_res[2],flops,percent))
+
             else:
-                logger.info('{:20s} - PSNR: {:.6f} dB;'.format(img_name, psnr))
+                logger.info('{:20s} - PSNR: {:.6f} dB;.'.format(img_name, psnr))
+
         else:
             logger.info(img_name)
 
+
+    if num_ress[0] == 0:
+        num_ress[0] = 1
+    if num_ress[1] == 0:
+        num_ress[1] = 1
+    if num_ress[2] == 0:
+        num_ress[2] = 1
+    logger.info('# Validation # Class num: {0} {1} {2} all:{3}'.format(num_ress[0], num_ress[1], num_ress[2],sum(num_ress)))
+
+
     if need_GT:  # metrics
+        flops,percent=util.cal_FLOPs(which_model,num_ress)
+        logger.info('# FLOPs {:.4e} Percent {:.4e}'.format(flops,percent))
         # Average PSNR/SSIM results
         ave_psnr = sum(test_results['psnr']) / len(test_results['psnr'])
-        ave_ssim = sum(test_results['ssim']) / len(test_results['ssim'])
+        #ave_ssim = sum(test_results['ssim']) / len(test_results['ssim'])
+        # logger.info(
+        #     '----Average PSNR/SSIM results for {}----\n\tPSNR: {:.6f} dB; SSIM: {:.6f}\n'.format(
+        #         test_set_name, ave_psnr, ave_ssim))
         logger.info(
-            '----Average PSNR/SSIM results for {}----\n\tPSNR: {:.6f} dB\n'.format(
+            '----Average PSNR results for {}----\n\tPSNR: {:.6f} dB; \n'.format(
                 test_set_name, ave_psnr))
         if test_results['psnr_y'] and test_results['ssim_y']:
             ave_psnr_y = sum(test_results['psnr_y']) / len(test_results['psnr_y'])

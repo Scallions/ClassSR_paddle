@@ -1,7 +1,6 @@
 import sys
 import os.path as osp
 import math
-import torchvision.utils
 
 sys.path.append(osp.dirname(osp.dirname(osp.abspath(__file__))))
 from data import create_dataloader, create_dataset  # noqa: E402
