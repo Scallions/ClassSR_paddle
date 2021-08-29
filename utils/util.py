@@ -294,7 +294,7 @@ def single_forward(model, inp):
             output = model_output[0]
         else:
             output = model_output
-    output = output.data.float().cpu()
+    output = output.data.as_type('float')#.float().cpu()
     return output
 
 

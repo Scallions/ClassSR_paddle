@@ -16,6 +16,8 @@ datasets:
   train:
     name: DIV2K
     mode: LQGT_rcan
+    # dataroot_GT: /data0/xtkong/data/DIV2K_scale_sub/GT
+    # dataroot_LQ: /data0/xtkong/data/DIV2K_scale_sub/LR
     dataroot_GT: dataset/DIV2K_scale_sub/GT
     dataroot_LQ: dataset/DIV2K_scale_sub/LR
 
@@ -29,6 +31,8 @@ datasets:
   val:
     name: DIV2K10
     mode: LQGT_rcan
+    # dataroot_GT: /data0/xtkong/ClassSR_hengyuan2/datasets/val_10/HR/X4
+    # dataroot_LQ: /data0/xtkong/ClassSR_hengyuan2/datasets/val_10/LR/X4
     dataroot_GT: dataset/DIV2k_valid_sub/GT
     dataroot_LQ: dataset/DIV2k_valid_sub/LR
 
