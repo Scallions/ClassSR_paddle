@@ -160,11 +160,11 @@ def make_grid(tensor, nrow=8, padding=2,
     if tensor.dim() == 2:  # single image H x W
         tensor = tensor.unsqueeze(0)
     if tensor.dim() == 3:  # single image
-        if tensor.size(0) == 1:  # if single-channel, convert to 3-channel
+        if tensor.shape[0] == 1:  # if single-channel, convert to 3-channel
             tensor = paddle.concat((tensor, tensor, tensor), 0)
         tensor = tensor.unsqueeze(0)
 
-    if tensor.dim() == 4 and tensor.size(1) == 1:  # single-channel images
+    if tensor.dim() == 4 and tensor.shape[1] == 1:  # single-channel images
         tensor = paddle.concat((tensor, tensor, tensor), 1)
 
     if normalize is True:
@@ -263,7 +263,7 @@ def DUF_downsample(x, scale=4):
         # gaussian-smooth the dirac, resulting in a gaussian filter mask
         return fi.gaussian_filter(inp, nsig)
 
-    B, T, C, H, W = x.size()
+    B, T, C, H, W = x.shape
     x = x.reshape([-1, 1, H, W])
     pad_w, pad_h = 6 + scale * 2, 6 + scale * 2  # 6 is the pad of the gaussian filter
     r_h, r_w = 0, 0
@@ -275,7 +275,7 @@ def DUF_downsample(x, scale=4):
     gaussian_filter = paddle.to_tensor(gkern(13, 0.4 * scale)).type_as(x).unsqueeze(0).unsqueeze(0)
     x = F.conv2d(x, gaussian_filter, stride=scale)
     x = x[:, :, 2:-2, 2:-2]
-    x = x.reshape([B, T, C, x.size(2), x.size(3)])
+    x = x.reshape([B, T, C, x.shape[2], x.shape[3]])
     return x
 
 
