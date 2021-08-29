@@ -59,11 +59,10 @@ class CosineAnnealingLR_Restart(LRScheduler):
             self.last_restart = self.last_epoch
             self.T_max = self.T_period[self.restarts.index(self.last_epoch) + 1]
             weight = self.restart_weights[self.restarts.index(self.last_epoch)]
-            return [group['initial_lr'] * weight for group in self.optimizer.param_groups]
+            return [self.base_lr * weight ]
         elif (self.last_epoch - self.last_restart - 1 - self.T_max) % (2 * self.T_max) == 0:
             return [
-                group['lr'] + (base_lr - self.eta_min) * (1 - math.cos(math.pi / self.T_max)) / 2
-                for base_lr, group in zip(self.base_lrs, self.optimizer.param_groups)
+                self.optimizer.get_lr() + (self.base_lr - self.eta_min) * (1 - math.cos(math.pi / self.T_max)) / 2
             ]
         # TODO: parameter list
         return [(1 + math.cos(math.pi * (self.last_epoch - self.last_restart) / self.T_max)) /
@@ -74,7 +73,8 @@ class CosineAnnealingLR_Restart(LRScheduler):
 
 
 if __name__ == "__main__":
-    optimizer = paddle.optimizer.Adam(paddle.zeros(3, 64, 3, 3), learning_rate=2e-4, weight_decay=0,
+    linear = paddle.nn.Linear(10, 10)
+    optimizer = paddle.optimizer.Adam(parameters=linear.parameters(), learning_rate=2e-4, weight_decay=0,
                                  beta1=0.9, beta2=0.99)
     ##############################
     # MultiStepLR_Restart
@@ -97,8 +97,8 @@ if __name__ == "__main__":
     restarts = [250000, 500000, 750000]
     restart_weights = [1, 1, 1]
 
-    scheduler = MultiStepLR_Restart(optimizer, lr_steps, restarts, restart_weights, gamma=0.5,
-                                    clear_state=False)
+    # scheduler = MultiStepLR_Restart(optimizer, lr_steps, restarts, restart_weights, gamma=0.5,
+                                    # clear_state=False)
 
     ##############################
     # Cosine Annealing Restart
@@ -115,7 +115,7 @@ if __name__ == "__main__":
 
     scheduler = CosineAnnealingLR_Restart(optimizer, T_period, eta_min=1e-7, restarts=restarts,
                                           weights=restart_weights)
-
+    optimizer._learning_rate = scheduler
     ##############################
     # Draw figure
     ##############################
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     lr_l = list(range(N_iter))
     for i in range(N_iter):
         scheduler.step()
-        current_lr = optimizer.param_groups[0]['lr']
+        current_lr = optimizer.get_lr()
         lr_l[i] = current_lr
 
     import matplotlib as mpl
