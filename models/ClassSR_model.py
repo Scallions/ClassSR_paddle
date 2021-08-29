@@ -175,7 +175,7 @@ class ClassSR_Model(BaseModel):
             if img.shape[2] > 3:
                 img = img[:, :, :3]
             img = img[:, :, [2, 1, 0]]
-            img = paddle.to_tensor(np.ascontiguousarray(np.transpose(img, (2, 0, 1)))).astype('float32')[None, ...]
+            img = paddle.to_tensor(np.ascontiguousarray(np.transpose(img, (2, 0, 1)))).astype('float32').unsqueeze(0)
             with paddle.no_grad():
                 srt, type = self.netG(img, False)
 
@@ -191,7 +191,7 @@ class ClassSR_Model(BaseModel):
                 type_res = paddle.concat((type_res, type), 0)
 
             psnr=util.calculate_psnr(sr_img, GT_img)
-            flag=paddle.max(type, 1)[1].data.squeeze()
+            flag=paddle.argmax(type, 1).squeeze().numpy()
             if flag == 0:
                 psnr_type1 += psnr
             if flag == 1:
@@ -332,17 +332,17 @@ class ClassSR_Model(BaseModel):
                          i * step * self.scale + patch_size * self.scale - 9]  # xl,yl,xr,yr
                 zeros1 = np.zeros((sr_img.shape), 'float32')
 
-                if paddle.max(type, 1)[1].data.squeeze()[index2] == 0:
+                if paddle.argmax(type, 1)[1].squeeze()[index2] == 0:
                     # mask1 = cv2.rectangle(zeros1, (bbox1[0], bbox1[1]), (bbox1[2], bbox1[3]),
                     #                      color=(0, 0, 0), thickness=1)
                     mask2 = cv2.rectangle(zeros1, (bbox1[0]+1, bbox1[1]+1), (bbox1[2]-1, bbox1[3]-1),
                                          color=(0, 255, 0), thickness=-1)# simple green
-                elif paddle.max(type, 1)[1].data.squeeze()[index2] == 1:
+                elif paddle.argmax(type, 1).squeeze()[index2] == 1:
                     # mask1 = cv2.rectangle(zeros1, (bbox1[0], bbox1[1]), (bbox1[2], bbox1[3]),
                     #                       color=(0, 0, 0), thickness=1)
                     mask2 = cv2.rectangle(zeros1, (bbox1[0]+1, bbox1[1]+1), (bbox1[2]-1, bbox1[3]-1),
                                           color=(0, 255, 255), thickness=-1)# medium yellow
-                elif paddle.max(type, 1)[1].data.squeeze()[index2] == 2:
+                elif paddle.argmax(type, 1).squeeze()[index2] == 2:
                     # mask1 = cv2.rectangle(zeros1, (bbox1[0], bbox1[1]), (bbox1[2], bbox1[3]),
                     #                       color=(0, 0, 0), thickness=1)
                     mask2 = cv2.rectangle(zeros1, (bbox1[0]+1, bbox1[1]+1), (bbox1[2]-1, bbox1[3]-1),
