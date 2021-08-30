@@ -17,7 +17,8 @@ import numpy as np
 
 def init_dist(backend='nccl', **kwargs):
     """initialization for distributed training"""
-    rank = int(os.environ['RANK'])
+    # rank = int(os.environ['RANK'])
+    rank = paddle.distributed.ParallelEnv().rank
     paddle.device.set_device(f"gpu:{rank}")
     strategy = fleet.DistributedStrategy()
     fleet.init(is_collective=True, strategy=strategy)

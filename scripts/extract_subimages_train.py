@@ -24,10 +24,10 @@ def main():
     # compression time. If read raw images during training, use 0 for faster IO speed.
     if mode == 'pair':
         # cut training data
-        GT_folder = 'dataset/DIV2K_train/HR/x4'# fix to your path
-        LR_folder = 'dataset/DIV2K_train/LR/x4'# fix to your path
-        save_GT_folder = 'dataset/DIV2K_scale_sub/GT'
-        save_LR_folder = 'dataset/DIV2K_scale_sub/LR'
+        GT_folder = 'dataset/Set5_valid/HR/x4'# fix to your path
+        LR_folder = 'dataset/Set5_valid/LR/x4'# fix to your path
+        save_GT_folder = 'dataset/Set5_valid_sub/GT'
+        save_LR_folder = 'dataset/Set5_valid_sub/LR'
 
         scale_ratio = 4
         crop_sz = 128  # the size of each sub-image (GT)

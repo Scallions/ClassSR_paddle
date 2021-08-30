@@ -16,8 +16,8 @@ def generate_mod_LR_bic():
     up_scale = 4
     mod_scale = 4
 
-    sourcedir = 'dataset/DIV2K_train_HR_GT'
-    savedir = 'dataset/DIV2K_train'
+    sourcedir = 'dataset/Set5/HR'
+    savedir = 'dataset/Set5_valid'
 
     saveHRpath = os.path.join(savedir, 'HR', 'x' + str(mod_scale))
     saveLRpath = os.path.join(savedir, 'LR', 'x' + str(up_scale))

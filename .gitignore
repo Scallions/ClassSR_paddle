@@ -137,3 +137,4 @@ dataset/
 
 ## train log ? dataset needed
 script/divide_train.log
+log/
