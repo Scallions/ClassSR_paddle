@@ -64,7 +64,11 @@ def get_timestamp():
 
 def mkdir(path):
     if not os.path.exists(path):
-        os.makedirs(path)
+        try:
+            os.makedirs(path)
+        except FileExistsError:
+            pass
+            
 
 
 def mkdirs(paths):
