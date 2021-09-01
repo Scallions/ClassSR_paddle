@@ -170,7 +170,7 @@ def main():
                 if rank <= 0:
                     logger.info(message)
             ### validation
-            if opt['datasets'].get('val', None) and current_step % opt['train']['val_freq'] == 0:
+            if rank <= 0 and opt['datasets'].get('val', None) and current_step % opt['train']['val_freq'] == 0:
                 # does not support multi-GPU validation
                 pbar = util.ProgressBar(len(val_loader))
                 avg_psnr = 0.
