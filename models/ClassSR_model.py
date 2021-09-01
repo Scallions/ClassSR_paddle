@@ -39,13 +39,13 @@ class ClassSR_Model(BaseModel):
         # TODO: 切换设备
         # self.netG = networks.define_G(opt).to(self.device)
         self.netG = networks.define_G(opt)
+        # TODO: change no load
+        self.load()
 
         if opt['dist']:
             self.netG = fleet.distributed_model(self.netG)
         # print network
         self.print_network()
-        # TODO: change no load
-        self.load()
 
         if self.is_train:
             self.l1w = float(opt["train"]["l1w"])

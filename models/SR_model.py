@@ -34,13 +34,13 @@ class SRModel(BaseModel):
         # define network and load pretrained models
         # TODO: to device
         self.netG = networks.define_G(opt)#.to(self.device)
+        # print network
+        self.print_network()
+        self.load()
 
 
         if opt['dist']:
             self.netG = fleet.distributed_model(self.netG)
-        # print network
-        self.print_network()
-        self.load()
 
         if self.is_train:
             self.netG.train()
@@ -102,6 +102,8 @@ class SRModel(BaseModel):
             self.optimizer_G = paddle.optimizer.Adam(learning_rate=self.schedulers[0], parameters=optim_params,
                                                      weight_decay=wd_G,
                                                      beta1=train_opt['beta1'], beta2=train_opt['beta2'])
+            if opt['dist']:
+                self.optimizer_G = fleet.distributed_optimizer(self.optimizer_G)
 
             self.log_dict = OrderedDict()
 

@@ -17,7 +17,7 @@ import numpy as np
 
 def init_dist(backend='nccl', **kwargs):
     """initialization for distributed training"""
-    rank = int(os.environ['RANK'])
+    rank = paddle.distributed.ParallelEnv().rank
     paddle.device.set_device(f"gpu:{rank}")
     strategy = fleet.DistributedStrategy()
     fleet.init(is_collective=True, strategy=strategy)
@@ -169,7 +169,7 @@ def main():
                 if rank <= 0:
                     logger.info(message)
             ### validation
-            if opt['datasets'].get('val', None) and current_step % opt['train']['val_freq'] == 0:
+            if rank <= 0 and opt['datasets'].get('val', None) and current_step % opt['train']['val_freq'] == 0:
                 if opt['model'] in ['vsr'] and rank <= 0:    # video restoration validation
                     if opt['dist']:
                         # multi-GPU testing
@@ -300,7 +300,7 @@ def main():
                     logger.info('# Validation # TYPE num: {0} {1} {2} '.format(num_ress[0], num_ress[1],num_ress[2]))
                     logger.info('# Validation # PSNR Class: {0} {1} {2}'.format(psnr_ress[0]/num_ress[0],psnr_ress[1]/num_ress[1],psnr_ress[2]/num_ress[2]))
                     # tensorboard logger
-                    if opt['use_tb_logger'] and 'debug' not in opt['name']:
+                    if rank <= 0 and opt['use_tb_logger'] and 'debug' not in opt['name']:
                         tb_logger.add_scalar('PSNR', avg_psnr, current_step)
                         tb_logger.add_scalar('FLOPs', flops, current_step)
                         tb_logger.add_scalar('Percent', percent, current_step)
