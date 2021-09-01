@@ -294,7 +294,7 @@ def main():
                         num_ress[2]=1
 
                     # log
-                    logger.info('# Validation # PSNR: {:.4e}'.format(avg_psnr))
+                    logger.info('# Validation # PSNR: {:.4e}'.format(avg_psnr/idx))
                     logger.info('# Validation # FLOPs: {:.4e}'.format(flops))
                     logger.info('# Validation # Percent: {:.4e}'.format(percent))
                     logger.info('# Validation # TYPE num: {0} {1} {2} '.format(num_ress[0], num_ress[1],num_ress[2]))
@@ -309,8 +309,8 @@ def main():
                         tb_logger.add_scalar('class3_num', num_ress[2], current_step)
 
                         tb_logger.add_scalar('Class1_PSNR', psnr_ress[0]/num_ress[0], current_step)
-                        tb_logger.add_scalar('Class1_PSNR', psnr_ress[1]/num_ress[1], current_step)
-                        tb_logger.add_scalar('class1_PSNR', psnr_ress[2]/num_ress[2], current_step)
+                        tb_logger.add_scalar('Class2_PSNR', psnr_ress[1]/num_ress[1], current_step)
+                        tb_logger.add_scalar('Class3_PSNR', psnr_ress[2]/num_ress[2], current_step)
 
             #### save models and training states
             if current_step % opt['logger']['save_checkpoint_freq'] == 0:
