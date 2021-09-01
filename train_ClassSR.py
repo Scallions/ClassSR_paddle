@@ -292,9 +292,9 @@ def main():
                         num_ress[1]=1
                     if num_ress[2]==0:
                         num_ress[2]=1
-
+                    avg_psnr /= idx
                     # log
-                    logger.info('# Validation # PSNR: {:.4e}'.format(avg_psnr/idx))
+                    logger.info('# Validation # PSNR: {:.4e}'.format(avg_psnr))
                     logger.info('# Validation # FLOPs: {:.4e}'.format(flops))
                     logger.info('# Validation # Percent: {:.4e}'.format(percent))
                     logger.info('# Validation # TYPE num: {0} {1} {2} '.format(num_ress[0], num_ress[1],num_ress[2]))
