@@ -67,10 +67,6 @@ class SRModel(BaseModel):
                 else:
                     if self.rank <= 0:
                         logger.warning('Params [{:s}] will not optimize.'.format(k))
-            # self.optimizer_G = torch.optim.Adam(optim_params, lr=train_opt['lr_G'],
-            #                                     weight_decay=wd_G,
-            #                                     betas=(train_opt['beta1'], train_opt['beta2']))
-            # self.optimizers.append(self.optimizer_G)
 
             # schedulers
             # if train_opt['lr_scheme'] == 'MultiStepLR':

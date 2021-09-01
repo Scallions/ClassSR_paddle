@@ -186,7 +186,6 @@ def main():
                             if psnr_rlt.get(folder, None) is None:
                                 psnr_rlt[folder] = paddle.zeros(max_idx, dtype=paddle.float32,
                                                                device='cuda')
-                            # tmp = torch.zeros(max_idx, dtype=torch.float32, device='cuda')
                             model.feed_data(val_data)
                             model.test()
                             visuals = model.get_current_visuals()

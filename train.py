@@ -28,7 +28,7 @@ def main():
     #### options
     parser = argparse.ArgumentParser()
     parser.add_argument('-opt', type=str, help='Path to option YAML file.', default="./config/train/train_RCAN.yml")
-    parser.add_argument('--launcher', choices=['none', 'pytorch'], default='none',
+    parser.add_argument('--launcher', choices=['none', 'fleet'], default='none',
                         help='job launcher')
     parser.add_argument('--local_rank', type=int, default=0)
     args = parser.parse_args()
@@ -90,9 +90,6 @@ def main():
     if rank <= 0:
         logger.info('Random seed: {}'.format(seed))
     util.set_random_seed(seed)
-
-    # torch.backends.cudnn.benchmark = True
-    # torch.backends.cudnn.deterministic = True
 
     #### create train and val dataloader
     dataset_ratio = 200  # enlarge the size of each epoch

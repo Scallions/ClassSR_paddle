@@ -351,7 +351,7 @@ def calculate_weights_indices(in_length, out_length, scale, kernel, kernel_width
         kernel_width = kernel_width / scale
 
     # Output-space coordinates
-    #TODO: check paddle linspace with torch linspace
+    #TODO: check paddle linspace
     x = paddle.linspace(1, out_length, out_length)
 
     # Input-space coordinates. Calculate the inverse mapping such that 0.5
@@ -485,7 +485,7 @@ def imresize(img, scale, antialiasing=True):
 
     return out_2
 
-# TODO: paddle.slice == torch.narrow
+# TODO: paddle.slice == xx.narrow
 def imresize_np(img, scale, antialiasing=True):
     # Now the scale should be the same for H and W
     # input: img: Numpy, HWC BGR [0,1]
@@ -510,7 +510,6 @@ def imresize_np(img, scale, antialiasing=True):
     # process H dimension
     # symmetric copying
     img_aug = paddle.zeros((in_H + sym_len_Hs + sym_len_He, in_W, in_C),paddle.float32)
-    #img_aug = torch.FloatTensor(in_H + sym_len_Hs + sym_len_He, in_W, in_C)
     # img_aug.narrow(0, sym_len_Hs, in_H).copy_(img)
     img_aug[sym_len_He:sym_len_He+in_H,:,:] = img.astype("float32")
 
@@ -526,7 +525,6 @@ def imresize_np(img, scale, antialiasing=True):
     # img_aug.narrow(0, sym_len_Hs + in_H, sym_len_He).copy_(sym_patch_inv)
     img_aug[sym_len_Hs+in_H:sym_len_Hs+in_H+sym_len_He,:,:] = sym_patch_inv.astype("float32")
 
-    #out_1 = torch.FloatTensor(out_H, in_W, in_C)
     out_1 = paddle.zeros((out_H,in_W,in_C),paddle.float32)
     kernel_width = weights_H.shape[1]
     for i in range(out_H):
@@ -537,7 +535,6 @@ def imresize_np(img, scale, antialiasing=True):
 
     # process W dimension
     # symmetric copying
-    #out_1_aug = torch.FloatTensor(out_H, in_W + sym_len_Ws + sym_len_We, in_C)
     out_1_aug = paddle.zeros((out_H, in_W + sym_len_Ws + sym_len_We, in_C),paddle.float32)
     # out_1_aug.narrow(1, sym_len_Ws, in_W).copy_(out_1)
     out_1_aug[:,sym_len_Ws:sym_len_Ws+in_W,:] = out_1.astype("float32")
@@ -555,7 +552,6 @@ def imresize_np(img, scale, antialiasing=True):
     out_1_aug[:,sym_len_Ws+in_W:sym_len_Ws+in_W+sym_len_We,:] = sym_patch_inv.astype('float32')
 
     out_2 = paddle.zeros((out_H, out_W, in_C),paddle.float32)
-    #out_2 = torch.FloatTensor(out_H, out_W, in_C)
     kernel_width = weights_W.shape[1]
     for i in range(out_W):
         idx = int(indices_W[i][0])

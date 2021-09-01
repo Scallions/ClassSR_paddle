@@ -93,7 +93,6 @@ def set_random_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
     paddle.seed(seed)
-    #torch.cuda.manual_seed_all(seed)
 
 
 def setup_logger(logger_name, root, phase, level=logging.INFO, screen=False, tofile=False):
@@ -215,10 +214,10 @@ def make_grid(tensor, nrow=8, padding=2,
     return grid
 
 
-# TODO: torch make grid
+# TODO: make grid
 def tensor2img(tensor, out_type=np.uint8, min_max=(0, 1)):
     '''
-    Converts a torch Tensor into an image Numpy array
+    Converts a Tensor into an image Numpy array
     Input: 4D(B,(3/1),H,W), 3D(C,H,W), or 2D(H,W), any range, RGB channel order
     Output: 3D(H,W,C) or 2D(H,W), [0,255], np.uint8 (default)
     '''

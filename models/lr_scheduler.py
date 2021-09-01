@@ -2,9 +2,6 @@ import math
 from collections import Counter
 from collections import defaultdict
 import paddle
-# import torch
-#from paddle.optimizer.lr import LR
-# from torch.optim.lr_scheduler import _LRScheduler
 from paddle.optimizer.lr import LRScheduler
 
 class MultiStepLR_Restart(LRScheduler):
