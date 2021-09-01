@@ -13,7 +13,7 @@ import numpy as np
 
 #### options
 parser = argparse.ArgumentParser()
-parser.add_argument('-opt', type=str, required=True, help='Path to options YMAL file.')
+parser.add_argument('-opt', type=str, help='Path to options YMAL file.', default="config/test/test_RCAN.yml")
 opt = option.parse(parser.parse_args().opt, is_train=False)
 opt = option.dict_to_nonedict(opt)
 

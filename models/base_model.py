@@ -92,7 +92,7 @@ class BaseModel():
                 load_net_clean[k[7:]] = v
             else:
                 load_net_clean[k] = v
-        network.load_state_dict(load_net_clean, strict=strict)
+        network.set_state_dict(load_net_clean)#, strict=strict)
 
     def load_network_classifier(self,load_path, network, strict=True):
         # if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
@@ -104,7 +104,7 @@ class BaseModel():
                 load_net_clean[k[7:]] = v
             else:
                 load_net_clean[k] = v
-        network.load_state_dict(load_net_clean, strict=strict)
+        network.set_state_dict(load_net_clean)#, strict=strict)
 
     def load_network_classifier_rcan(self, load_path, network, strict=True):
         # if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
@@ -117,7 +117,7 @@ class BaseModel():
                 load_net_clean[k[11:]] = v
             else:
                 pass
-        network.load_state_dict(load_net_clean, strict=strict)
+        network.set_state_dict(load_net_clean)#, strict=strict)
 
     def load_network_classifier_(self, load_path, network, strict=True):
         # if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
@@ -130,7 +130,7 @@ class BaseModel():
                 load_net_clean[k[11:]] = v
             else:
                 pass
-        network.load_state_dict(load_net_clean, strict=strict)
+        network.set_state_dict(load_net_clean)#, strict=strict)
 
     def load_network_classSR_2class(self,load_path, network, strict=True):
 
@@ -146,7 +146,7 @@ class BaseModel():
                 load_net_clean[k[7:]] = v
             else:
                 load_net_clean[k] = v
-        network1.load_state_dict(load_net_clean, strict=strict)
+        network1.set_state_dict(load_net_clean)#, strict=strict)
 
         load_net = paddle.load(load_path[1])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
@@ -155,7 +155,7 @@ class BaseModel():
                 load_net_clean[k[7:]] = v
             else:
                 load_net_clean[k] = v
-        network2.load_state_dict(load_net_clean, strict=strict)
+        network2.set_state_dict(load_net_clean)#, strict=strict)
 
     def load_network_classSR_3class(self,load_path, network, strict=True):
 
@@ -173,7 +173,7 @@ class BaseModel():
                 load_net_clean[k[7:]] = v
             else:
                 load_net_clean[k] = v
-        network1.load_state_dict(load_net_clean, strict=strict)
+        network1.set_state_dict(load_net_clean)#, strict=strict)
 
         load_net = paddle.load(load_path[1])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
@@ -182,7 +182,7 @@ class BaseModel():
                 load_net_clean[k[7:]] = v
             else:
                 load_net_clean[k] = v
-        network2.load_state_dict(load_net_clean, strict=strict)
+        network2.set_state_dict(load_net_clean)#, strict=strict)
 
         load_net = paddle.load(load_path[2])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
@@ -191,7 +191,7 @@ class BaseModel():
                 load_net_clean[k[7:]] = v
             else:
                 load_net_clean[k] = v
-        network3.load_state_dict(load_net_clean, strict=strict)
+        network3.set_state_dict(load_net_clean)#, strict=strict)
 
     def load_network_classSR_4class(self,load_path, network, strict=True):
 
@@ -211,7 +211,7 @@ class BaseModel():
                 load_net_clean[k[7:]] = v
             else:
                 load_net_clean[k] = v
-        network1.load_state_dict(load_net_clean, strict=strict)
+        network1.set_state_dict(load_net_clean)#, strict=strict)
 
         load_net = paddle.load(load_path[1])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
@@ -220,7 +220,7 @@ class BaseModel():
                 load_net_clean[k[7:]] = v
             else:
                 load_net_clean[k] = v
-        network2.load_state_dict(load_net_clean, strict=strict)
+        network2.set_state_dict(load_net_clean)#, strict=strict)
 
         load_net = paddle.load(load_path[2])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
@@ -229,7 +229,7 @@ class BaseModel():
                 load_net_clean[k[7:]] = v
             else:
                 load_net_clean[k] = v
-        network3.load_state_dict(load_net_clean, strict=strict)
+        network3.set_state_dict(load_net_clean)#, strict=strict)
 
         load_net = paddle.load(load_path[3])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
@@ -238,7 +238,7 @@ class BaseModel():
                 load_net_clean[k[7:]] = v
             else:
                 load_net_clean[k] = v
-        network4.load_state_dict(load_net_clean, strict=strict)
+        network4.set_state_dict(load_net_clean)#, strict=strict)
 
     def load_network_classSR_5class(self,load_path, network, strict=True):
 
@@ -260,7 +260,7 @@ class BaseModel():
                 load_net_clean[k[7:]] = v
             else:
                 load_net_clean[k] = v
-        network1.load_state_dict(load_net_clean, strict=strict)
+        network1.set_state_dict(load_net_clean)#, strict=strict)
 
         load_net = paddle.load(load_path[1])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
@@ -269,7 +269,7 @@ class BaseModel():
                 load_net_clean[k[7:]] = v
             else:
                 load_net_clean[k] = v
-        network2.load_state_dict(load_net_clean, strict=strict)
+        network2.set_state_dict(load_net_clean)#, strict=strict)
 
         load_net = paddle.load(load_path[2])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
@@ -278,7 +278,7 @@ class BaseModel():
                 load_net_clean[k[7:]] = v
             else:
                 load_net_clean[k] = v
-        network3.load_state_dict(load_net_clean, strict=strict)
+        network3.set_state_dict(load_net_clean)#, strict=strict)
 
         load_net = paddle.load(load_path[3])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
@@ -287,7 +287,7 @@ class BaseModel():
                 load_net_clean[k[7:]] = v
             else:
                 load_net_clean[k] = v
-        network4.load_state_dict(load_net_clean, strict=strict)
+        network4.set_state_dict(load_net_clean)#, strict=strict)
 
         load_net = paddle.load(load_path[4])
         load_net_clean = OrderedDict()  # remove unnecessary 'module.'
@@ -296,7 +296,7 @@ class BaseModel():
                 load_net_clean[k[7:]] = v
             else:
                 load_net_clean[k] = v
-        network5.load_state_dict(load_net_clean, strict=strict)
+        network5.set_state_dict(load_net_clean)#, strict=strict)
 
     
 
@@ -318,6 +318,6 @@ class BaseModel():
         assert len(resume_optimizers) == len(self.optimizers), 'Wrong lengths of optimizers'
         assert len(resume_schedulers) == len(self.schedulers), 'Wrong lengths of schedulers'
         for i, o in enumerate(resume_optimizers):
-            self.optimizers[i].load_state_dict(o)
+            self.optimizers[i].set_state_dict(o)
         for i, s in enumerate(resume_schedulers):
-            self.schedulers[i].load_state_dict(s)
+            self.schedulers[i].set_state_dict(s)
