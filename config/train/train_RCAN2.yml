@@ -1,5 +1,5 @@
 #### general settings
-name: RCAN_branch1
+name: RCAN_branch3
 use_tb_logger: true
 model: sr
 distortion: sr
@@ -10,7 +10,7 @@ gpu_ids: [0]
 network_G:
   which_model_G: RCAN
   n_resblocks: 20 #number of residual blocks
-  n_feats: 36 #number of feature maps
+  n_feats: 50 #number of feature maps
   n_resgroups: 10
   res_scale: 1 #residual scaling
   n_colors: 3
@@ -23,8 +23,8 @@ datasets:
   train:
     name: DIV2K
     mode: LQGT_rcan
-    dataroot_GT: dataset/DIV2K_scale_sub_psnr_GT_class1
-    dataroot_LQ: dataset/DIV2K_scale_sub_psnr_LR_class1
+    dataroot_GT: dataset/DIV2K_scale_sub_psnr_GT_class2
+    dataroot_LQ: dataset/DIV2K_scale_sub_psnr_LR_class2
     # dataroot_GT: dataset/DIV2K_scale_sub/GT
     # dataroot_LQ: dataset/DIV2K_scale_sub/LR
 
