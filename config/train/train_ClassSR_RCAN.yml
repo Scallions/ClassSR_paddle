@@ -23,7 +23,7 @@ datasets:
 
     use_shuffle: true
     n_workers: 6  # per GPU
-    batch_size: 60
+    batch_size: 96
     GT_size: 128
     use_flip: true
     use_rot: true
@@ -31,10 +31,10 @@ datasets:
   val:
     name: DIV2K10
     mode: LQGT_rcan
-    # dataroot_GT: /data0/xtkong/ClassSR_hengyuan2/datasets/val_10/HR/X4
-    # dataroot_LQ: /data0/xtkong/ClassSR_hengyuan2/datasets/val_10/LR/X4
-    dataroot_GT: dataset/DIV2k_valid_sub/GT
-    dataroot_LQ: dataset/DIV2k_valid_sub/LR
+    dataroot_GT: dataset/val_10/HR
+    dataroot_LQ: dataset/val_10/LR
+    # dataroot_GT: dataset/DIV2k_valid_sub/GT
+    # dataroot_LQ: dataset/DIV2k_valid_sub/LR
 
 #### network structures
 network_G:
@@ -44,17 +44,17 @@ network_G:
 
 #### path
 path:
-  pretrain_model_G: .
-  pretrain_model_classifier: .
-  pretrain_model_G_branch1: experiments/pre_trained_models/RCAN_branch1.pth
-  pretrain_model_G_branch2: experiments/pre_trained_models/RCAN_branch2.pth
-  pretrain_model_G_branch3: experiments/pre_trained_models/RCAN_branch3.pth
+  pretrain_model_G: ~
+  pretrain_model_classifier: ~
+  pretrain_model_G_branch1: dataset/40000_G.pth
+  pretrain_model_G_branch2: dataset/65000_G.pth
+  pretrain_model_G_branch3: dataset/20000_G.pth
   resume_state: 
   strict_load: true
 
 #### training settings: learning rate scheme, loss
 train:
-  lr_G: !!float 3e-5
+  lr_G: !!float 2e-4
   lr_scheme: CosineAnnealingLR_Restart
   beta1: 0.9
   beta2: 0.99
@@ -63,12 +63,15 @@ train:
   T_period: [500000, 20000]
   restarts: [500000]
   restart_weights: [0.5]
-  eta_min: !!float 2e-6
+  eta_min: !!float 2e-5
 
   pixel_criterion: ClassSR_loss
-  l1w: 250
-  class_loss_w: 0.5
-  average_loss_w: 3
+  # l1w: 250
+  # class_loss_w: 0.5
+  # average_loss_w: 3
+  l1w: 2000
+  class_loss_w: 1
+  average_loss_w: 6
 
   manual_seed: 10
   val_freq: !!float 1000
