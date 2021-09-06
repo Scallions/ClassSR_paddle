@@ -90,7 +90,7 @@ def main():
     util.set_random_seed(seed)
 
     #### create train and val dataloader
-    dataset_ratio = 200  # enlarge the size of each epoch
+    dataset_ratio = 1  # enlarge the size of each epoch
     for phase, dataset_opt in opt['datasets'].items():
         if phase == 'train':
             train_set = create_dataset(dataset_opt)

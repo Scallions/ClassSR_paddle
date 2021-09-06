@@ -7,8 +7,8 @@ import shutil
 
 #divide testing data for single SR models
 
-LR_folder="dataset/DIV2K_valid_HR_sub/LR"
-GT_folder="dataset/DIV2K_valid_HR_sub/GT"
+LR_folder="dataset/DIV2K_valid_sub/LR"
+GT_folder="dataset/DIV2K_valid_sub/GT"
 
 save_list=["dataset/DIV2K_valid_HR_sub_psnr_LR_class3",
            "dataset/DIV2K_valid_HR_sub_psnr_LR_class2",

@@ -30,7 +30,7 @@ datasets:
 
     use_shuffle: true
     n_workers: 6  # per GPU
-    batch_size: 16
+    batch_size: 4
     GT_size: 128
     use_flip: true
     use_rot: true
@@ -55,7 +55,7 @@ train:
   lr_scheme: CosineAnnealingLR_Restart
   beta1: 0.9
   beta2: 0.99
-  niter: 1000000
+  niter: 500000
   warmup_iter: -1  # no warm up
   T_period: [500000]
   restarts: [500000]

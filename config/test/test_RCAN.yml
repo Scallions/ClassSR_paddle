@@ -1,5 +1,5 @@
 #### general settings
-name: test_RCAN_branch1
+name: test_RCAN_branch3
 model: sr
 distortion: sr
 scale: 4
@@ -10,7 +10,7 @@ gpu_ids: [0]
 network_G:
   which_model_G: RCAN
   n_resblocks: 20 #number of residual blocks
-  n_feats: 50 #number of feature maps
+  n_feats: 64 #number of feature maps
   n_resgroups: 10
   res_scale: 1 #residual scaling
   n_colors: 3
@@ -19,29 +19,35 @@ network_G:
   reduction: 16
 
 datasets:
-  test2k:
-    name: test2k
+  # test2k:
+  #   name: test2k
+  #   mode: LQGT_rcan
+  #   dataroot_GT: dataset/test2k/HR/X4
+  #   dataroot_LQ: dataset/test2k/LR/X4
+  # val10:
+  #   name: val10
+  #   mode: LQGT_rcan
+  #   dataroot_GT: dataset/val_10/HR
+  #   dataroot_LQ: dataset/val_10/LR
+  test1:
+    name: class1
     mode: LQGT_rcan
-    dataroot_GT: dataset/test2k/HR/X4
-    dataroot_LQ: dataset/test2k/LR/X4
-  # test1:
-  #   name: class1
-  #   mode: LQGT_rcan
-  #   dataroot_GT: /data0/xtkong/data/DIV2K_valid_HR_sub_psnr_GT_class1
-  #   dataroot_LQ: /data0/xtkong/data/DIV2K_valid_HR_sub_psnr_LR_class1
-  # test2:
-  #   name: class2
-  #   mode: LQGT_rcan
-  #   dataroot_GT: /data0/xtkong/data/DIV2K_valid_HR_sub_psnr_GT_class2
-  #   dataroot_LQ: /data0/xtkong/data/DIV2K_valid_HR_sub_psnr_LR_class2
-  # test3:
-  #   name: class3
-  #   mode: LQGT_rcan
-  #   dataroot_GT: /data0/xtkong/data/DIV2K_valid_HR_sub_psnr_GT_class3
-  #   dataroot_LQ: /data0/xtkong/data/DIV2K_valid_HR_sub_psnr_LR_class3
+    dataroot_GT: dataset/DIV2K_valid_HR_sub_psnr_GT_class1
+    dataroot_LQ: dataset/DIV2K_valid_HR_sub_psnr_LR_class1
+  test2:
+    name: class2
+    mode: LQGT_rcan
+    dataroot_GT: dataset/DIV2K_valid_HR_sub_psnr_GT_class2
+    dataroot_LQ: dataset/DIV2K_valid_HR_sub_psnr_LR_class2
+  test3:
+    name: class3
+    mode: LQGT_rcan
+    dataroot_GT: dataset/DIV2K_valid_HR_sub_psnr_GT_class3
+    dataroot_LQ: dataset/DIV2K_valid_HR_sub_psnr_LR_class3
 
 
 #### path
 path:
   # pretrain_model_G: /data0/xtkong/ClassSR-github/experiments/pre_trained_models/RCAN_branch1.pth
-  pretrain_model_G: dataset/400002_G.pth
+  # pretrain_model_G: dataset/RCAN_branch1.pdparams
+  pretrain_model_G: dataset/115000_G.pth

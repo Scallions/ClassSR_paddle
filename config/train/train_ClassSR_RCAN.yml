@@ -23,7 +23,7 @@ datasets:
 
     use_shuffle: true
     n_workers: 6  # per GPU
-    batch_size: 96
+    batch_size: 60
     GT_size: 128
     use_flip: true
     use_rot: true
@@ -46,9 +46,12 @@ network_G:
 path:
   pretrain_model_G: ~
   pretrain_model_classifier: ~
-  pretrain_model_G_branch1: dataset/40000_G.pth
-  pretrain_model_G_branch2: dataset/65000_G.pth
-  pretrain_model_G_branch3: dataset/20000_G.pth
+  # pretrain_model_G_branch1: dataset/40000_G1.pth
+  # pretrain_model_G_branch2: dataset/20000_G2.pth
+  # pretrain_model_G_branch3: dataset/20000_G3.pth
+  pretrain_model_G_branch1: dataset/RCAN_branch1.pdparams
+  pretrain_model_G_branch2: dataset/RCAN_branch2.pdparams
+  pretrain_model_G_branch3: dataset/RCAN_branch3.pdparams
   resume_state: 
   strict_load: true
 
@@ -66,12 +69,12 @@ train:
   eta_min: !!float 2e-5
 
   pixel_criterion: ClassSR_loss
-  # l1w: 250
-  # class_loss_w: 0.5
-  # average_loss_w: 3
-  l1w: 2000
-  class_loss_w: 1
-  average_loss_w: 6
+  l1w: 250
+  class_loss_w: 0.5
+  average_loss_w: 3
+  # l1w: 2000
+  # class_loss_w: 1
+  # average_loss_w: 6
 
   manual_seed: 10
   val_freq: !!float 1000

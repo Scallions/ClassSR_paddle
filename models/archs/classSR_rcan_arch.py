@@ -27,8 +27,8 @@ class classSR_3class_rcan(nn.Layer):
             self.net3.eval()
             class_type = self.classifier(x/255.)
             p = F.softmax(class_type, axis=1)
-            p = p + paddle.rand(p.shape) * 3e-5
-            p = F.softmax(p)
+            # p = p + paddle.rand(p.shape) * 3e-5
+            # p = F.softmax(p, axis=1)
             out1 = self.net1(x)
             out2 = self.net2(x)
             out3 = self.net3(x)

@@ -140,3 +140,5 @@ script/divide_train.log
 log/
 experiments/
 results/
+._.DS_Store
+.DS_Store
