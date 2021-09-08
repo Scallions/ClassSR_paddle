@@ -26,7 +26,7 @@ class SRModel(BaseModel):
 
 
         if opt['dist']:
-            self.rank = 2
+            self.rank = paddle.distributed.ParallelEnv().rank
         else:
             self.rank = -1  # non dist training
         train_opt = opt['train']
