@@ -60,10 +60,10 @@ def main():
 
     #### mkdir and loggers
     if rank <= 0:  # normal training (rank -1) OR distributed training (rank 0)
-        if resume_state is None:
-            util.mkdir_and_rename(
-                opt['path']['experiments_root'])  # rename experiment folder if exists
-            util.mkdirs((path for key, path in opt['path'].items() if not key == 'experiments_root'
+        # if resume_state is None:
+        util.mkdir_and_rename(
+            opt['path']['experiments_root'])  # rename experiment folder if exists
+        util.mkdirs((path for key, path in opt['path'].items() if not key == 'experiments_root'
                          and 'pretrain_model' not in key and 'resume' not in key))
 
         # config loggers. Before it, the log will not work
