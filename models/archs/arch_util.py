@@ -1,4 +1,5 @@
 import math
+from numpy import mod
 import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
@@ -12,14 +13,16 @@ def initialize_weights(net_l, scale=1):
     for net in net_l:
         for m in net.sublayers():
             if isinstance(m, nn.Conv2D):
-                init.kaiming_normal_(m.weight, a=0, mode='fan_in')
+                # init.kaiming_normal_(m.weight, a=0, mode='fan_in')
+                init.kaiming_uniform_(m.weight, a=0, mode='fan_in')
                 # TODO: 初始化权重
                 # m.weight.data *= scale  # for residual block
                 m.weight.set_value(scale*m.weight)
                 if m.bias is not None:
                     init.constant_(m.bias,value=0.)
             elif isinstance(m, nn.Linear):
-                init.kaiming_normal_(m.weight, a=0, mode='fan_in')
+                # init.kaiming_normal_(m.weight, a=0, mode='fan_in')
+                init.kaiming_uniform_(m.weight, a=0, mode='fan_in')
                 # m.weight.data *= scale  # for residual block
                 m.weight.set_value(scale*m.weight)
                 if m.bias is not None:

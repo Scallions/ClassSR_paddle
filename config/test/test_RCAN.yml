@@ -1,5 +1,5 @@
 #### general settings
-name: test_RCAN_branch3
+name: test_RCAN_branch2
 model: sr
 distortion: sr
 scale: 4
@@ -10,7 +10,7 @@ gpu_ids: [0]
 network_G:
   which_model_G: RCAN
   n_resblocks: 20 #number of residual blocks
-  n_feats: 64 #number of feature maps
+  n_feats: 50 #number of feature maps
   n_resgroups: 10
   res_scale: 1 #residual scaling
   n_colors: 3
@@ -50,4 +50,4 @@ datasets:
 path:
   # pretrain_model_G: /data0/xtkong/ClassSR-github/experiments/pre_trained_models/RCAN_branch1.pth
   # pretrain_model_G: dataset/RCAN_branch1.pdparams
-  pretrain_model_G: dataset/115000_G.pth
+  pretrain_model_G: dataset/500000_G.pth

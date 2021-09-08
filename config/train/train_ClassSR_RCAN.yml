@@ -69,12 +69,12 @@ train:
   eta_min: !!float 2e-5
 
   pixel_criterion: ClassSR_loss
-  l1w: 250
-  class_loss_w: 0.5
-  average_loss_w: 3
-  # l1w: 2000
-  # class_loss_w: 1
-  # average_loss_w: 6
+  # l1w: 250
+  # class_loss_w: 0.5
+  # average_loss_w: 3
+  l1w: 2000
+  class_loss_w: 2
+  average_loss_w: 6
 
   manual_seed: 10
   val_freq: !!float 1000
