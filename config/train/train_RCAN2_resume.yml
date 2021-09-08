@@ -4,7 +4,7 @@ use_tb_logger: true
 model: sr
 distortion: sr
 scale: 4
-gpu_ids: [0]
+gpu_ids: [0,1,2,3]
 
 #### network structures
 network_G:

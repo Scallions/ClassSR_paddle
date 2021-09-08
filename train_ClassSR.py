@@ -51,8 +51,7 @@ def main():
         # distributed resuming: all load into default GPU
         # TODO: resume
         device_id = paddle.distributed.ParallelEnv().device_id
-        resume_state = paddle.load(opt['path']['resume_state'],
-                                  map_location=lambda storage, loc: storage.cuda(device_id))
+        resume_state = paddle.load(opt['path']['resume_state'])
         option.check_resume(opt, resume_state['iter'])  # check resume options
     else:
         resume_state = None
