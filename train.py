@@ -51,8 +51,7 @@ def main():
     #### loading resume state if exists
     if opt['path'].get('resume_state', None):
         # distributed resuming: all load into default GPU
-        # TODO: resume
-        device_id = paddle.distributed.ParallelEnv().device_id
+        # device_id = paddle.distributed.ParallelEnv().device_id
         resume_state = paddle.load(opt['path']['resume_state'])
         option.check_resume(opt, resume_state['iter'])  # check resume options
     else:

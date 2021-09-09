@@ -28,7 +28,6 @@ class ClassSR_Model(BaseModel):
         self.name = opt['name']
         self.which_model = opt['network_G']['which_model_G']
 
-        # TODO: get rank
         if opt['dist']:
             self.rank = paddle.distributed.ParallelEnv().rank
         else:
@@ -36,10 +35,7 @@ class ClassSR_Model(BaseModel):
         train_opt = opt['train']
 
         # define network and load pretrained models
-        # TODO: 切换设备
-        # self.netG = networks.define_G(opt).to(self.device)
         self.netG = networks.define_G(opt)
-        # TODO: change no load
         self.load()
 
         if opt['dist']:
@@ -56,7 +52,6 @@ class ClassSR_Model(BaseModel):
             self.netG.train()
 
             # loss
-            # TODO: remove to device
             loss_type = train_opt['pixel_criterion']
             if loss_type == 'l1':
                 self.cri_pix = nn.L1Loss()#.to(self.device)
@@ -91,7 +86,6 @@ class ClassSR_Model(BaseModel):
                         logger.warning('Params [{:s}] will not optimize.'.format(k))
 
             # schedulers
-            # TODO: scheduler
             # if train_opt['lr_scheme'] == 'MultiStepLR':
             #     for optimizer in self.optimizers:
             #         self.schedulers.append(
@@ -109,7 +103,6 @@ class ClassSR_Model(BaseModel):
             else:
                 raise NotImplementedError('MultiStepLR learning rate scheme is enough.')
 
-            # TODO: adam 参数设置
             self.optimizer_G = paddle.optimizer.Adam(learning_rate=self.schedulers[0], parameters=optim_params,
                                                      weight_decay=wd_G,
                                                      beta1=train_opt['beta1'], beta2=train_opt['beta2'])
@@ -120,7 +113,6 @@ class ClassSR_Model(BaseModel):
             self.log_dict = OrderedDict()
 
     def feed_data(self, data, need_GT=True):
-        # TODO: to device
         self.var_L = data['LQ']#.to(self.device)
         self.LQ_path = data['LQ_path'][0]
         if need_GT:

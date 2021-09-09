@@ -90,7 +90,6 @@ class GradientPenaltyLoss(nn.Layer):
     def __init__(self, device='cpu'):
         super(GradientPenaltyLoss, self).__init__()
         self.register_buffer('grad_outputs', paddle.Tensor())
-        # TODO: device
         self.grad_outputs = self.grad_outputs.set_device(device)
 
     def get_grad_outputs(self, input):
@@ -100,7 +99,6 @@ class GradientPenaltyLoss(nn.Layer):
 
     def forward(self, interp, interp_crit):
         grad_outputs = self.get_grad_outputs(interp_crit)
-        # TODO: grad
         grad_interp = paddle.autograd.grad(outputs=interp_crit, inputs=interp,
                                           grad_outputs=grad_outputs, create_graph=True,
                                           retain_graph=True, only_inputs=True)[0]

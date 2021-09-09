@@ -15,7 +15,6 @@ def initialize_weights(net_l, scale=1):
             if isinstance(m, nn.Conv2D):
                 # init.kaiming_normal_(m.weight, a=0, mode='fan_in')
                 init.kaiming_uniform_(m.weight, a=0, mode='fan_in')
-                # TODO: 初始化权重
                 # m.weight.data *= scale  # for residual block
                 m.weight.set_value(scale*m.weight)
                 if m.bias is not None:
@@ -102,7 +101,6 @@ class MeanShift(nn.Conv2D):
     def __init__(self, rgb_range, rgb_mean, rgb_std, sign=-1):
         super(MeanShift, self).__init__(3, 3, kernel_size=1)
         std = paddle.to_tensor(rgb_std)
-        # TODO: weight.data shift
         # self.weight.data = paddle.eye(3).view(3, 3, 1, 1)
         # self.weight.data.div_(std.view(3, 1, 1, 1))
         # self.bias.data = sign * rgb_range * paddle.Tensor(rgb_mean)

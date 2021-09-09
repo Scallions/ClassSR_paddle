@@ -32,7 +32,6 @@ class SRModel(BaseModel):
         train_opt = opt['train']
 
         # define network and load pretrained models
-        # TODO: to device
         self.netG = networks.define_G(opt)#.to(self.device)
         # print network
         self.print_network()
@@ -98,7 +97,6 @@ class SRModel(BaseModel):
             else:
                 raise NotImplementedError('MultiStepLR learning rate scheme is enough.')
 
-            # TODO: adam 参数设置
             self.optimizer_G = paddle.optimizer.Adam(learning_rate=self.schedulers[0], parameters=optim_params,
                                                      weight_decay=wd_G,
                                                      beta1=train_opt['beta1'], beta2=train_opt['beta2'])
