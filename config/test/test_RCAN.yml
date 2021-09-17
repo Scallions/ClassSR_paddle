@@ -1,5 +1,5 @@
 #### general settings
-name: test_RCAN_branch2
+name: test_RCAN_branch3
 model: sr
 distortion: sr
 scale: 4
@@ -10,7 +10,7 @@ gpu_ids: [0]
 network_G:
   which_model_G: RCAN
   n_resblocks: 20 #number of residual blocks
-  n_feats: 50 #number of feature maps
+  n_feats: 64 #number of feature maps
   n_resgroups: 10
   res_scale: 1 #residual scaling
   n_colors: 3

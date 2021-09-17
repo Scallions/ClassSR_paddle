@@ -15,6 +15,7 @@ from data import create_dataloader, create_dataset
 from models import create_model
 import numpy as np
 
+
 def init_dist(backend='nccl', **kwargs):
     """initialization for distributed training"""
     rank = paddle.distributed.ParallelEnv().rank

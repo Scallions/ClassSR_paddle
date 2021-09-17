@@ -1,13 +1,13 @@
 #### general settings
-name: ClassSR_RCAN
+name: ClassSR_RCAN_finetone
 use_tb_logger: true
 model: ClassSR
 distortion: sr
 scale: 4
-gpu_ids: [0,1]
+gpu_ids: [1]
 patch_size: 32
 step: 28
-fix_SR_module: true
+fix_SR_module: false
 
 
 
@@ -44,15 +44,20 @@ network_G:
 
 #### path
 path:
-  pretrain_model_G: dataset/46000_G.pth
+  #pretrain_model_G: dataset/46000_G.pth
+  pretrain_model_G : experiments/ClassSR_RCAN/models/62000_G.pth
   pretrain_model_classifier: ~
-  pretrain_model_G_branch1: dataset/500000_G.pth
-  pretrain_model_G_branch2: dataset/500000_G2.pth
-  pretrain_model_G_branch3: dataset/500000_G3.pth
+  pretrain_model_G_branch1: ~
+  pretrain_model_G_branch2: ~
+  pretrain_model_G_branch3: ~
+  #pretrain_model_G_branch1: dataset/500000_G.pth
+  #pretrain_model_G_branch2: dataset/500000_G2.pth
+  #pretrain_model_G_branch3: dataset/500000_G3.pth
   # pretrain_model_G_branch1: dataset/RCAN_branch1.pdparams
   # pretrain_model_G_branch2: dataset/RCAN_branch2.pdparams
   # pretrain_model_G_branch3: dataset/RCAN_branch3.pdparams
-  resume_state: dataset/46000.state
+  #resume_state: dataset/46000.state
+  resume_state: ~
   strict_load: true
 
 #### training settings: learning rate scheme, loss
@@ -74,7 +79,7 @@ train:
   # average_loss_w: 3
   l1w: 4
   class_loss_w: 2
-  average_loss_w: 3
+  average_loss_w: 6
 
   manual_seed: 10
   val_freq: !!float 1000
