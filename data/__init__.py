@@ -18,7 +18,7 @@ def create_dataloader(dataset, dataset_opt, opt=None, sampler=None):
             batch_size = dataset_opt['batch_size']
             shuffle = True
         return paddle.io.DataLoader(dataset, batch_size=batch_size, shuffle=shuffle,
-                                           num_workers=num_workers, drop_last=True)
+                                           num_workers=num_workers*4, drop_last=True)
     else:
         return paddle.io.DataLoader(dataset, batch_size=1, shuffle=False, num_workers=1)
 

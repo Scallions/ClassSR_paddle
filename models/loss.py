@@ -11,9 +11,11 @@ class class_loss_3class(nn.Layer):
         m = len(type_res[0]) - 1
         type_all = type_res
         loss = 0
-        for i in range(n):
-            sum_re = paddle.abs(type_all[i][0]-type_all[i][1]) + paddle.abs(type_all[i][0]-type_all[i][2]) + paddle.abs(type_all[i][1]-type_all[i][2])
-            loss += (m - sum_re)
+        sum_re = paddle.abs(type_all[:,0]-type_all[:,1]) + paddle.abs(type_all[:,0]-type_all[:,2]) + paddle.abs(type_all[:,1]-type_all[:,2])
+        return m - sum_re.mean()
+        # for i in range(n):
+            # sum_re = paddle.abs(type_all[i][0]-type_all[i][1]) + paddle.abs(type_all[i][0]-type_all[i][2]) + paddle.abs(type_all[i][1]-type_all[i][2])
+            # loss += (m - sum_re)
         return loss / n
 
 
@@ -30,12 +32,15 @@ class average_loss_3class(nn.Layer):
         sum2 = 0
         sum3 = 0
 
-        for i in range(n):
-            sum1 += type_all[i][0]
-            sum2 += type_all[i][1]
-            sum3 += type_all[i][2]
+        sums = paddle.sum(type_all, axis=0)
+        return paddle.abs(sums-n/m).sum() / (n/m*(m+1))
 
-        return (paddle.abs(sum1-n/m) + paddle.abs(sum2-n/m) + paddle.abs(sum3-n/m)) / ((n/m)*4)
+        # for i in range(n):
+        #     sum1 += type_all[i][0]
+        #     sum2 += type_all[i][1]
+        #     sum3 += type_all[i][2]
+
+        # return (paddle.abs(sum1-n/m) + paddle.abs(sum2-n/m) + paddle.abs(sum3-n/m)) / ((n/m)*4)
 
 class CharbonnierLoss(nn.Layer):
     """Charbonnier Loss (L1)"""

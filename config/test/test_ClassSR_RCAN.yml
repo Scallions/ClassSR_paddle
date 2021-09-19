@@ -37,9 +37,9 @@ network_G:
 
 #### path
 path:
-  pretrain_model_G: experiments/ClassSR_RCAN/models/62000_G.pth
-  #pretrain_model_G: dataset/46000_G.pth
+  # pretrain_model_G: experiments/ClassSR_RCAN/models/62000_G.pth
+  pretrain_model_G: dataset/200000_G.pth
   pretrain_model_classifier: ~
-  pretrain_model_G_branch1: dataset/500000_G.pth
-  pretrain_model_G_branch2: dataset/500000_G2.pth
-  pretrain_model_G_branch3: dataset/500000_G3.pth
+  pretrain_model_G_branch1: ~ #dataset/500000_G.pth
+  pretrain_model_G_branch2: ~ #dataset/500000_G2.pth
+  pretrain_model_G_branch3: ~ #dataset/500000_G3.pth
