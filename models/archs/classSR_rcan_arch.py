@@ -22,9 +22,9 @@ class classSR_3class_rcan(nn.Layer):
 
     def forward(self, x,is_train):
         if is_train:
-            self.net1.eval()
-            self.net2.eval()
-            self.net3.eval()
+            # self.net1.eval()
+            # self.net2.eval()
+            # self.net3.eval()
             class_type = self.classifier(x/255.)
             p = F.softmax(class_type, axis=1)
             # p = p + paddle.rand(p.shape) * 3e-5
