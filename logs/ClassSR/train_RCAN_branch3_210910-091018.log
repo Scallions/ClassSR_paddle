@@ -1,0 +1,3871 @@
+21-09-10 09:10:18.727 - INFO:   name: RCAN_branch3
+  use_tb_logger: True
+  model: sr
+  distortion: sr
+  scale: 4
+  gpu_ids: [0]
+  network_G:[
+    which_model_G: RCAN
+    n_resblocks: 20
+    n_feats: 64
+    n_resgroups: 10
+    res_scale: 1
+    n_colors: 3
+    rgb_range: 255
+    scale: 4
+    reduction: 16
+  ]
+  datasets:[
+    train:[
+      name: DIV2K
+      mode: LQGT_rcan
+      dataroot_GT: E:\dataset\div2k\class\DIV2k_scale_sub_psnr_GT_class3
+      dataroot_LQ: E:\dataset\div2k\class\DIV2k_scale_sub_psnr_LR_class3
+      use_shuffle: True
+      n_workers: 6
+      batch_size: 16
+      GT_size: 128
+      use_flip: True
+      use_rot: True
+      color: RGB
+      phase: train
+      scale: 4
+      data_type: img
+    ]
+    val:[
+      name: Set5
+      mode: LQGT_rcan
+      dataroot_GT: E:\dataset\div2k\Set5_valid_sub\Set5_valid_sub\GT
+      dataroot_LQ: E:\dataset\div2k\Set5_valid_sub\Set5_valid_sub\LR
+      phase: val
+      scale: 4
+      data_type: img
+    ]
+  ]
+  path:[
+    pretrain_model_G: E:\paddle_paper\ClassSR_paddle-develop\experiments\RCAN_branch3\models\120000_G.pth
+    strict_load: True
+    resume_state: E:\paddle_paper\ClassSR_paddle-develop\experiments\RCAN_branch3\training_state\120000.state
+    root: E:\paddle_paper\ClassSR_paddle-develop
+    experiments_root: E:\paddle_paper\ClassSR_paddle-develop\experiments\RCAN_branch3
+    models: E:\paddle_paper\ClassSR_paddle-develop\experiments\RCAN_branch3\models
+    training_state: E:\paddle_paper\ClassSR_paddle-develop\experiments\RCAN_branch3\training_state
+    log: E:\paddle_paper\ClassSR_paddle-develop\experiments\RCAN_branch3
+    val_images: E:\paddle_paper\ClassSR_paddle-develop\experiments\RCAN_branch3\val_images
+  ]
+  train:[
+    lr_G: 0.0002
+    lr_scheme: CosineAnnealingLR_Restart
+    beta1: 0.9
+    beta2: 0.99
+    niter: 500000
+    warmup_iter: -1
+    T_period: [500000]
+    restarts: [500000]
+    restart_weights: [1]
+    eta_min: 1e-07
+    lr_gamma: 0.5
+    clear_state: 1000000
+    pixel_criterion: l1
+    pixel_weight: 1.0
+    manual_seed: 9990
+    val_freq: 5000
+  ]
+  logger:[
+    print_freq: 100
+    save_checkpoint_freq: 5000
+  ]
+  is_train: True
+  dist: False
+
+21-09-10 09:10:18.782 - INFO: Random seed: 9990
+21-09-10 09:10:22.710 - INFO: Dataset [LQGTDataset_rcan - DIV2K] is created.
+21-09-10 09:10:22.711 - INFO: Number of train images: 531,335, iters: 33,209
+21-09-10 09:10:22.712 - INFO: Total epochs needed: 16 for iters 500,000
+21-09-10 09:10:22.714 - INFO: Dataset [LQGTDataset_rcan - Set5] is created.
+21-09-10 09:10:22.714 - INFO: Number of val images in [Set5]: 252
+21-09-10 09:10:25.617 - INFO: Network G structure: RCAN, with parameters: 15,592,379
+21-09-10 09:10:25.618 - INFO: RCAN(
+  (sub_mean): MeanShift(3, 3, kernel_size=[1, 1], data_format=NCHW)
+  (add_mean): MeanShift(3, 3, kernel_size=[1, 1], data_format=NCHW)
+  (head): Sequential(
+    (0): Conv2D(3, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+  )
+  (body): Sequential(
+    (0): ResidualGroup(
+      (body): Sequential(
+        (0): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (1): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (2): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (3): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (4): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (5): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (6): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (7): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (8): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (9): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (10): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (11): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (12): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (13): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (14): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (15): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (16): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (17): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (18): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (19): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (20): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+      )
+    )
+    (1): ResidualGroup(
+      (body): Sequential(
+        (0): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (1): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (2): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (3): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (4): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (5): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (6): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (7): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (8): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (9): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (10): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (11): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (12): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (13): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (14): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (15): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (16): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (17): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (18): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (19): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (20): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+      )
+    )
+    (2): ResidualGroup(
+      (body): Sequential(
+        (0): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (1): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (2): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (3): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (4): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (5): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (6): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (7): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (8): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (9): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (10): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (11): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (12): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (13): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (14): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (15): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (16): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (17): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (18): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (19): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (20): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+      )
+    )
+    (3): ResidualGroup(
+      (body): Sequential(
+        (0): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (1): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (2): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (3): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (4): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (5): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (6): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (7): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (8): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (9): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (10): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (11): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (12): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (13): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (14): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (15): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (16): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (17): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (18): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (19): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (20): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+      )
+    )
+    (4): ResidualGroup(
+      (body): Sequential(
+        (0): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (1): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (2): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (3): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (4): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (5): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (6): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (7): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (8): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (9): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (10): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (11): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (12): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (13): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (14): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (15): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (16): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (17): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (18): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (19): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (20): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+      )
+    )
+    (5): ResidualGroup(
+      (body): Sequential(
+        (0): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (1): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (2): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (3): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (4): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (5): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (6): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (7): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (8): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (9): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (10): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (11): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (12): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (13): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (14): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (15): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (16): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (17): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (18): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (19): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (20): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+      )
+    )
+    (6): ResidualGroup(
+      (body): Sequential(
+        (0): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (1): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (2): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (3): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (4): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (5): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (6): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (7): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (8): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (9): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (10): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (11): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (12): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (13): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (14): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (15): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (16): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (17): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (18): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (19): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (20): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+      )
+    )
+    (7): ResidualGroup(
+      (body): Sequential(
+        (0): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (1): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (2): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (3): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (4): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (5): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (6): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (7): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (8): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (9): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (10): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (11): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (12): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (13): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (14): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (15): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (16): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (17): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (18): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (19): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (20): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+      )
+    )
+    (8): ResidualGroup(
+      (body): Sequential(
+        (0): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (1): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (2): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (3): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (4): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (5): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (6): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (7): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (8): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (9): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (10): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (11): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (12): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (13): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (14): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (15): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (16): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (17): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (18): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (19): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (20): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+      )
+    )
+    (9): ResidualGroup(
+      (body): Sequential(
+        (0): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (1): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (2): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (3): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (4): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (5): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (6): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (7): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (8): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (9): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (10): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (11): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (12): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (13): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (14): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (15): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (16): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (17): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (18): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (19): RCAB(
+          (body): Sequential(
+            (0): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (1): ReLU(name=True)
+            (2): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+            (3): CALayer(
+              (avg_pool): AdaptiveAvgPool2D(output_size=1)
+              (conv_du): Sequential(
+                (0): Conv2D(64, 4, kernel_size=[1, 1], data_format=NCHW)
+                (1): ReLU()
+                (2): Conv2D(4, 64, kernel_size=[1, 1], data_format=NCHW)
+                (3): Sigmoid()
+              )
+            )
+          )
+        )
+        (20): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+      )
+    )
+    (10): Conv2D(64, 64, kernel_size=[3, 3], padding=1, data_format=NCHW)
+  )
+  (tail): Sequential(
+    (0): Upsampler(
+      (0): Conv2D(64, 256, kernel_size=[3, 3], padding=1, data_format=NCHW)
+      (1): PixelShuffle(upscale_factor=2)
+      (2): Conv2D(64, 256, kernel_size=[3, 3], padding=1, data_format=NCHW)
+      (3): PixelShuffle(upscale_factor=2)
+    )
+    (1): Conv2D(64, 3, kernel_size=[3, 3], padding=1, data_format=NCHW)
+  )
+)
+21-09-10 09:10:25.642 - INFO: Loading model for G [E:\paddle_paper\ClassSR_paddle-develop\experiments\RCAN_branch3\models\120000_G.pth] ...
+21-09-10 09:10:26.248 - INFO: Model [SRModel] is created.
+21-09-10 09:10:26.248 - INFO: Resuming training from epoch: 0, iter: 120000.
+21-09-10 09:10:26.248 - INFO: Start training from epoch: 0, iter: 120000
+21-09-10 09:12:16.768 - INFO: [epoch:  0, iter: 120,100, lr:(1.729e-04,)] l_pix: 1.1237e+01 
+21-09-10 09:14:01.895 - INFO: [epoch:  0, iter: 120,200, lr:(1.728e-04,)] l_pix: 1.0965e+01 
+21-09-10 09:15:46.326 - INFO: [epoch:  0, iter: 120,300, lr:(1.728e-04,)] l_pix: 1.3243e+01 
+21-09-10 09:17:30.832 - INFO: [epoch:  0, iter: 120,400, lr:(1.727e-04,)] l_pix: 1.2140e+01 
+21-09-10 09:19:13.747 - INFO: [epoch:  0, iter: 120,500, lr:(1.727e-04,)] l_pix: 1.1915e+01 
+21-09-10 09:20:54.971 - INFO: [epoch:  0, iter: 120,600, lr:(1.727e-04,)] l_pix: 1.1932e+01 
+21-09-10 09:22:36.233 - INFO: [epoch:  0, iter: 120,700, lr:(1.726e-04,)] l_pix: 1.1648e+01 
+21-09-10 09:24:18.471 - INFO: [epoch:  0, iter: 120,800, lr:(1.726e-04,)] l_pix: 1.1072e+01 
+21-09-10 09:26:01.948 - INFO: [epoch:  0, iter: 120,900, lr:(1.725e-04,)] l_pix: 1.3427e+01 
+21-09-10 09:27:45.275 - INFO: [epoch:  0, iter: 121,000, lr:(1.725e-04,)] l_pix: 1.3048e+01 
+21-09-10 09:29:27.328 - INFO: [epoch:  0, iter: 121,100, lr:(1.724e-04,)] l_pix: 1.0868e+01 
+21-09-10 09:31:08.031 - INFO: [epoch:  0, iter: 121,200, lr:(1.724e-04,)] l_pix: 1.2259e+01 
+21-09-10 09:32:49.700 - INFO: [epoch:  0, iter: 121,300, lr:(1.723e-04,)] l_pix: 1.1696e+01 
+21-09-10 09:34:33.795 - INFO: [epoch:  0, iter: 121,400, lr:(1.723e-04,)] l_pix: 1.1262e+01 
+21-09-10 09:36:19.789 - INFO: [epoch:  0, iter: 121,500, lr:(1.723e-04,)] l_pix: 1.2692e+01 
+21-09-10 09:38:05.481 - INFO: [epoch:  0, iter: 121,600, lr:(1.722e-04,)] l_pix: 1.2159e+01 
+21-09-10 09:39:51.074 - INFO: [epoch:  0, iter: 121,700, lr:(1.722e-04,)] l_pix: 1.3021e+01 
+21-09-10 09:41:35.514 - INFO: [epoch:  0, iter: 121,800, lr:(1.721e-04,)] l_pix: 1.2886e+01 
+21-09-10 09:43:20.071 - INFO: [epoch:  0, iter: 121,900, lr:(1.721e-04,)] l_pix: 1.1917e+01 
+21-09-10 09:45:04.648 - INFO: [epoch:  0, iter: 122,000, lr:(1.720e-04,)] l_pix: 1.2712e+01 
+21-09-10 09:46:49.210 - INFO: [epoch:  0, iter: 122,100, lr:(1.720e-04,)] l_pix: 1.2064e+01 
+21-09-10 09:48:34.615 - INFO: [epoch:  0, iter: 122,200, lr:(1.720e-04,)] l_pix: 1.0779e+01 
+21-09-10 09:50:19.795 - INFO: [epoch:  0, iter: 122,300, lr:(1.719e-04,)] l_pix: 1.0729e+01 
+21-09-10 09:52:04.875 - INFO: [epoch:  0, iter: 122,400, lr:(1.719e-04,)] l_pix: 1.3596e+01 
+21-09-10 09:53:49.936 - INFO: [epoch:  0, iter: 122,500, lr:(1.718e-04,)] l_pix: 8.9296e+00 
+21-09-10 09:55:35.682 - INFO: [epoch:  0, iter: 122,600, lr:(1.718e-04,)] l_pix: 1.3303e+01 
+21-09-10 09:57:20.422 - INFO: [epoch:  0, iter: 122,700, lr:(1.717e-04,)] l_pix: 1.1637e+01 
+21-09-10 09:59:05.398 - INFO: [epoch:  0, iter: 122,800, lr:(1.717e-04,)] l_pix: 1.2117e+01 
+21-09-10 10:00:50.551 - INFO: [epoch:  0, iter: 122,900, lr:(1.717e-04,)] l_pix: 1.1364e+01 
+21-09-10 10:02:35.715 - INFO: [epoch:  0, iter: 123,000, lr:(1.716e-04,)] l_pix: 1.2419e+01 
+21-09-10 10:04:20.670 - INFO: [epoch:  0, iter: 123,100, lr:(1.716e-04,)] l_pix: 1.3684e+01 
+21-09-10 10:06:05.560 - INFO: [epoch:  0, iter: 123,200, lr:(1.715e-04,)] l_pix: 1.2251e+01 
+21-09-10 10:07:51.336 - INFO: [epoch:  0, iter: 123,300, lr:(1.715e-04,)] l_pix: 1.2334e+01 
+21-09-10 10:09:37.234 - INFO: [epoch:  0, iter: 123,400, lr:(1.714e-04,)] l_pix: 1.1955e+01 
+21-09-10 10:11:21.780 - INFO: [epoch:  0, iter: 123,500, lr:(1.714e-04,)] l_pix: 1.1656e+01 
+21-09-10 10:13:06.480 - INFO: [epoch:  0, iter: 123,600, lr:(1.713e-04,)] l_pix: 1.0665e+01 
+21-09-10 10:14:51.355 - INFO: [epoch:  0, iter: 123,700, lr:(1.713e-04,)] l_pix: 1.1707e+01 
+21-09-10 10:16:36.123 - INFO: [epoch:  0, iter: 123,800, lr:(1.713e-04,)] l_pix: 1.1382e+01 
+21-09-10 10:18:21.008 - INFO: [epoch:  0, iter: 123,900, lr:(1.712e-04,)] l_pix: 1.1245e+01 
+21-09-10 10:20:05.714 - INFO: [epoch:  0, iter: 124,000, lr:(1.712e-04,)] l_pix: 1.0358e+01 
+21-09-10 10:21:50.386 - INFO: [epoch:  0, iter: 124,100, lr:(1.711e-04,)] l_pix: 1.1530e+01 
+21-09-10 10:23:35.071 - INFO: [epoch:  0, iter: 124,200, lr:(1.711e-04,)] l_pix: 1.2275e+01 
+21-09-10 10:25:20.042 - INFO: [epoch:  0, iter: 124,300, lr:(1.710e-04,)] l_pix: 1.0040e+01 
+21-09-10 10:27:04.872 - INFO: [epoch:  0, iter: 124,400, lr:(1.710e-04,)] l_pix: 1.0880e+01 
+21-09-10 10:28:49.721 - INFO: [epoch:  0, iter: 124,500, lr:(1.709e-04,)] l_pix: 1.0500e+01 
+21-09-10 10:30:34.686 - INFO: [epoch:  0, iter: 124,600, lr:(1.709e-04,)] l_pix: 1.2304e+01 
+21-09-10 10:32:19.525 - INFO: [epoch:  0, iter: 124,700, lr:(1.709e-04,)] l_pix: 9.7273e+00 
+21-09-10 10:34:04.657 - INFO: [epoch:  0, iter: 124,800, lr:(1.708e-04,)] l_pix: 1.1356e+01 
+21-09-10 10:35:49.645 - INFO: [epoch:  0, iter: 124,900, lr:(1.708e-04,)] l_pix: 1.1735e+01 
+21-09-10 10:37:34.638 - INFO: [epoch:  0, iter: 125,000, lr:(1.707e-04,)] l_pix: 1.1415e+01 
+21-09-10 10:39:41.536 - INFO: # Validation # PSNR: 2.8752e+01
+21-09-10 10:39:41.536 - INFO: Saving models and training states.
+21-09-10 10:41:28.977 - INFO: [epoch:  0, iter: 125,100, lr:(1.707e-04,)] l_pix: 1.0971e+01 
+21-09-10 10:43:15.023 - INFO: [epoch:  0, iter: 125,200, lr:(1.706e-04,)] l_pix: 1.2651e+01 
+21-09-10 10:45:00.575 - INFO: [epoch:  0, iter: 125,300, lr:(1.706e-04,)] l_pix: 9.7343e+00 
+21-09-10 10:46:45.610 - INFO: [epoch:  0, iter: 125,400, lr:(1.705e-04,)] l_pix: 9.8801e+00 
+21-09-10 10:48:31.112 - INFO: [epoch:  0, iter: 125,500, lr:(1.705e-04,)] l_pix: 1.1813e+01 
+21-09-10 10:50:16.332 - INFO: [epoch:  0, iter: 125,600, lr:(1.705e-04,)] l_pix: 1.0820e+01 
+21-09-10 10:52:01.707 - INFO: [epoch:  0, iter: 125,700, lr:(1.704e-04,)] l_pix: 1.1323e+01 
+21-09-10 10:53:47.093 - INFO: [epoch:  0, iter: 125,800, lr:(1.704e-04,)] l_pix: 1.2920e+01 
+21-09-10 10:55:32.497 - INFO: [epoch:  0, iter: 125,900, lr:(1.703e-04,)] l_pix: 1.2780e+01 
+21-09-10 10:57:18.129 - INFO: [epoch:  0, iter: 126,000, lr:(1.703e-04,)] l_pix: 1.1730e+01 
+21-09-10 10:59:03.760 - INFO: [epoch:  0, iter: 126,100, lr:(1.702e-04,)] l_pix: 1.2989e+01 
+21-09-10 11:00:49.040 - INFO: [epoch:  0, iter: 126,200, lr:(1.702e-04,)] l_pix: 1.3006e+01 
+21-09-10 11:02:33.834 - INFO: [epoch:  0, iter: 126,300, lr:(1.701e-04,)] l_pix: 1.5957e+01 
+21-09-10 11:04:18.642 - INFO: [epoch:  0, iter: 126,400, lr:(1.701e-04,)] l_pix: 1.2648e+01 
+21-09-10 11:06:03.423 - INFO: [epoch:  0, iter: 126,500, lr:(1.701e-04,)] l_pix: 9.8115e+00 
+21-09-10 11:07:48.268 - INFO: [epoch:  0, iter: 126,600, lr:(1.700e-04,)] l_pix: 1.1574e+01 
+21-09-10 11:09:33.077 - INFO: [epoch:  0, iter: 126,700, lr:(1.700e-04,)] l_pix: 1.1830e+01 
+21-09-10 11:11:17.930 - INFO: [epoch:  0, iter: 126,800, lr:(1.699e-04,)] l_pix: 1.1298e+01 
+21-09-10 11:13:02.670 - INFO: [epoch:  0, iter: 126,900, lr:(1.699e-04,)] l_pix: 1.3850e+01 
+21-09-10 11:14:47.525 - INFO: [epoch:  0, iter: 127,000, lr:(1.698e-04,)] l_pix: 1.0248e+01 
+21-09-10 11:16:32.206 - INFO: [epoch:  0, iter: 127,100, lr:(1.698e-04,)] l_pix: 1.1537e+01 
+21-09-10 11:18:16.783 - INFO: [epoch:  0, iter: 127,200, lr:(1.697e-04,)] l_pix: 1.2738e+01 
+21-09-10 11:20:01.837 - INFO: [epoch:  0, iter: 127,300, lr:(1.697e-04,)] l_pix: 1.2027e+01 
+21-09-10 11:21:46.723 - INFO: [epoch:  0, iter: 127,400, lr:(1.697e-04,)] l_pix: 1.0036e+01 
+21-09-10 11:23:31.622 - INFO: [epoch:  0, iter: 127,500, lr:(1.696e-04,)] l_pix: 1.3914e+01 
+21-09-10 11:25:16.478 - INFO: [epoch:  0, iter: 127,600, lr:(1.696e-04,)] l_pix: 1.0736e+01 
+21-09-10 11:27:01.395 - INFO: [epoch:  0, iter: 127,700, lr:(1.695e-04,)] l_pix: 9.9528e+00 
+21-09-10 11:28:46.523 - INFO: [epoch:  0, iter: 127,800, lr:(1.695e-04,)] l_pix: 1.2905e+01 
+21-09-10 11:30:31.542 - INFO: [epoch:  0, iter: 127,900, lr:(1.694e-04,)] l_pix: 1.2974e+01 
+21-09-10 11:32:16.574 - INFO: [epoch:  0, iter: 128,000, lr:(1.694e-04,)] l_pix: 1.1938e+01 
+21-09-10 11:34:01.549 - INFO: [epoch:  0, iter: 128,100, lr:(1.693e-04,)] l_pix: 1.2762e+01 
+21-09-10 11:35:46.660 - INFO: [epoch:  0, iter: 128,200, lr:(1.693e-04,)] l_pix: 1.2200e+01 
+21-09-10 11:37:31.390 - INFO: [epoch:  0, iter: 128,300, lr:(1.692e-04,)] l_pix: 1.2244e+01 
+21-09-10 11:39:16.591 - INFO: [epoch:  0, iter: 128,400, lr:(1.692e-04,)] l_pix: 1.2662e+01 
+21-09-10 11:41:01.553 - INFO: [epoch:  0, iter: 128,500, lr:(1.692e-04,)] l_pix: 1.0167e+01 
+21-09-10 11:42:46.816 - INFO: [epoch:  0, iter: 128,600, lr:(1.691e-04,)] l_pix: 1.2092e+01 
+21-09-10 11:44:31.996 - INFO: [epoch:  0, iter: 128,700, lr:(1.691e-04,)] l_pix: 1.3569e+01 
+21-09-10 11:46:17.195 - INFO: [epoch:  0, iter: 128,800, lr:(1.690e-04,)] l_pix: 1.0257e+01 
+21-09-10 11:48:02.435 - INFO: [epoch:  0, iter: 128,900, lr:(1.690e-04,)] l_pix: 1.2945e+01 
+21-09-10 11:49:47.690 - INFO: [epoch:  0, iter: 129,000, lr:(1.689e-04,)] l_pix: 1.0732e+01 
+21-09-10 11:51:33.047 - INFO: [epoch:  0, iter: 129,100, lr:(1.689e-04,)] l_pix: 1.0639e+01 
+21-09-10 11:53:18.384 - INFO: [epoch:  0, iter: 129,200, lr:(1.688e-04,)] l_pix: 1.2415e+01 
+21-09-10 11:55:03.841 - INFO: [epoch:  0, iter: 129,300, lr:(1.688e-04,)] l_pix: 1.0641e+01 
+21-09-10 11:56:49.411 - INFO: [epoch:  0, iter: 129,400, lr:(1.687e-04,)] l_pix: 1.2139e+01 
+21-09-10 11:58:34.715 - INFO: [epoch:  0, iter: 129,500, lr:(1.687e-04,)] l_pix: 1.0232e+01 
+21-09-10 12:00:20.841 - INFO: [epoch:  0, iter: 129,600, lr:(1.687e-04,)] l_pix: 1.0546e+01 
+21-09-10 12:02:06.782 - INFO: [epoch:  0, iter: 129,700, lr:(1.686e-04,)] l_pix: 1.0186e+01 
+21-09-10 12:03:52.964 - INFO: [epoch:  0, iter: 129,800, lr:(1.686e-04,)] l_pix: 1.0523e+01 
+21-09-10 12:05:38.672 - INFO: [epoch:  0, iter: 129,900, lr:(1.685e-04,)] l_pix: 1.2776e+01 
+21-09-10 12:07:24.138 - INFO: [epoch:  0, iter: 130,000, lr:(1.685e-04,)] l_pix: 1.2001e+01 
+21-09-10 12:09:31.787 - INFO: # Validation # PSNR: 2.8843e+01
+21-09-10 12:09:31.788 - INFO: Saving models and training states.
+21-09-10 12:11:18.794 - INFO: [epoch:  0, iter: 130,100, lr:(1.684e-04,)] l_pix: 1.2265e+01 
+21-09-10 12:13:03.825 - INFO: [epoch:  0, iter: 130,200, lr:(1.684e-04,)] l_pix: 1.1674e+01 
+21-09-10 12:14:48.978 - INFO: [epoch:  0, iter: 130,300, lr:(1.683e-04,)] l_pix: 1.2311e+01 
+21-09-10 12:16:33.875 - INFO: [epoch:  0, iter: 130,400, lr:(1.683e-04,)] l_pix: 1.1728e+01 
+21-09-10 12:18:19.044 - INFO: [epoch:  0, iter: 130,500, lr:(1.682e-04,)] l_pix: 9.9261e+00 
+21-09-10 12:20:04.201 - INFO: [epoch:  0, iter: 130,600, lr:(1.682e-04,)] l_pix: 1.2230e+01 
+21-09-10 12:21:49.057 - INFO: [epoch:  0, iter: 130,700, lr:(1.681e-04,)] l_pix: 1.1635e+01 
+21-09-10 12:23:34.059 - INFO: [epoch:  0, iter: 130,800, lr:(1.681e-04,)] l_pix: 1.0773e+01 
+21-09-10 12:25:18.741 - INFO: [epoch:  0, iter: 130,900, lr:(1.681e-04,)] l_pix: 1.1261e+01 
+21-09-10 12:27:03.543 - INFO: [epoch:  0, iter: 131,000, lr:(1.680e-04,)] l_pix: 1.1627e+01 
+21-09-10 12:28:48.691 - INFO: [epoch:  0, iter: 131,100, lr:(1.680e-04,)] l_pix: 1.0234e+01 
+21-09-10 12:30:33.776 - INFO: [epoch:  0, iter: 131,200, lr:(1.679e-04,)] l_pix: 1.3723e+01 
+21-09-10 12:32:18.898 - INFO: [epoch:  0, iter: 131,300, lr:(1.679e-04,)] l_pix: 1.3559e+01 
+21-09-10 12:34:03.922 - INFO: [epoch:  0, iter: 131,400, lr:(1.678e-04,)] l_pix: 1.1223e+01 
+21-09-10 12:35:49.134 - INFO: [epoch:  0, iter: 131,500, lr:(1.678e-04,)] l_pix: 1.1206e+01 
+21-09-10 12:37:34.256 - INFO: [epoch:  0, iter: 131,600, lr:(1.677e-04,)] l_pix: 1.1614e+01 
+21-09-10 12:39:19.502 - INFO: [epoch:  0, iter: 131,700, lr:(1.677e-04,)] l_pix: 1.2043e+01 
+21-09-10 12:41:07.038 - INFO: [epoch:  0, iter: 131,800, lr:(1.676e-04,)] l_pix: 1.1551e+01 
+21-09-10 12:42:52.839 - INFO: [epoch:  0, iter: 131,900, lr:(1.676e-04,)] l_pix: 1.1601e+01 
+21-09-10 12:44:38.668 - INFO: [epoch:  0, iter: 132,000, lr:(1.675e-04,)] l_pix: 1.2913e+01 
+21-09-10 12:46:24.639 - INFO: [epoch:  0, iter: 132,100, lr:(1.675e-04,)] l_pix: 1.4107e+01 
+21-09-10 12:48:11.372 - INFO: [epoch:  0, iter: 132,200, lr:(1.675e-04,)] l_pix: 1.1318e+01 
+21-09-10 12:49:57.853 - INFO: [epoch:  0, iter: 132,300, lr:(1.674e-04,)] l_pix: 1.1462e+01 
+21-09-10 12:51:43.849 - INFO: [epoch:  0, iter: 132,400, lr:(1.674e-04,)] l_pix: 1.2924e+01 
+21-09-10 12:53:28.786 - INFO: [epoch:  0, iter: 132,500, lr:(1.673e-04,)] l_pix: 1.3530e+01 
+21-09-10 12:55:13.529 - INFO: [epoch:  0, iter: 132,600, lr:(1.673e-04,)] l_pix: 1.0159e+01 
+21-09-10 12:56:58.144 - INFO: [epoch:  0, iter: 132,700, lr:(1.672e-04,)] l_pix: 1.0847e+01 
+21-09-10 12:58:43.244 - INFO: [epoch:  0, iter: 132,800, lr:(1.672e-04,)] l_pix: 1.2362e+01 
+21-09-10 13:00:28.260 - INFO: [epoch:  0, iter: 132,900, lr:(1.671e-04,)] l_pix: 1.1527e+01 
+21-09-10 13:02:13.287 - INFO: [epoch:  0, iter: 133,000, lr:(1.671e-04,)] l_pix: 1.1019e+01 
+21-09-10 13:03:58.305 - INFO: [epoch:  0, iter: 133,100, lr:(1.670e-04,)] l_pix: 1.3245e+01 
+21-09-10 13:05:43.219 - INFO: [epoch:  0, iter: 133,200, lr:(1.670e-04,)] l_pix: 1.1090e+01 
+21-09-10 13:07:27.991 - INFO: [epoch:  0, iter: 133,300, lr:(1.669e-04,)] l_pix: 1.2023e+01 
+21-09-10 13:09:12.850 - INFO: [epoch:  0, iter: 133,400, lr:(1.669e-04,)] l_pix: 1.2415e+01 
+21-09-10 13:10:57.914 - INFO: [epoch:  0, iter: 133,500, lr:(1.669e-04,)] l_pix: 1.0187e+01 
+21-09-10 13:12:42.925 - INFO: [epoch:  0, iter: 133,600, lr:(1.668e-04,)] l_pix: 1.1578e+01 
+21-09-10 13:14:28.362 - INFO: [epoch:  0, iter: 133,700, lr:(1.668e-04,)] l_pix: 1.1367e+01 
+21-09-10 13:16:13.794 - INFO: [epoch:  0, iter: 133,800, lr:(1.667e-04,)] l_pix: 1.1967e+01 
+21-09-10 13:17:58.887 - INFO: [epoch:  0, iter: 133,900, lr:(1.667e-04,)] l_pix: 1.0328e+01 
+21-09-10 13:19:44.114 - INFO: [epoch:  0, iter: 134,000, lr:(1.666e-04,)] l_pix: 1.0963e+01 
+21-09-10 13:21:29.439 - INFO: [epoch:  0, iter: 134,100, lr:(1.666e-04,)] l_pix: 1.0934e+01 
+21-09-10 13:23:14.690 - INFO: [epoch:  0, iter: 134,200, lr:(1.665e-04,)] l_pix: 1.1838e+01 
+21-09-10 13:24:59.808 - INFO: [epoch:  0, iter: 134,300, lr:(1.665e-04,)] l_pix: 1.2856e+01 
+21-09-10 13:26:44.975 - INFO: [epoch:  0, iter: 134,400, lr:(1.664e-04,)] l_pix: 1.3005e+01 
+21-09-10 13:28:30.222 - INFO: [epoch:  0, iter: 134,500, lr:(1.664e-04,)] l_pix: 1.2079e+01 
+21-09-10 13:30:15.328 - INFO: [epoch:  0, iter: 134,600, lr:(1.663e-04,)] l_pix: 1.2049e+01 
+21-09-10 13:32:00.331 - INFO: [epoch:  0, iter: 134,700, lr:(1.663e-04,)] l_pix: 1.1758e+01 
+21-09-10 13:33:45.347 - INFO: [epoch:  0, iter: 134,800, lr:(1.662e-04,)] l_pix: 1.0734e+01 
+21-09-10 13:35:30.479 - INFO: [epoch:  0, iter: 134,900, lr:(1.662e-04,)] l_pix: 1.2950e+01 
+21-09-10 13:37:15.938 - INFO: [epoch:  0, iter: 135,000, lr:(1.661e-04,)] l_pix: 1.3709e+01 
+21-09-10 13:39:22.163 - INFO: # Validation # PSNR: 2.8871e+01
+21-09-10 13:39:22.163 - INFO: Saving models and training states.
+21-09-10 13:41:08.074 - INFO: [epoch:  0, iter: 135,100, lr:(1.661e-04,)] l_pix: 1.1535e+01 
+21-09-10 13:42:53.154 - INFO: [epoch:  0, iter: 135,200, lr:(1.661e-04,)] l_pix: 1.1090e+01 
+21-09-10 13:44:38.256 - INFO: [epoch:  0, iter: 135,300, lr:(1.660e-04,)] l_pix: 1.0179e+01 
+21-09-10 13:46:23.418 - INFO: [epoch:  0, iter: 135,400, lr:(1.660e-04,)] l_pix: 9.6182e+00 
+21-09-10 13:48:08.575 - INFO: [epoch:  0, iter: 135,500, lr:(1.659e-04,)] l_pix: 1.2629e+01 
+21-09-10 13:49:53.695 - INFO: [epoch:  0, iter: 135,600, lr:(1.659e-04,)] l_pix: 1.3440e+01 
+21-09-10 13:51:38.843 - INFO: [epoch:  0, iter: 135,700, lr:(1.658e-04,)] l_pix: 1.2001e+01 
+21-09-10 13:53:23.732 - INFO: [epoch:  0, iter: 135,800, lr:(1.658e-04,)] l_pix: 1.1997e+01 
+21-09-10 13:55:08.608 - INFO: [epoch:  0, iter: 135,900, lr:(1.657e-04,)] l_pix: 1.2055e+01 
+21-09-10 13:56:53.610 - INFO: [epoch:  0, iter: 136,000, lr:(1.657e-04,)] l_pix: 1.2977e+01 
+21-09-10 13:58:38.975 - INFO: [epoch:  0, iter: 136,100, lr:(1.656e-04,)] l_pix: 1.3054e+01 
+21-09-10 14:00:24.344 - INFO: [epoch:  0, iter: 136,200, lr:(1.656e-04,)] l_pix: 1.0782e+01 
+21-09-10 14:02:12.831 - INFO: [epoch:  0, iter: 136,300, lr:(1.655e-04,)] l_pix: 1.1888e+01 
+21-09-10 14:03:59.744 - INFO: [epoch:  0, iter: 136,400, lr:(1.655e-04,)] l_pix: 1.3047e+01 
+21-09-10 14:05:44.877 - INFO: [epoch:  0, iter: 136,500, lr:(1.654e-04,)] l_pix: 1.0368e+01 
+21-09-10 14:07:30.131 - INFO: [epoch:  0, iter: 136,600, lr:(1.654e-04,)] l_pix: 1.1643e+01 
+21-09-10 14:09:15.372 - INFO: [epoch:  0, iter: 136,700, lr:(1.653e-04,)] l_pix: 1.1262e+01 
+21-09-10 14:11:00.496 - INFO: [epoch:  0, iter: 136,800, lr:(1.653e-04,)] l_pix: 1.2376e+01 
+21-09-10 14:12:45.805 - INFO: [epoch:  0, iter: 136,900, lr:(1.652e-04,)] l_pix: 1.2108e+01 
+21-09-10 14:14:30.994 - INFO: [epoch:  0, iter: 137,000, lr:(1.652e-04,)] l_pix: 1.1787e+01 
+21-09-10 14:16:15.882 - INFO: [epoch:  0, iter: 137,100, lr:(1.652e-04,)] l_pix: 1.2016e+01 
+21-09-10 14:18:00.702 - INFO: [epoch:  0, iter: 137,200, lr:(1.651e-04,)] l_pix: 9.1848e+00 
+21-09-10 14:19:45.957 - INFO: [epoch:  0, iter: 137,300, lr:(1.651e-04,)] l_pix: 1.1666e+01 
+21-09-10 14:21:31.271 - INFO: [epoch:  0, iter: 137,400, lr:(1.650e-04,)] l_pix: 1.0445e+01 
+21-09-10 14:23:16.904 - INFO: [epoch:  0, iter: 137,500, lr:(1.650e-04,)] l_pix: 1.0095e+01 
+21-09-10 14:25:02.133 - INFO: [epoch:  0, iter: 137,600, lr:(1.649e-04,)] l_pix: 1.1987e+01 
+21-09-10 14:26:47.209 - INFO: [epoch:  0, iter: 137,700, lr:(1.649e-04,)] l_pix: 1.1800e+01 
+21-09-10 14:28:32.437 - INFO: [epoch:  0, iter: 137,800, lr:(1.648e-04,)] l_pix: 1.3295e+01 
+21-09-10 14:30:17.814 - INFO: [epoch:  0, iter: 137,900, lr:(1.648e-04,)] l_pix: 1.0732e+01 
+21-09-10 14:32:03.121 - INFO: [epoch:  0, iter: 138,000, lr:(1.647e-04,)] l_pix: 1.1455e+01 
+21-09-10 14:33:48.325 - INFO: [epoch:  0, iter: 138,100, lr:(1.647e-04,)] l_pix: 1.1202e+01 
+21-09-10 14:35:33.601 - INFO: [epoch:  0, iter: 138,200, lr:(1.646e-04,)] l_pix: 1.1783e+01 
+21-09-10 14:37:18.863 - INFO: [epoch:  0, iter: 138,300, lr:(1.646e-04,)] l_pix: 1.1479e+01 
+21-09-10 14:39:03.855 - INFO: [epoch:  0, iter: 138,400, lr:(1.645e-04,)] l_pix: 1.0762e+01 
+21-09-10 14:40:48.956 - INFO: [epoch:  0, iter: 138,500, lr:(1.645e-04,)] l_pix: 1.1133e+01 
+21-09-10 14:42:34.824 - INFO: [epoch:  0, iter: 138,600, lr:(1.644e-04,)] l_pix: 1.1431e+01 
+21-09-10 14:44:20.777 - INFO: [epoch:  0, iter: 138,700, lr:(1.644e-04,)] l_pix: 1.0474e+01 
+21-09-10 14:46:06.177 - INFO: [epoch:  0, iter: 138,800, lr:(1.643e-04,)] l_pix: 9.9519e+00 
+21-09-10 14:47:51.711 - INFO: [epoch:  0, iter: 138,900, lr:(1.643e-04,)] l_pix: 1.2714e+01 
+21-09-10 14:49:37.273 - INFO: [epoch:  0, iter: 139,000, lr:(1.642e-04,)] l_pix: 1.1897e+01 
+21-09-10 14:51:22.700 - INFO: [epoch:  0, iter: 139,100, lr:(1.642e-04,)] l_pix: 1.1570e+01 
+21-09-10 14:53:08.079 - INFO: [epoch:  0, iter: 139,200, lr:(1.641e-04,)] l_pix: 1.1751e+01 
+21-09-10 14:54:53.486 - INFO: [epoch:  0, iter: 139,300, lr:(1.641e-04,)] l_pix: 1.1090e+01 
+21-09-10 14:56:38.746 - INFO: [epoch:  0, iter: 139,400, lr:(1.640e-04,)] l_pix: 1.1645e+01 
+21-09-10 14:58:24.166 - INFO: [epoch:  0, iter: 139,500, lr:(1.640e-04,)] l_pix: 1.2091e+01 
+21-09-10 15:00:09.800 - INFO: [epoch:  0, iter: 139,600, lr:(1.640e-04,)] l_pix: 1.1301e+01 
+21-09-10 15:01:55.608 - INFO: [epoch:  0, iter: 139,700, lr:(1.639e-04,)] l_pix: 1.4164e+01 
+21-09-10 15:03:41.227 - INFO: [epoch:  0, iter: 139,800, lr:(1.639e-04,)] l_pix: 1.1644e+01 
+21-09-10 15:05:26.672 - INFO: [epoch:  0, iter: 139,900, lr:(1.638e-04,)] l_pix: 1.2978e+01 
+21-09-10 15:07:12.016 - INFO: [epoch:  0, iter: 140,000, lr:(1.638e-04,)] l_pix: 1.4469e+01 
+21-09-10 15:09:18.580 - INFO: # Validation # PSNR: 2.8806e+01
+21-09-10 15:09:18.580 - INFO: Saving models and training states.
+21-09-10 15:11:05.248 - INFO: [epoch:  0, iter: 140,100, lr:(1.637e-04,)] l_pix: 1.2223e+01 
+21-09-10 15:12:50.903 - INFO: [epoch:  0, iter: 140,200, lr:(1.637e-04,)] l_pix: 1.1701e+01 
+21-09-10 15:14:36.493 - INFO: [epoch:  0, iter: 140,300, lr:(1.636e-04,)] l_pix: 1.1050e+01 
+21-09-10 15:16:22.116 - INFO: [epoch:  0, iter: 140,400, lr:(1.636e-04,)] l_pix: 1.2156e+01 
+21-09-10 15:18:07.622 - INFO: [epoch:  0, iter: 140,500, lr:(1.635e-04,)] l_pix: 1.1176e+01 
+21-09-10 15:19:53.181 - INFO: [epoch:  0, iter: 140,600, lr:(1.635e-04,)] l_pix: 1.2008e+01 
+21-09-10 15:21:38.709 - INFO: [epoch:  0, iter: 140,700, lr:(1.634e-04,)] l_pix: 1.2792e+01 
+21-09-10 15:23:24.553 - INFO: [epoch:  0, iter: 140,800, lr:(1.634e-04,)] l_pix: 1.1570e+01 
+21-09-10 15:25:10.141 - INFO: [epoch:  0, iter: 140,900, lr:(1.633e-04,)] l_pix: 1.0895e+01 
+21-09-10 15:26:55.758 - INFO: [epoch:  0, iter: 141,000, lr:(1.633e-04,)] l_pix: 1.2879e+01 
+21-09-10 15:28:41.381 - INFO: [epoch:  0, iter: 141,100, lr:(1.632e-04,)] l_pix: 9.8509e+00 
+21-09-10 15:30:26.730 - INFO: [epoch:  0, iter: 141,200, lr:(1.632e-04,)] l_pix: 1.2684e+01 
+21-09-10 15:32:12.375 - INFO: [epoch:  0, iter: 141,300, lr:(1.631e-04,)] l_pix: 1.3644e+01 
+21-09-10 15:33:58.011 - INFO: [epoch:  0, iter: 141,400, lr:(1.631e-04,)] l_pix: 9.2449e+00 
+21-09-10 15:35:43.643 - INFO: [epoch:  0, iter: 141,500, lr:(1.630e-04,)] l_pix: 1.0751e+01 
+21-09-10 15:37:29.543 - INFO: [epoch:  0, iter: 141,600, lr:(1.630e-04,)] l_pix: 1.2807e+01 
+21-09-10 15:39:15.135 - INFO: [epoch:  0, iter: 141,700, lr:(1.629e-04,)] l_pix: 1.1938e+01 
+21-09-10 15:41:00.642 - INFO: [epoch:  0, iter: 141,800, lr:(1.629e-04,)] l_pix: 1.1836e+01 
+21-09-10 15:42:46.708 - INFO: [epoch:  0, iter: 141,900, lr:(1.628e-04,)] l_pix: 1.1324e+01 
+21-09-10 15:44:32.082 - INFO: [epoch:  0, iter: 142,000, lr:(1.628e-04,)] l_pix: 1.0569e+01 
+21-09-10 15:46:17.391 - INFO: [epoch:  0, iter: 142,100, lr:(1.627e-04,)] l_pix: 1.0403e+01 
+21-09-10 15:48:02.421 - INFO: [epoch:  0, iter: 142,200, lr:(1.627e-04,)] l_pix: 1.1771e+01 
+21-09-10 15:49:47.065 - INFO: [epoch:  0, iter: 142,300, lr:(1.626e-04,)] l_pix: 1.3460e+01 
+21-09-10 15:51:31.897 - INFO: [epoch:  0, iter: 142,400, lr:(1.626e-04,)] l_pix: 1.1384e+01 
+21-09-10 15:53:16.589 - INFO: [epoch:  0, iter: 142,500, lr:(1.625e-04,)] l_pix: 1.0282e+01 
+21-09-10 15:55:01.490 - INFO: [epoch:  0, iter: 142,600, lr:(1.625e-04,)] l_pix: 1.0402e+01 
+21-09-10 15:56:46.661 - INFO: [epoch:  0, iter: 142,700, lr:(1.624e-04,)] l_pix: 1.1614e+01 
+21-09-10 15:58:31.553 - INFO: [epoch:  0, iter: 142,800, lr:(1.624e-04,)] l_pix: 1.1790e+01 
+21-09-10 16:00:16.757 - INFO: [epoch:  0, iter: 142,900, lr:(1.623e-04,)] l_pix: 1.0707e+01 
+21-09-10 16:02:01.932 - INFO: [epoch:  0, iter: 143,000, lr:(1.623e-04,)] l_pix: 1.2604e+01 
+21-09-10 16:03:47.178 - INFO: [epoch:  0, iter: 143,100, lr:(1.622e-04,)] l_pix: 1.1977e+01 
+21-09-10 16:05:32.237 - INFO: [epoch:  0, iter: 143,200, lr:(1.622e-04,)] l_pix: 1.2228e+01 
+21-09-10 16:07:17.431 - INFO: [epoch:  0, iter: 143,300, lr:(1.621e-04,)] l_pix: 1.1582e+01 
+21-09-10 16:09:02.629 - INFO: [epoch:  0, iter: 143,400, lr:(1.621e-04,)] l_pix: 1.1801e+01 
+21-09-10 16:10:47.830 - INFO: [epoch:  0, iter: 143,500, lr:(1.621e-04,)] l_pix: 1.1097e+01 
+21-09-10 16:12:32.931 - INFO: [epoch:  0, iter: 143,600, lr:(1.620e-04,)] l_pix: 1.0566e+01 
+21-09-10 16:14:17.856 - INFO: [epoch:  0, iter: 143,700, lr:(1.620e-04,)] l_pix: 1.2763e+01 
+21-09-10 16:16:03.337 - INFO: [epoch:  0, iter: 143,800, lr:(1.619e-04,)] l_pix: 1.0677e+01 
+21-09-10 16:17:47.586 - INFO: [epoch:  0, iter: 143,900, lr:(1.619e-04,)] l_pix: 1.0746e+01 
+21-09-10 16:19:27.917 - INFO: [epoch:  0, iter: 144,000, lr:(1.618e-04,)] l_pix: 1.0121e+01 
+21-09-10 16:21:08.397 - INFO: [epoch:  0, iter: 144,100, lr:(1.618e-04,)] l_pix: 1.2612e+01 
+21-09-10 16:22:50.330 - INFO: [epoch:  0, iter: 144,200, lr:(1.617e-04,)] l_pix: 1.1855e+01 
+21-09-10 16:24:33.510 - INFO: [epoch:  0, iter: 144,300, lr:(1.617e-04,)] l_pix: 1.1469e+01 
+21-09-10 16:26:16.618 - INFO: [epoch:  0, iter: 144,400, lr:(1.616e-04,)] l_pix: 1.1740e+01 
+21-09-10 16:27:59.745 - INFO: [epoch:  0, iter: 144,500, lr:(1.616e-04,)] l_pix: 1.1508e+01 
+21-09-10 16:29:42.580 - INFO: [epoch:  0, iter: 144,600, lr:(1.615e-04,)] l_pix: 1.2790e+01 
+21-09-10 16:31:25.905 - INFO: [epoch:  0, iter: 144,700, lr:(1.615e-04,)] l_pix: 1.3621e+01 
+21-09-10 16:33:09.836 - INFO: [epoch:  0, iter: 144,800, lr:(1.614e-04,)] l_pix: 1.1567e+01 
+21-09-10 16:34:53.790 - INFO: [epoch:  0, iter: 144,900, lr:(1.614e-04,)] l_pix: 1.1369e+01 
+21-09-10 16:36:37.347 - INFO: [epoch:  0, iter: 145,000, lr:(1.613e-04,)] l_pix: 1.2760e+01 
+21-09-10 16:38:42.504 - INFO: # Validation # PSNR: 2.8901e+01
+21-09-10 16:38:42.505 - INFO: Saving models and training states.
+21-09-10 16:40:25.457 - INFO: [epoch:  0, iter: 145,100, lr:(1.613e-04,)] l_pix: 1.3527e+01 
+21-09-10 16:42:09.231 - INFO: [epoch:  0, iter: 145,200, lr:(1.612e-04,)] l_pix: 1.0735e+01 
+21-09-10 16:43:56.267 - INFO: [epoch:  0, iter: 145,300, lr:(1.612e-04,)] l_pix: 1.0747e+01 
+21-09-10 16:45:43.993 - INFO: [epoch:  0, iter: 145,400, lr:(1.611e-04,)] l_pix: 1.0996e+01 
+21-09-10 16:47:29.550 - INFO: [epoch:  0, iter: 145,500, lr:(1.611e-04,)] l_pix: 1.3243e+01 
+21-09-10 16:49:14.601 - INFO: [epoch:  0, iter: 145,600, lr:(1.610e-04,)] l_pix: 1.3448e+01 
+21-09-10 16:50:59.339 - INFO: [epoch:  0, iter: 145,700, lr:(1.610e-04,)] l_pix: 1.1688e+01 
+21-09-10 16:52:44.537 - INFO: [epoch:  0, iter: 145,800, lr:(1.609e-04,)] l_pix: 1.1250e+01 
+21-09-10 16:54:29.549 - INFO: [epoch:  0, iter: 145,900, lr:(1.609e-04,)] l_pix: 1.0998e+01 
+21-09-10 16:56:16.970 - INFO: [epoch:  0, iter: 146,000, lr:(1.608e-04,)] l_pix: 1.0401e+01 
+21-09-10 16:58:03.421 - INFO: [epoch:  0, iter: 146,100, lr:(1.608e-04,)] l_pix: 9.9457e+00 
+21-09-10 16:59:50.444 - INFO: [epoch:  0, iter: 146,200, lr:(1.607e-04,)] l_pix: 1.0991e+01 
+21-09-10 17:01:37.714 - INFO: [epoch:  0, iter: 146,300, lr:(1.607e-04,)] l_pix: 1.2002e+01 
+21-09-10 17:03:24.897 - INFO: [epoch:  0, iter: 146,400, lr:(1.606e-04,)] l_pix: 1.1784e+01 
+21-09-10 17:05:11.981 - INFO: [epoch:  0, iter: 146,500, lr:(1.606e-04,)] l_pix: 1.1673e+01 
+21-09-10 17:06:56.891 - INFO: [epoch:  0, iter: 146,600, lr:(1.605e-04,)] l_pix: 1.0595e+01 
+21-09-10 17:08:41.878 - INFO: [epoch:  0, iter: 146,700, lr:(1.605e-04,)] l_pix: 1.3137e+01 
+21-09-10 17:10:27.169 - INFO: [epoch:  0, iter: 146,800, lr:(1.604e-04,)] l_pix: 1.3268e+01 
+21-09-10 17:12:12.070 - INFO: [epoch:  0, iter: 146,900, lr:(1.604e-04,)] l_pix: 1.0614e+01 
+21-09-10 17:13:57.113 - INFO: [epoch:  0, iter: 147,000, lr:(1.603e-04,)] l_pix: 1.0959e+01 
+21-09-10 17:15:42.538 - INFO: [epoch:  0, iter: 147,100, lr:(1.603e-04,)] l_pix: 1.0689e+01 
+21-09-10 17:17:27.404 - INFO: [epoch:  0, iter: 147,200, lr:(1.602e-04,)] l_pix: 1.4001e+01 
+21-09-10 17:19:12.246 - INFO: [epoch:  0, iter: 147,300, lr:(1.602e-04,)] l_pix: 1.1095e+01 
+21-09-10 17:20:57.009 - INFO: [epoch:  0, iter: 147,400, lr:(1.601e-04,)] l_pix: 9.8307e+00 
+21-09-10 17:22:42.204 - INFO: [epoch:  0, iter: 147,500, lr:(1.601e-04,)] l_pix: 1.0317e+01 
+21-09-10 17:24:27.674 - INFO: [epoch:  0, iter: 147,600, lr:(1.600e-04,)] l_pix: 1.1110e+01 
+21-09-10 17:26:13.059 - INFO: [epoch:  0, iter: 147,700, lr:(1.600e-04,)] l_pix: 1.2375e+01 
+21-09-10 17:27:58.202 - INFO: [epoch:  0, iter: 147,800, lr:(1.599e-04,)] l_pix: 1.1040e+01 
+21-09-10 17:29:43.414 - INFO: [epoch:  0, iter: 147,900, lr:(1.599e-04,)] l_pix: 1.2301e+01 
+21-09-10 17:31:28.833 - INFO: [epoch:  0, iter: 148,000, lr:(1.598e-04,)] l_pix: 1.2001e+01 
+21-09-10 17:33:14.429 - INFO: [epoch:  0, iter: 148,100, lr:(1.598e-04,)] l_pix: 1.0214e+01 
+21-09-10 17:34:59.681 - INFO: [epoch:  0, iter: 148,200, lr:(1.597e-04,)] l_pix: 1.1792e+01 
+21-09-10 17:36:44.832 - INFO: [epoch:  0, iter: 148,300, lr:(1.597e-04,)] l_pix: 1.2156e+01 
+21-09-10 17:38:30.118 - INFO: [epoch:  0, iter: 148,400, lr:(1.596e-04,)] l_pix: 9.3460e+00 
+21-09-10 17:40:15.543 - INFO: [epoch:  0, iter: 148,500, lr:(1.596e-04,)] l_pix: 1.1727e+01 
+21-09-10 17:42:00.666 - INFO: [epoch:  0, iter: 148,600, lr:(1.595e-04,)] l_pix: 1.1323e+01 
+21-09-10 17:43:45.930 - INFO: [epoch:  0, iter: 148,700, lr:(1.595e-04,)] l_pix: 1.1773e+01 
+21-09-10 17:45:31.079 - INFO: [epoch:  0, iter: 148,800, lr:(1.594e-04,)] l_pix: 1.1806e+01 
+21-09-10 17:47:16.634 - INFO: [epoch:  0, iter: 148,900, lr:(1.594e-04,)] l_pix: 8.9304e+00 
+21-09-10 17:49:02.159 - INFO: [epoch:  0, iter: 149,000, lr:(1.593e-04,)] l_pix: 1.0578e+01 
+21-09-10 17:50:47.445 - INFO: [epoch:  0, iter: 149,100, lr:(1.593e-04,)] l_pix: 9.7506e+00 
+21-09-10 17:52:32.428 - INFO: [epoch:  0, iter: 149,200, lr:(1.592e-04,)] l_pix: 1.1614e+01 
+21-09-10 17:54:17.726 - INFO: [epoch:  0, iter: 149,300, lr:(1.592e-04,)] l_pix: 1.2111e+01 
+21-09-10 17:56:03.059 - INFO: [epoch:  0, iter: 149,400, lr:(1.591e-04,)] l_pix: 1.0633e+01 
+21-09-10 17:57:48.123 - INFO: [epoch:  0, iter: 149,500, lr:(1.591e-04,)] l_pix: 1.1044e+01 
+21-09-10 17:59:33.226 - INFO: [epoch:  0, iter: 149,600, lr:(1.590e-04,)] l_pix: 1.2831e+01 
+21-09-10 18:01:18.410 - INFO: [epoch:  0, iter: 149,700, lr:(1.590e-04,)] l_pix: 1.2713e+01 
+21-09-10 18:03:03.787 - INFO: [epoch:  0, iter: 149,800, lr:(1.589e-04,)] l_pix: 1.4054e+01 
+21-09-10 18:04:49.004 - INFO: [epoch:  0, iter: 149,900, lr:(1.588e-04,)] l_pix: 1.0669e+01 
+21-09-10 18:06:34.025 - INFO: [epoch:  0, iter: 150,000, lr:(1.588e-04,)] l_pix: 1.1175e+01 
+21-09-10 18:08:39.783 - INFO: # Validation # PSNR: 2.8753e+01
+21-09-10 18:08:39.784 - INFO: Saving models and training states.
+21-09-10 18:10:26.064 - INFO: [epoch:  0, iter: 150,100, lr:(1.587e-04,)] l_pix: 1.2057e+01 
+21-09-10 18:12:11.497 - INFO: [epoch:  0, iter: 150,200, lr:(1.587e-04,)] l_pix: 9.9465e+00 
+21-09-10 18:13:57.248 - INFO: [epoch:  0, iter: 150,300, lr:(1.586e-04,)] l_pix: 1.3365e+01 
+21-09-10 18:15:42.504 - INFO: [epoch:  0, iter: 150,400, lr:(1.586e-04,)] l_pix: 1.1594e+01 
+21-09-10 18:17:27.665 - INFO: [epoch:  0, iter: 150,500, lr:(1.585e-04,)] l_pix: 1.1796e+01 
+21-09-10 18:19:12.829 - INFO: [epoch:  0, iter: 150,600, lr:(1.585e-04,)] l_pix: 1.2543e+01 
+21-09-10 18:20:58.049 - INFO: [epoch:  0, iter: 150,700, lr:(1.584e-04,)] l_pix: 1.3300e+01 
+21-09-10 18:22:43.347 - INFO: [epoch:  0, iter: 150,800, lr:(1.584e-04,)] l_pix: 1.1874e+01 
+21-09-10 18:24:28.908 - INFO: [epoch:  0, iter: 150,900, lr:(1.583e-04,)] l_pix: 9.7255e+00 
+21-09-10 18:26:14.095 - INFO: [epoch:  0, iter: 151,000, lr:(1.583e-04,)] l_pix: 1.0971e+01 
+21-09-10 18:27:59.088 - INFO: [epoch:  0, iter: 151,100, lr:(1.582e-04,)] l_pix: 1.1060e+01 
+21-09-10 18:29:44.176 - INFO: [epoch:  0, iter: 151,200, lr:(1.582e-04,)] l_pix: 1.5004e+01 
+21-09-10 18:31:29.396 - INFO: [epoch:  0, iter: 151,300, lr:(1.581e-04,)] l_pix: 1.1732e+01 
+21-09-10 18:33:14.946 - INFO: [epoch:  0, iter: 151,400, lr:(1.581e-04,)] l_pix: 1.2136e+01 
+21-09-10 18:35:01.419 - INFO: [epoch:  0, iter: 151,500, lr:(1.580e-04,)] l_pix: 1.1408e+01 
+21-09-10 18:36:47.153 - INFO: [epoch:  0, iter: 151,600, lr:(1.580e-04,)] l_pix: 1.5110e+01 
+21-09-10 18:38:32.461 - INFO: [epoch:  0, iter: 151,700, lr:(1.579e-04,)] l_pix: 1.0968e+01 
+21-09-10 18:40:17.895 - INFO: [epoch:  0, iter: 151,800, lr:(1.579e-04,)] l_pix: 1.2427e+01 
+21-09-10 18:42:03.102 - INFO: [epoch:  0, iter: 151,900, lr:(1.578e-04,)] l_pix: 1.1947e+01 
+21-09-10 18:43:48.792 - INFO: [epoch:  0, iter: 152,000, lr:(1.578e-04,)] l_pix: 1.5117e+01 
+21-09-10 18:45:34.174 - INFO: [epoch:  0, iter: 152,100, lr:(1.577e-04,)] l_pix: 1.2085e+01 
+21-09-10 18:47:19.132 - INFO: [epoch:  0, iter: 152,200, lr:(1.577e-04,)] l_pix: 1.1230e+01 
+21-09-10 18:49:03.993 - INFO: [epoch:  0, iter: 152,300, lr:(1.576e-04,)] l_pix: 1.1148e+01 
+21-09-10 18:50:49.135 - INFO: [epoch:  0, iter: 152,400, lr:(1.576e-04,)] l_pix: 1.3640e+01 
+21-09-10 18:52:34.120 - INFO: [epoch:  0, iter: 152,500, lr:(1.575e-04,)] l_pix: 1.0265e+01 
+21-09-10 18:54:18.882 - INFO: [epoch:  0, iter: 152,600, lr:(1.575e-04,)] l_pix: 1.0344e+01 
+21-09-10 18:56:03.733 - INFO: [epoch:  0, iter: 152,700, lr:(1.574e-04,)] l_pix: 1.2291e+01 
+21-09-10 18:57:48.877 - INFO: [epoch:  0, iter: 152,800, lr:(1.574e-04,)] l_pix: 1.2900e+01 
+21-09-10 18:59:34.100 - INFO: [epoch:  0, iter: 152,900, lr:(1.573e-04,)] l_pix: 1.1526e+01 
+21-09-10 19:01:19.840 - INFO: [epoch:  0, iter: 153,000, lr:(1.573e-04,)] l_pix: 1.0872e+01 
+21-09-10 19:03:05.300 - INFO: [epoch:  0, iter: 153,100, lr:(1.572e-04,)] l_pix: 9.9131e+00 
+21-09-10 19:04:50.737 - INFO: [epoch:  0, iter: 153,200, lr:(1.572e-04,)] l_pix: 1.2786e+01 
+21-09-10 19:06:36.241 - INFO: [epoch:  1, iter: 153,300, lr:(1.571e-04,)] l_pix: 1.2467e+01 
+21-09-10 19:08:21.854 - INFO: [epoch:  1, iter: 153,400, lr:(1.571e-04,)] l_pix: 1.1525e+01 
+21-09-10 19:10:07.145 - INFO: [epoch:  1, iter: 153,500, lr:(1.570e-04,)] l_pix: 1.1276e+01 
+21-09-10 19:11:52.528 - INFO: [epoch:  1, iter: 153,600, lr:(1.570e-04,)] l_pix: 1.3650e+01 
+21-09-10 19:13:37.887 - INFO: [epoch:  1, iter: 153,700, lr:(1.569e-04,)] l_pix: 1.2796e+01 
+21-09-10 19:15:23.411 - INFO: [epoch:  1, iter: 153,800, lr:(1.569e-04,)] l_pix: 9.7581e+00 
+21-09-10 19:17:08.250 - INFO: [epoch:  1, iter: 153,900, lr:(1.568e-04,)] l_pix: 1.2762e+01 
+21-09-10 19:18:53.317 - INFO: [epoch:  1, iter: 154,000, lr:(1.567e-04,)] l_pix: 1.2715e+01 
+21-09-10 19:20:38.633 - INFO: [epoch:  1, iter: 154,100, lr:(1.567e-04,)] l_pix: 1.1048e+01 
+21-09-10 19:22:23.925 - INFO: [epoch:  1, iter: 154,200, lr:(1.566e-04,)] l_pix: 1.2603e+01 
+21-09-10 19:24:09.661 - INFO: [epoch:  1, iter: 154,300, lr:(1.566e-04,)] l_pix: 9.9950e+00 
+21-09-10 19:25:55.255 - INFO: [epoch:  1, iter: 154,400, lr:(1.565e-04,)] l_pix: 1.3028e+01 
+21-09-10 19:27:40.740 - INFO: [epoch:  1, iter: 154,500, lr:(1.565e-04,)] l_pix: 1.0188e+01 
+21-09-10 19:29:26.167 - INFO: [epoch:  1, iter: 154,600, lr:(1.564e-04,)] l_pix: 1.0728e+01 
+21-09-10 19:31:11.516 - INFO: [epoch:  1, iter: 154,700, lr:(1.564e-04,)] l_pix: 1.2550e+01 
+21-09-10 19:32:56.735 - INFO: [epoch:  1, iter: 154,800, lr:(1.563e-04,)] l_pix: 9.9233e+00 
+21-09-10 19:34:41.756 - INFO: [epoch:  1, iter: 154,900, lr:(1.563e-04,)] l_pix: 1.3015e+01 
+21-09-10 19:36:27.105 - INFO: [epoch:  1, iter: 155,000, lr:(1.562e-04,)] l_pix: 1.0617e+01 
+21-09-10 19:38:33.634 - INFO: # Validation # PSNR: 2.8893e+01
+21-09-10 19:38:33.635 - INFO: Saving models and training states.
+21-09-10 19:40:19.541 - INFO: [epoch:  1, iter: 155,100, lr:(1.562e-04,)] l_pix: 1.0669e+01 
+21-09-10 19:42:04.544 - INFO: [epoch:  1, iter: 155,200, lr:(1.561e-04,)] l_pix: 1.3470e+01 
+21-09-10 19:43:49.432 - INFO: [epoch:  1, iter: 155,300, lr:(1.561e-04,)] l_pix: 1.1407e+01 
+21-09-10 19:45:34.488 - INFO: [epoch:  1, iter: 155,400, lr:(1.560e-04,)] l_pix: 1.1827e+01 
+21-09-10 19:47:19.794 - INFO: [epoch:  1, iter: 155,500, lr:(1.560e-04,)] l_pix: 1.1103e+01 
+21-09-10 19:49:05.423 - INFO: [epoch:  1, iter: 155,600, lr:(1.559e-04,)] l_pix: 9.7862e+00 
+21-09-10 19:50:49.353 - INFO: [epoch:  1, iter: 155,700, lr:(1.559e-04,)] l_pix: 1.2003e+01 
+21-09-10 19:52:33.126 - INFO: [epoch:  1, iter: 155,800, lr:(1.558e-04,)] l_pix: 1.3539e+01 
+21-09-10 19:54:17.952 - INFO: [epoch:  1, iter: 155,900, lr:(1.558e-04,)] l_pix: 1.1907e+01 
+21-09-10 19:56:02.789 - INFO: [epoch:  1, iter: 156,000, lr:(1.557e-04,)] l_pix: 1.1362e+01 
+21-09-10 19:57:47.612 - INFO: [epoch:  1, iter: 156,100, lr:(1.557e-04,)] l_pix: 1.2250e+01 
+21-09-10 19:59:32.353 - INFO: [epoch:  1, iter: 156,200, lr:(1.556e-04,)] l_pix: 1.3069e+01 
+21-09-10 20:01:17.246 - INFO: [epoch:  1, iter: 156,300, lr:(1.556e-04,)] l_pix: 1.1894e+01 
+21-09-10 20:03:02.284 - INFO: [epoch:  1, iter: 156,400, lr:(1.555e-04,)] l_pix: 1.2159e+01 
+21-09-10 20:04:46.888 - INFO: [epoch:  1, iter: 156,500, lr:(1.554e-04,)] l_pix: 1.0626e+01 
+21-09-10 20:06:31.550 - INFO: [epoch:  1, iter: 156,600, lr:(1.554e-04,)] l_pix: 1.1763e+01 
+21-09-10 20:08:16.421 - INFO: [epoch:  1, iter: 156,700, lr:(1.553e-04,)] l_pix: 1.1023e+01 
+21-09-10 20:10:01.449 - INFO: [epoch:  1, iter: 156,800, lr:(1.553e-04,)] l_pix: 1.3273e+01 
+21-09-10 20:11:46.780 - INFO: [epoch:  1, iter: 156,900, lr:(1.552e-04,)] l_pix: 1.1105e+01 
+21-09-10 20:13:32.043 - INFO: [epoch:  1, iter: 157,000, lr:(1.552e-04,)] l_pix: 1.1700e+01 
+21-09-10 20:15:17.078 - INFO: [epoch:  1, iter: 157,100, lr:(1.551e-04,)] l_pix: 1.0648e+01 
+21-09-10 20:17:02.078 - INFO: [epoch:  1, iter: 157,200, lr:(1.551e-04,)] l_pix: 1.1206e+01 
+21-09-10 20:18:47.262 - INFO: [epoch:  1, iter: 157,300, lr:(1.550e-04,)] l_pix: 1.4687e+01 
+21-09-10 20:20:33.076 - INFO: [epoch:  1, iter: 157,400, lr:(1.550e-04,)] l_pix: 1.0581e+01 
+21-09-10 20:22:19.703 - INFO: [epoch:  1, iter: 157,500, lr:(1.549e-04,)] l_pix: 9.6816e+00 
+21-09-10 20:24:04.871 - INFO: [epoch:  1, iter: 157,600, lr:(1.549e-04,)] l_pix: 1.2368e+01 
+21-09-10 20:25:50.261 - INFO: [epoch:  1, iter: 157,700, lr:(1.548e-04,)] l_pix: 1.0570e+01 
+21-09-10 20:27:35.848 - INFO: [epoch:  1, iter: 157,800, lr:(1.548e-04,)] l_pix: 1.4643e+01 
+21-09-10 20:29:21.433 - INFO: [epoch:  1, iter: 157,900, lr:(1.547e-04,)] l_pix: 1.2001e+01 
+21-09-10 20:31:07.033 - INFO: [epoch:  1, iter: 158,000, lr:(1.547e-04,)] l_pix: 1.2990e+01 
+21-09-10 20:32:52.331 - INFO: [epoch:  1, iter: 158,100, lr:(1.546e-04,)] l_pix: 1.1117e+01 
+21-09-10 20:34:38.024 - INFO: [epoch:  1, iter: 158,200, lr:(1.546e-04,)] l_pix: 1.1391e+01 
+21-09-10 20:36:23.704 - INFO: [epoch:  1, iter: 158,300, lr:(1.545e-04,)] l_pix: 1.4204e+01 
+21-09-10 20:38:09.865 - INFO: [epoch:  1, iter: 158,400, lr:(1.545e-04,)] l_pix: 1.1889e+01 
+21-09-10 20:39:55.842 - INFO: [epoch:  1, iter: 158,500, lr:(1.544e-04,)] l_pix: 1.3423e+01 
+21-09-10 20:41:41.044 - INFO: [epoch:  1, iter: 158,600, lr:(1.543e-04,)] l_pix: 1.0284e+01 
+21-09-10 20:43:26.465 - INFO: [epoch:  1, iter: 158,700, lr:(1.543e-04,)] l_pix: 1.0424e+01 
+21-09-10 20:45:12.031 - INFO: [epoch:  1, iter: 158,800, lr:(1.542e-04,)] l_pix: 1.1658e+01 
+21-09-10 20:46:57.512 - INFO: [epoch:  1, iter: 158,900, lr:(1.542e-04,)] l_pix: 1.1840e+01 
+21-09-10 20:48:43.364 - INFO: [epoch:  1, iter: 159,000, lr:(1.541e-04,)] l_pix: 1.0069e+01 
+21-09-10 20:50:29.038 - INFO: [epoch:  1, iter: 159,100, lr:(1.541e-04,)] l_pix: 1.4213e+01 
+21-09-10 20:52:14.670 - INFO: [epoch:  1, iter: 159,200, lr:(1.540e-04,)] l_pix: 1.1903e+01 
+21-09-10 20:54:00.432 - INFO: [epoch:  1, iter: 159,300, lr:(1.540e-04,)] l_pix: 9.6210e+00 
+21-09-10 20:55:46.097 - INFO: [epoch:  1, iter: 159,400, lr:(1.539e-04,)] l_pix: 1.3325e+01 
+21-09-10 20:57:31.518 - INFO: [epoch:  1, iter: 159,500, lr:(1.539e-04,)] l_pix: 1.1115e+01 
+21-09-10 20:59:17.185 - INFO: [epoch:  1, iter: 159,600, lr:(1.538e-04,)] l_pix: 9.7695e+00 
+21-09-10 21:01:02.557 - INFO: [epoch:  1, iter: 159,700, lr:(1.538e-04,)] l_pix: 1.0384e+01 
+21-09-10 21:02:48.092 - INFO: [epoch:  1, iter: 159,800, lr:(1.537e-04,)] l_pix: 1.2632e+01 
+21-09-10 21:04:34.065 - INFO: [epoch:  1, iter: 159,900, lr:(1.537e-04,)] l_pix: 1.0353e+01 
+21-09-10 21:06:20.028 - INFO: [epoch:  1, iter: 160,000, lr:(1.536e-04,)] l_pix: 1.1540e+01 
+21-09-10 21:08:26.016 - INFO: # Validation # PSNR: 2.8817e+01
+21-09-10 21:08:26.017 - INFO: Saving models and training states.
+21-09-10 21:10:11.813 - INFO: [epoch:  1, iter: 160,100, lr:(1.536e-04,)] l_pix: 1.2359e+01 
+21-09-10 21:11:57.292 - INFO: [epoch:  1, iter: 160,200, lr:(1.535e-04,)] l_pix: 1.0714e+01 
+21-09-10 21:13:42.811 - INFO: [epoch:  1, iter: 160,300, lr:(1.534e-04,)] l_pix: 1.0158e+01 
+21-09-10 21:15:28.098 - INFO: [epoch:  1, iter: 160,400, lr:(1.534e-04,)] l_pix: 1.1645e+01 
+21-09-10 21:17:13.618 - INFO: [epoch:  1, iter: 160,500, lr:(1.533e-04,)] l_pix: 1.2381e+01 
+21-09-10 21:18:58.968 - INFO: [epoch:  1, iter: 160,600, lr:(1.533e-04,)] l_pix: 1.2312e+01 
+21-09-10 21:20:44.447 - INFO: [epoch:  1, iter: 160,700, lr:(1.532e-04,)] l_pix: 1.0512e+01 
+21-09-10 21:22:30.155 - INFO: [epoch:  1, iter: 160,800, lr:(1.532e-04,)] l_pix: 1.0374e+01 
+21-09-10 21:24:15.984 - INFO: [epoch:  1, iter: 160,900, lr:(1.531e-04,)] l_pix: 1.0559e+01 
+21-09-10 21:26:01.696 - INFO: [epoch:  1, iter: 161,000, lr:(1.531e-04,)] l_pix: 1.2291e+01 
+21-09-10 21:27:47.319 - INFO: [epoch:  1, iter: 161,100, lr:(1.530e-04,)] l_pix: 1.0423e+01 
+21-09-10 21:29:33.062 - INFO: [epoch:  1, iter: 161,200, lr:(1.530e-04,)] l_pix: 1.0980e+01 
+21-09-10 21:31:18.556 - INFO: [epoch:  1, iter: 161,300, lr:(1.529e-04,)] l_pix: 1.1780e+01 
+21-09-10 21:33:04.097 - INFO: [epoch:  1, iter: 161,400, lr:(1.529e-04,)] l_pix: 1.3340e+01 
+21-09-10 21:34:49.752 - INFO: [epoch:  1, iter: 161,500, lr:(1.528e-04,)] l_pix: 1.2119e+01 
+21-09-10 21:36:35.493 - INFO: [epoch:  1, iter: 161,600, lr:(1.528e-04,)] l_pix: 1.0799e+01 
+21-09-10 21:38:21.196 - INFO: [epoch:  1, iter: 161,700, lr:(1.527e-04,)] l_pix: 1.2047e+01 
+21-09-10 21:40:07.049 - INFO: [epoch:  1, iter: 161,800, lr:(1.526e-04,)] l_pix: 1.2839e+01 
+21-09-10 21:41:52.637 - INFO: [epoch:  1, iter: 161,900, lr:(1.526e-04,)] l_pix: 1.2484e+01 
+21-09-10 21:43:38.182 - INFO: [epoch:  1, iter: 162,000, lr:(1.525e-04,)] l_pix: 1.1950e+01 
+21-09-10 21:45:23.995 - INFO: [epoch:  1, iter: 162,100, lr:(1.525e-04,)] l_pix: 1.0778e+01 
+21-09-10 21:47:10.008 - INFO: [epoch:  1, iter: 162,200, lr:(1.524e-04,)] l_pix: 1.2797e+01 
+21-09-10 21:48:55.729 - INFO: [epoch:  1, iter: 162,300, lr:(1.524e-04,)] l_pix: 1.2647e+01 
+21-09-10 21:50:41.542 - INFO: [epoch:  1, iter: 162,400, lr:(1.523e-04,)] l_pix: 1.3160e+01 
+21-09-10 21:52:27.285 - INFO: [epoch:  1, iter: 162,500, lr:(1.523e-04,)] l_pix: 1.2701e+01 
+21-09-10 21:54:12.645 - INFO: [epoch:  1, iter: 162,600, lr:(1.522e-04,)] l_pix: 1.0361e+01 
+21-09-10 21:55:58.029 - INFO: [epoch:  1, iter: 162,700, lr:(1.522e-04,)] l_pix: 1.0486e+01 
+21-09-10 21:57:43.245 - INFO: [epoch:  1, iter: 162,800, lr:(1.521e-04,)] l_pix: 1.1881e+01 
+21-09-10 21:59:28.759 - INFO: [epoch:  1, iter: 162,900, lr:(1.521e-04,)] l_pix: 1.1042e+01 
+21-09-10 22:01:14.167 - INFO: [epoch:  1, iter: 163,000, lr:(1.520e-04,)] l_pix: 1.0816e+01 
+21-09-10 22:02:59.870 - INFO: [epoch:  1, iter: 163,100, lr:(1.520e-04,)] l_pix: 9.1884e+00 
+21-09-10 22:04:45.574 - INFO: [epoch:  1, iter: 163,200, lr:(1.519e-04,)] l_pix: 1.3719e+01 
+21-09-10 22:06:31.063 - INFO: [epoch:  1, iter: 163,300, lr:(1.518e-04,)] l_pix: 1.1052e+01 
+21-09-10 22:08:17.169 - INFO: [epoch:  1, iter: 163,400, lr:(1.518e-04,)] l_pix: 1.1736e+01 
+21-09-10 22:10:03.249 - INFO: [epoch:  1, iter: 163,500, lr:(1.517e-04,)] l_pix: 1.0592e+01 
+21-09-10 22:11:48.915 - INFO: [epoch:  1, iter: 163,600, lr:(1.517e-04,)] l_pix: 9.7051e+00 
+21-09-10 22:13:34.646 - INFO: [epoch:  1, iter: 163,700, lr:(1.516e-04,)] l_pix: 1.1981e+01 
+21-09-10 22:15:20.156 - INFO: [epoch:  1, iter: 163,800, lr:(1.516e-04,)] l_pix: 1.2906e+01 
+21-09-10 22:17:05.548 - INFO: [epoch:  1, iter: 163,900, lr:(1.515e-04,)] l_pix: 1.2604e+01 
+21-09-10 22:18:50.857 - INFO: [epoch:  1, iter: 164,000, lr:(1.515e-04,)] l_pix: 1.1363e+01 
+21-09-10 22:20:36.149 - INFO: [epoch:  1, iter: 164,100, lr:(1.514e-04,)] l_pix: 1.1162e+01 
+21-09-10 22:22:21.657 - INFO: [epoch:  1, iter: 164,200, lr:(1.514e-04,)] l_pix: 1.0608e+01 
+21-09-10 22:24:07.231 - INFO: [epoch:  1, iter: 164,300, lr:(1.513e-04,)] l_pix: 1.0924e+01 
+21-09-10 22:25:52.540 - INFO: [epoch:  1, iter: 164,400, lr:(1.513e-04,)] l_pix: 1.0357e+01 
+21-09-10 22:27:38.126 - INFO: [epoch:  1, iter: 164,500, lr:(1.512e-04,)] l_pix: 1.0783e+01 
+21-09-10 22:29:23.399 - INFO: [epoch:  1, iter: 164,600, lr:(1.511e-04,)] l_pix: 1.2783e+01 
+21-09-10 22:31:08.973 - INFO: [epoch:  1, iter: 164,700, lr:(1.511e-04,)] l_pix: 1.2678e+01 
+21-09-10 22:32:54.960 - INFO: [epoch:  1, iter: 164,800, lr:(1.510e-04,)] l_pix: 1.0809e+01 
+21-09-10 22:34:40.670 - INFO: [epoch:  1, iter: 164,900, lr:(1.510e-04,)] l_pix: 1.1203e+01 
+21-09-10 22:36:26.398 - INFO: [epoch:  1, iter: 165,000, lr:(1.509e-04,)] l_pix: 9.9046e+00 
+21-09-10 22:38:32.978 - INFO: # Validation # PSNR: 2.8821e+01
+21-09-10 22:38:32.979 - INFO: Saving models and training states.
+21-09-10 22:40:19.321 - INFO: [epoch:  1, iter: 165,100, lr:(1.509e-04,)] l_pix: 1.2254e+01 
+21-09-10 22:42:04.811 - INFO: [epoch:  1, iter: 165,200, lr:(1.508e-04,)] l_pix: 1.4598e+01 
+21-09-10 22:43:50.317 - INFO: [epoch:  1, iter: 165,300, lr:(1.508e-04,)] l_pix: 1.1529e+01 
+21-09-10 22:45:35.839 - INFO: [epoch:  1, iter: 165,400, lr:(1.507e-04,)] l_pix: 1.2210e+01 
+21-09-10 22:47:19.280 - INFO: [epoch:  1, iter: 165,500, lr:(1.507e-04,)] l_pix: 1.1526e+01 
+21-09-10 22:49:00.557 - INFO: [epoch:  1, iter: 165,600, lr:(1.506e-04,)] l_pix: 1.1719e+01 
+21-09-10 22:50:43.294 - INFO: [epoch:  1, iter: 165,700, lr:(1.505e-04,)] l_pix: 1.0427e+01 
+21-09-10 22:52:25.013 - INFO: [epoch:  1, iter: 165,800, lr:(1.505e-04,)] l_pix: 1.1530e+01 
+21-09-10 22:54:06.598 - INFO: [epoch:  1, iter: 165,900, lr:(1.504e-04,)] l_pix: 1.1361e+01 
+21-09-10 22:55:48.007 - INFO: [epoch:  1, iter: 166,000, lr:(1.504e-04,)] l_pix: 3.3579e+04 
+21-09-10 22:57:29.243 - INFO: [epoch:  1, iter: 166,100, lr:(1.503e-04,)] l_pix: 9.0685e+05 
+21-09-10 22:59:10.312 - INFO: [epoch:  1, iter: 166,200, lr:(1.503e-04,)] l_pix: 9.6246e+05 
+21-09-10 23:00:52.986 - INFO: [epoch:  1, iter: 166,300, lr:(1.502e-04,)] l_pix: 1.8681e+04 
+21-09-10 23:02:33.800 - INFO: [epoch:  1, iter: 166,400, lr:(1.502e-04,)] l_pix: 7.2350e+03 
+21-09-10 23:04:14.392 - INFO: [epoch:  1, iter: 166,500, lr:(1.501e-04,)] l_pix: 7.7179e+05 
+21-09-10 23:05:56.175 - INFO: [epoch:  1, iter: 166,600, lr:(1.501e-04,)] l_pix: 2.2238e+03 
+21-09-10 23:07:39.428 - INFO: [epoch:  1, iter: 166,700, lr:(1.500e-04,)] l_pix: 2.4164e+02 
+21-09-10 23:09:22.786 - INFO: [epoch:  1, iter: 166,800, lr:(1.500e-04,)] l_pix: 4.6943e+03 
+21-09-10 23:11:05.197 - INFO: [epoch:  1, iter: 166,900, lr:(1.499e-04,)] l_pix: 7.6206e+03 
+21-09-10 23:12:46.072 - INFO: [epoch:  1, iter: 167,000, lr:(1.498e-04,)] l_pix: 1.5611e+04 
+21-09-10 23:14:27.033 - INFO: [epoch:  1, iter: 167,100, lr:(1.498e-04,)] l_pix: 2.1174e+03 
+21-09-10 23:16:07.336 - INFO: [epoch:  1, iter: 167,200, lr:(1.497e-04,)] l_pix: 2.0350e+03 
+21-09-10 23:17:50.882 - INFO: [epoch:  1, iter: 167,300, lr:(1.497e-04,)] l_pix: 2.5417e+03 
+21-09-10 23:19:32.822 - INFO: [epoch:  1, iter: 167,400, lr:(1.496e-04,)] l_pix: 2.3884e+03 
+21-09-10 23:21:14.387 - INFO: [epoch:  1, iter: 167,500, lr:(1.496e-04,)] l_pix: 1.2547e+03 
+21-09-10 23:22:55.328 - INFO: [epoch:  1, iter: 167,600, lr:(1.495e-04,)] l_pix: 7.5092e+02 
+21-09-10 23:24:36.043 - INFO: [epoch:  1, iter: 167,700, lr:(1.495e-04,)] l_pix: 2.9507e+03 
+21-09-10 23:26:18.630 - INFO: [epoch:  1, iter: 167,800, lr:(1.494e-04,)] l_pix: 9.0997e+02 
+21-09-10 23:28:01.585 - INFO: [epoch:  1, iter: 167,900, lr:(1.494e-04,)] l_pix: 1.5019e+03 
+21-09-10 23:29:43.962 - INFO: [epoch:  1, iter: 168,000, lr:(1.493e-04,)] l_pix: 1.0834e+02 
+21-09-10 23:31:26.179 - INFO: [epoch:  1, iter: 168,100, lr:(1.492e-04,)] l_pix: 3.5936e+02 
+21-09-10 23:33:10.894 - INFO: [epoch:  1, iter: 168,200, lr:(1.492e-04,)] l_pix: 1.7877e+02 
+21-09-10 23:34:55.476 - INFO: [epoch:  1, iter: 168,300, lr:(1.491e-04,)] l_pix: 9.6833e+01 
+21-09-10 23:36:40.312 - INFO: [epoch:  1, iter: 168,400, lr:(1.491e-04,)] l_pix: 9.0832e+01 
+21-09-10 23:38:25.352 - INFO: [epoch:  1, iter: 168,500, lr:(1.490e-04,)] l_pix: 7.9892e+01 
+21-09-10 23:40:10.319 - INFO: [epoch:  1, iter: 168,600, lr:(1.490e-04,)] l_pix: 6.9267e+01 
+21-09-10 23:41:54.807 - INFO: [epoch:  1, iter: 168,700, lr:(1.489e-04,)] l_pix: 7.6716e+01 
+21-09-10 23:43:39.603 - INFO: [epoch:  1, iter: 168,800, lr:(1.489e-04,)] l_pix: 6.3975e+01 
+21-09-10 23:45:24.762 - INFO: [epoch:  1, iter: 168,900, lr:(1.488e-04,)] l_pix: 6.2033e+01 
+21-09-10 23:47:09.786 - INFO: [epoch:  1, iter: 169,000, lr:(1.488e-04,)] l_pix: 8.4411e+01 
+21-09-10 23:48:54.730 - INFO: [epoch:  1, iter: 169,100, lr:(1.487e-04,)] l_pix: 5.7843e+01 
+21-09-10 23:50:39.323 - INFO: [epoch:  1, iter: 169,200, lr:(1.486e-04,)] l_pix: 5.5097e+01 
+21-09-10 23:52:23.935 - INFO: [epoch:  1, iter: 169,300, lr:(1.486e-04,)] l_pix: 5.4346e+01 
