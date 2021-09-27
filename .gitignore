@@ -56,7 +56,7 @@ coverage.xml
 *.pot
 
 # Django stuff:
-*.log
+# *.log
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
@@ -136,9 +136,13 @@ dataset/
 .vscode/
 
 ## train log ? dataset needed
-script/divide_train.log
 log/
 experiments/
 results/
 ._.DS_Store
 .DS_Store
+
+# logs
+!logs/**.log
+scripts/divide_train.log
+scripts/divide_val.log

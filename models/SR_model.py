@@ -97,11 +97,11 @@ class SRModel(BaseModel):
                     #optimizer._learning_rate = self.schedulers[-1]
             else:
                 raise NotImplementedError('MultiStepLR learning rate scheme is enough.')
-            self.optimizer_G = paddle.optimizer.SGD(learning_rate=self.schedulers[0], parameters=optim_params,
-                                                    weight_decay=wd_G)
-            # self.optimizer_G = paddle.optimizer.Adam(learning_rate=self.schedulers[0], parameters=optim_params,
-                                                    #  weight_decay=wd_G,
-                                                    #  beta1=train_opt['beta1'], beta2=train_opt['beta2'])
+            # self.optimizer_G = paddle.optimizer.SGD(learning_rate=self.schedulers[0], parameters=optim_params,
+                                                    # weight_decay=wd_G)
+            self.optimizer_G = paddle.optimizer.Adam(learning_rate=self.schedulers[0], parameters=optim_params,
+                                                     weight_decay=wd_G,
+                                                     beta1=train_opt['beta1'], beta2=train_opt['beta2'])
             self.optimizers.append(self.optimizer_G)
             if opt['dist']:
                 self.optimizer_G = fleet.distributed_optimizer(self.optimizer_G)
