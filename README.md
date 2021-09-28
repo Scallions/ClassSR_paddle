@@ -46,14 +46,19 @@ python test_ClassSR.py -opt config/test/test_ClassSR_RCAN.yml
 <p float="left">
     <img src="figs/Percent.png" width="300"/><img src="figs/PSNR.png" width="300"/>
 </p>
+
 ### 超分图片
+
 <p float="left">
     <img src="figs/1201HR.png" width="300"/><img src="figs/1201LR.png" width="300"/><img src="figs/1201SR.png" width="300"/>
 </p>
+
 ## 复现指标
+
 |      | PSNR  | FLOPs | Percent |
 | ---- | ----- | ------------------ | ------------ |
 | 论文  | 26.39 | 21.22     | 65% |
 | Paddle  | 26.35 | 21.37     | 65.5% |
 ## 参考资料
+
 - [Xiangtaokong/ClassSR](https://github.com/Xiangtaokong/ClassSR)
