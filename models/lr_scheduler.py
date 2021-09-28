@@ -40,17 +40,14 @@ class CosineAnnealingLR_Restart(LRScheduler):
         self.restarts = [v + 1 for v in self.restarts]
         self.restart_weights = weights if weights else [1]
         self.last_restart = 0
-        # TODO: add optimizer
         self.optimizer = optimizer
         self.optimizer._learning_rate = self
         assert len(self.restarts) == len(
             self.restart_weights), 'restarts and their weights do not match.'
-        # TODO: change to paddle
         super(CosineAnnealingLR_Restart, self).__init__(optimizer.get_lr(), last_epoch)
 
     def get_lr(self):
         if self.last_epoch == 0:
-            # TODO: base lrs ?
             # return self.base_lrs
             return [self.base_lr]
         elif self.last_epoch in self.restarts:
@@ -62,7 +59,6 @@ class CosineAnnealingLR_Restart(LRScheduler):
             return [
                 self.optimizer.get_lr() + (self.base_lr - self.eta_min) * (1 - math.cos(math.pi / self.T_max)) / 2
             ]
-        # TODO: parameter list
         return [(1 + math.cos(math.pi * (self.last_epoch - self.last_restart) / self.T_max)) /
                 (1 + math.cos(math.pi * ((self.last_epoch - self.last_restart) - 1) / self.T_max)) *
                 (self.optimizer.get_lr()[0] - self.eta_min) + self.eta_min

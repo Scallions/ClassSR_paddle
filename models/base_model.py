@@ -74,7 +74,6 @@ class BaseModel():
     def save_network(self, network, network_label, iter_label):
         save_filename = '{}_{}.pth'.format(iter_label, network_label)
         save_path = os.path.join(self.opt['path']['models'], save_filename)
-        # TODO: 对并行save
         # if isinstance(network, nn.DataParallel) or isinstance(network, DistributedDataParallel):
         #     network = network.module
         state_dict = network.state_dict()
