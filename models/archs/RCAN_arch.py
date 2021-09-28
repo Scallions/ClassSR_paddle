@@ -69,7 +69,6 @@ class Upsampler(nn.Sequential):
                 m.append(conv(n_feat, 4 * n_feat, 3, bias))
                 m.append(nn.PixelShuffle(2))
                 if bn: m.append(nn.BatchNorm2D(n_feat))
-                # TODO check act
                 if act: m.append(act)
         elif scale == 3:
             m.append(conv(n_feat, 9 * n_feat, 3, bias))
@@ -123,7 +122,6 @@ class RCAN(nn.Layer):
         self.body = nn.Sequential(*modules_body)
         self.tail = nn.Sequential(*modules_tail)
         
-        # TODO: remove init emm for test
         arch_util.initialize_weights([self.head, self.body, self.tail], 0.1)
     def forward(self, x):
         x = self.sub_mean(x)

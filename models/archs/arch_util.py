@@ -153,13 +153,11 @@ class Upsampler(nn.Sequential):
                 m.append(conv(n_feat, 4 * n_feat, 3, bias))
                 m.append(nn.PixelShuffle(2))
                 if bn: m.append(nn.BatchNorm2D(n_feat))
-                # TODO check original code act()
                 if act: m.append(act)
         elif scale == 3:
             m.append(conv(n_feat, 9 * n_feat, 3, bias))
             m.append(nn.PixelShuffle(3))
             if bn: m.append(nn.BatchNorm2D(n_feat))
-            # TODO check original code act()
             if act: m.append(act)
         else:
             raise NotImplementedError
@@ -196,13 +194,11 @@ class Upsampler(nn.Sequential):
                 m.append(conv(n_feat, 4 * n_feat, 3, bias))
                 m.append(nn.PixelShuffle(2))
                 if bn: m.append(nn.BatchNorm2D(n_feat))
-                # TODO check act
                 if act: m.append(act)
         elif scale == 3:
             m.append(conv(n_feat, 9 * n_feat, 3, bias))
             m.append(nn.PixelShuffle(3))
             if bn: m.append(nn.BatchNorm2D(n_feat))
-            # TODO check act
             if act: m.append(act)
         else:
             raise NotImplementedError

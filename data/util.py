@@ -351,7 +351,6 @@ def calculate_weights_indices(in_length, out_length, scale, kernel, kernel_width
         kernel_width = kernel_width / scale
 
     # Output-space coordinates
-    #TODO: check paddle linspace
     x = paddle.linspace(1, out_length, out_length)
 
     # Input-space coordinates. Calculate the inverse mapping such that 0.5
@@ -433,7 +432,6 @@ def imresize(img, scale, antialiasing=True):
     #img_aug.narrow(1, sym_len_Hs, in_H).copy_(img)
 
     sym_patch = img[:, :sym_len_Hs, :]
-    # TODO: check long type
     inv_idx = paddle.arange(sym_patch.shape[1] - 1, -1, -1).astype('long')
     sym_patch_inv = sym_patch.index_select(inv_idx, 1)
     # img_aug = paddle.slice(img_aug,[1],[0],[sym_len_Hs]).copy_(sym_patch_inv)
@@ -446,7 +444,6 @@ def imresize(img, scale, antialiasing=True):
     # img_aug = paddle.slice(img_aug,[1],[sym_len_Hs + in_H], [sym_len_He]).copy_(sym_patch_inv)
     #img_aug.narrow(1, sym_len_Hs + in_H, sym_len_He).copy_(sym_patch_inv)
     img_aug[:,sym_len_Hs+in_H:sym_len_Hs+in_H+sym_len_He,] = sym_patch_inv.clone()
-    # TODO: mabye there is a bug
     out_1 = paddle.to_tensor(in_C, out_H, in_W)
     kernel_width = weights_H.shape[1]
     for i in range(out_H):
@@ -485,7 +482,6 @@ def imresize(img, scale, antialiasing=True):
 
     return out_2
 
-# TODO: paddle.slice == xx.narrow
 def imresize_np(img, scale, antialiasing=True):
     # Now the scale should be the same for H and W
     # input: img: Numpy, HWC BGR [0,1]

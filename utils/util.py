@@ -214,7 +214,6 @@ def make_grid(tensor, nrow=8, padding=2,
     return grid
 
 
-# TODO: make grid
 def tensor2img(tensor, out_type=np.uint8, min_max=(0, 1)):
     '''
     Converts a Tensor into an image Numpy array
