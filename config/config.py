@@ -42,7 +42,8 @@ def parse(opt_path, is_train=True):
     for key, path in opt['path'].items():
         if path and key in opt['path'] and key != 'strict_load':
             opt['path'][key] = osp.expanduser(path)
-    opt['path']['root'] = osp.abspath(osp.join(__file__, osp.pardir, osp.pardir, osp.pardir))
+    # opt['path']['root'] = osp.abspath(osp.join(__file__, osp.pardir, osp.pardir, osp.pardir))
+    opt['path']['root'] = osp.abspath(osp.join(__file__, osp.pardir, osp.pardir))
     if is_train:
         experiments_root = osp.join(opt['path']['root'], 'experiments', opt['name'])
         opt['path']['experiments_root'] = experiments_root
@@ -106,11 +107,11 @@ def check_resume(opt, resume_iter):
         if opt['path'].get('pretrain_model_G', None) is not None or opt['path'].get(
                 'pretrain_model_D', None) is not None:
             logger.warning('pretrain_model path will be ignored when resuming training.')
-
-        opt['path']['pretrain_model_G'] = osp.join(opt['path']['models'],
-                                                   '{}_G.pth'.format(resume_iter))
-        logger.info('Set [pretrain_model_G] to ' + opt['path']['pretrain_model_G'])
-        if 'gan' in opt['model']:
-            opt['path']['pretrain_model_D'] = osp.join(opt['path']['models'],
-                                                       '{}_D.pth'.format(resume_iter))
-            logger.info('Set [pretrain_model_D] to ' + opt['path']['pretrain_model_D'])
+        else:
+            opt['path']['pretrain_model_G'] = osp.join(opt['path']['models'],
+                                                    '{}_G.pth'.format(resume_iter))
+            logger.info('Set [pretrain_model_G] to ' + opt['path']['pretrain_model_G'])
+            if 'gan' in opt['model']:
+                opt['path']['pretrain_model_D'] = osp.join(opt['path']['models'],
+                                                        '{}_D.pth'.format(resume_iter))
+                logger.info('Set [pretrain_model_D] to ' + opt['path']['pretrain_model_D'])

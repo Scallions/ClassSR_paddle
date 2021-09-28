@@ -28,21 +28,20 @@ class ClassSR_Model(BaseModel):
         self.name = opt['name']
         self.which_model = opt['network_G']['which_model_G']
 
-
         if opt['dist']:
-            self.rank = 2
+            self.rank = paddle.distributed.ParallelEnv().rank
         else:
             self.rank = -1  # non dist training
         train_opt = opt['train']
 
         # define network and load pretrained models
-        self.netG = networks.define_G(opt).to(self.device)
+        self.netG = networks.define_G(opt)
+        self.load()
 
         if opt['dist']:
             self.netG = fleet.distributed_model(self.netG)
         # print network
         self.print_network()
-        self.load()
 
         if self.is_train:
             self.l1w = float(opt["train"]["l1w"])
@@ -55,72 +54,74 @@ class ClassSR_Model(BaseModel):
             # loss
             loss_type = train_opt['pixel_criterion']
             if loss_type == 'l1':
-                self.cri_pix = nn.L1Loss().to(self.device)
+                self.cri_pix = nn.L1Loss()#.to(self.device)
             elif loss_type == 'l2':
-                self.cri_pix = nn.MSELoss().to(self.device)
+                self.cri_pix = nn.MSELoss()#.to(self.device)
             elif loss_type == 'cb':
-                self.cri_pix = CharbonnierLoss().to(self.device)
+                self.cri_pix = CharbonnierLoss()#.to(self.device)
             elif loss_type == 'ClassSR_loss':
-                self.cri_pix = nn.L1Loss().to(self.device)
-                self.class_loss = class_loss_3class().to(self.device)
-                self.average_loss = average_loss_3class().to(self.device)
+                self.cri_pix = nn.L1Loss()#.to(self.device)
+                self.class_loss = class_loss_3class()#.to(self.device)
+                self.average_loss = average_loss_3class()#.to(self.device)
             else:
                 raise NotImplementedError('Loss type [{:s}] is not recognized.'.format(loss_type))
 
 
             # optimizers
-            wd_G = train_opt['weight_decay_G'] if train_opt['weight_decay_G'] else 0
+            wd_G = train_opt['weight_decay_G'] if train_opt['weight_decay_G'] else 0.
             optim_params = []
             if opt['fix_SR_module']:
                 for k, v in self.netG.named_parameters():  # can optimize for a part of the model
-                    if v.requires_grad and "class" not in k:
-                        v.requires_grad=False
+                    # if v.requires_grad and "class" not in k:
+                    if not v.stop_gradient and "class" not in k:
+                        # v.requires_grad=False
+                        v.stop_gradient = True
 
             for k, v in self.netG.named_parameters():  # can optimize for a part of the model
-                if v.requires_grad:
+                # if v.requires_grad:
+                if not v.stop_gradient:
                     optim_params.append(v)
                 else:
                     if self.rank <= 0:
                         logger.warning('Params [{:s}] will not optimize.'.format(k))
-            # TODO: adam 参数设置
-            self.optimizer_G = paddle.optimizer.Adam(optim_params, learning_rate=train_opt['lr_G'],
-                                                weight_decay=wd_G,
-                                                betas=(train_opt['beta1'], train_opt['beta2']))
-            if opt['dist']:
-                self.optimizer_G = fleet.distributed_optimizer(self.optimizer_G)
-            self.optimizers.append(self.optimizer_G)
 
             # schedulers
-            # TODO: scheduler
-            if train_opt['lr_scheme'] == 'MultiStepLR':
-                for optimizer in self.optimizers:
-                    self.schedulers.append(
-                        lr_scheduler.MultiStepLR_Restart(optimizer, train_opt['lr_steps'],
-                                                         restarts=train_opt['restarts'],
-                                                         weights=train_opt['restart_weights'],
-                                                         gamma=train_opt['lr_gamma'],
-                                                         clear_state=train_opt['clear_state']))
-            elif train_opt['lr_scheme'] == 'CosineAnnealingLR_Restart':
-                for optimizer in self.optimizers:
-                    self.schedulers.append(
-                        lr_scheduler.CosineAnnealingLR_Restart(
-                            optimizer, train_opt['T_period'], eta_min=train_opt['eta_min'],
-                            restarts=train_opt['restarts'], weights=train_opt['restart_weights']))
+            # if train_opt['lr_scheme'] == 'MultiStepLR':
+            #     for optimizer in self.optimizers:
+            #         self.schedulers.append(
+            #             lr_scheduler.MultiStepLR_Restart(optimizer, train_opt['lr_steps'],
+            #                                              restarts=train_opt['restarts'],
+            #                                              weights=train_opt['restart_weights'],
+            #                                              gamma=train_opt['lr_gamma'],
+            #                                              clear_state=train_opt['clear_state']))
+            if train_opt['lr_scheme'] == 'CosineAnnealingLR_Restart':
+                self.schedulers.append(
+                    lr_scheduler.CosineAnnealingDecay(train_opt['lr_G'],
+                        train_opt['T_period'], eta_min=train_opt['eta_min'],
+                        restarts=train_opt['restarts'], weights=train_opt['restart_weights']))
+                    #optimizer._learning_rate = self.schedulers[-1]
             else:
                 raise NotImplementedError('MultiStepLR learning rate scheme is enough.')
+
+            self.optimizer_G = paddle.optimizer.Adam(learning_rate=self.schedulers[0], parameters=optim_params,
+                                                     weight_decay=wd_G,
+                                                     beta1=train_opt['beta1'], beta2=train_opt['beta2'])
+            self.optimizers.append(self.optimizer_G)
+            if opt['dist']:
+                self.optimizer_G = fleet.distributed_optimizer(self.optimizer_G)
 
             self.log_dict = OrderedDict()
 
     def feed_data(self, data, need_GT=True):
-        self.var_L = data['LQ'].to(self.device)
+        self.var_L = data['LQ']#.to(self.device)
         self.LQ_path = data['LQ_path'][0]
         if need_GT:
-            self.real_H = data['GT'].to(self.device)  # GT
+            self.real_H = data['GT']#.to(self.device)  # GT
             self.GT_path = data['GT_path'][0]
 
 
     def optimize_parameters(self, step):
-        self.optimizer_G.zero_grad()
+        self.optimizer_G.clear_grad()
         self.fake_H, self.type = self.netG(self.var_L, self.is_train)
         #print(self.type)
         l_pix = self.cri_pix(self.fake_H, self.real_H)
@@ -166,15 +167,14 @@ class ClassSR_Model(BaseModel):
             if img.shape[2] > 3:
                 img = img[:, :, :3]
             img = img[:, :, [2, 1, 0]]
-            img = paddle.to_tensor(np.ascontiguousarray(np.transpose(img, (2, 0, 1)))).float()[None, ...].to(
-                self.device)
+            img = paddle.to_tensor(np.ascontiguousarray(np.transpose(img, (2, 0, 1)))).astype('float32').unsqueeze(0)
             with paddle.no_grad():
                 srt, type = self.netG(img, False)
 
             if self.which_model == 'classSR_3class_rcan':
-                sr_img = util.tensor2img(srt.detach()[0].float().cpu(), out_type=np.uint8, min_max=(0, 255))
+                sr_img = util.tensor2img(srt.detach()[0].astype('float32'), out_type=np.uint8, min_max=(0, 255))
             else:
-                sr_img = util.tensor2img(srt.detach()[0].float().cpu())
+                sr_img = util.tensor2img(srt.detach()[0].astype('float32'))
             sr_list.append(sr_img)
 
             if index == 0:
@@ -183,7 +183,7 @@ class ClassSR_Model(BaseModel):
                 type_res = paddle.concat((type_res, type), 0)
 
             psnr=util.calculate_psnr(sr_img, GT_img)
-            flag=paddle.max(type, 1)[1].data.squeeze()
+            flag=paddle.argmax(type, 1).squeeze().numpy()
             if flag == 0:
                 psnr_type1 += psnr
             if flag == 1:
@@ -226,7 +226,7 @@ class ClassSR_Model(BaseModel):
         # else:
         net_struc_str = '{}'.format(self.netG.__class__.__name__)
         if self.rank <= 0:
-            logger.info('Network G structure: {}, with parameters: {:,d}'.format(net_struc_str, n))
+            logger.info('Network G structure: {}, with parameters: {:,d}'.format(net_struc_str, n.item()))
             logger.info(s)
 
     def load(self):
@@ -324,17 +324,17 @@ class ClassSR_Model(BaseModel):
                          i * step * self.scale + patch_size * self.scale - 9]  # xl,yl,xr,yr
                 zeros1 = np.zeros((sr_img.shape), 'float32')
 
-                if paddle.max(type, 1)[1].data.squeeze()[index2] == 0:
+                if paddle.argmax(type, 1)[1].squeeze()[index2] == 0:
                     # mask1 = cv2.rectangle(zeros1, (bbox1[0], bbox1[1]), (bbox1[2], bbox1[3]),
                     #                      color=(0, 0, 0), thickness=1)
                     mask2 = cv2.rectangle(zeros1, (bbox1[0]+1, bbox1[1]+1), (bbox1[2]-1, bbox1[3]-1),
                                          color=(0, 255, 0), thickness=-1)# simple green
-                elif paddle.max(type, 1)[1].data.squeeze()[index2] == 1:
+                elif paddle.argmax(type, 1).squeeze()[index2] == 1:
                     # mask1 = cv2.rectangle(zeros1, (bbox1[0], bbox1[1]), (bbox1[2], bbox1[3]),
                     #                       color=(0, 0, 0), thickness=1)
                     mask2 = cv2.rectangle(zeros1, (bbox1[0]+1, bbox1[1]+1), (bbox1[2]-1, bbox1[3]-1),
                                           color=(0, 255, 255), thickness=-1)# medium yellow
-                elif paddle.max(type, 1)[1].data.squeeze()[index2] == 2:
+                elif paddle.argmax(type, 1).squeeze()[index2] == 2:
                     # mask1 = cv2.rectangle(zeros1, (bbox1[0], bbox1[1]), (bbox1[2], bbox1[3]),
                     #                       color=(0, 0, 0), thickness=1)
                     mask2 = cv2.rectangle(zeros1, (bbox1[0]+1, bbox1[1]+1), (bbox1[2]-1, bbox1[3]-1),
@@ -350,7 +350,7 @@ class ClassSR_Model(BaseModel):
         num1 = 0
         num2 = 0
 
-        for i in paddle.max(type_res, 1)[1].data.squeeze():
+        for i in paddle.argmax(type_res, 1).squeeze():
             if i == 0:
                 num0 += 1
             if i == 1:
@@ -359,5 +359,3 @@ class ClassSR_Model(BaseModel):
                 num2 += 1
 
         return [num0, num1,num2]
-
-

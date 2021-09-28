@@ -1,7 +1,7 @@
 import paddle
 import paddle.nn as nn
 
-class class_loss_3class(nn.Module):
+class class_loss_3class(nn.Layer):
     #Class loss
     def __init__(self):
         super(class_loss_3class, self).__init__()
@@ -11,13 +11,15 @@ class class_loss_3class(nn.Module):
         m = len(type_res[0]) - 1
         type_all = type_res
         loss = 0
-        for i in range(n):
-            sum_re = abs(type_all[i][0]-type_all[i][1]) + abs(type_all[i][0]-type_all[i][2]) + abs(type_all[i][1]-type_all[i][2])
-            loss += (m - sum_re)
+        sum_re = paddle.abs(type_all[:,0]-type_all[:,1]) + paddle.abs(type_all[:,0]-type_all[:,2]) + paddle.abs(type_all[:,1]-type_all[:,2])
+        return m - sum_re.mean()
+        # for i in range(n):
+            # sum_re = paddle.abs(type_all[i][0]-type_all[i][1]) + paddle.abs(type_all[i][0]-type_all[i][2]) + paddle.abs(type_all[i][1]-type_all[i][2])
+            # loss += (m - sum_re)
         return loss / n
 
 
-class average_loss_3class(nn.Module):
+class average_loss_3class(nn.Layer):
     #Average loss
     def __init__(self):
         super(average_loss_3class, self).__init__()
@@ -30,14 +32,17 @@ class average_loss_3class(nn.Module):
         sum2 = 0
         sum3 = 0
 
-        for i in range(n):
-            sum1 += type_all[i][0]
-            sum2 += type_all[i][1]
-            sum3 += type_all[i][2]
+        sums = paddle.sum(type_all, axis=0)
+        return paddle.abs(sums-n/m).sum() / (n/m*(m+1))
 
-        return (abs(sum1-n/m) + abs(sum2-n/m) + abs(sum3-n/m)) / ((n/m)*4)
+        # for i in range(n):
+        #     sum1 += type_all[i][0]
+        #     sum2 += type_all[i][1]
+        #     sum3 += type_all[i][2]
 
-class CharbonnierLoss(nn.Module):
+        # return (paddle.abs(sum1-n/m) + paddle.abs(sum2-n/m) + paddle.abs(sum3-n/m)) / ((n/m)*4)
+
+class CharbonnierLoss(nn.Layer):
     """Charbonnier Loss (L1)"""
 
     def __init__(self, eps=1e-6):
@@ -51,7 +56,7 @@ class CharbonnierLoss(nn.Module):
 
 
 # Define GAN loss: [vanilla | lsgan | wgan-gp]
-class GANLoss(nn.Module):
+class GANLoss(nn.Layer):
     def __init__(self, gan_type, real_label_val=1.0, fake_label_val=0.0):
         super(GANLoss, self).__init__()
         self.gan_type = gan_type.lower()
@@ -86,11 +91,10 @@ class GANLoss(nn.Module):
         return loss
 
 
-class GradientPenaltyLoss(nn.Module):
+class GradientPenaltyLoss(nn.Layer):
     def __init__(self, device='cpu'):
         super(GradientPenaltyLoss, self).__init__()
         self.register_buffer('grad_outputs', paddle.Tensor())
-        # TODO: device
         self.grad_outputs = self.grad_outputs.set_device(device)
 
     def get_grad_outputs(self, input):
@@ -100,11 +104,10 @@ class GradientPenaltyLoss(nn.Module):
 
     def forward(self, interp, interp_crit):
         grad_outputs = self.get_grad_outputs(interp_crit)
-        # TODO: grad
         grad_interp = paddle.autograd.grad(outputs=interp_crit, inputs=interp,
                                           grad_outputs=grad_outputs, create_graph=True,
                                           retain_graph=True, only_inputs=True)[0]
-        grad_interp = grad_interp.view(grad_interp.size(0), -1)
+        grad_interp = grad_interp.reshape((grad_interp.size(0), -1))
         grad_interp_norm = grad_interp.norm(2, dim=1)
 
         loss = ((grad_interp_norm - 1)**2).mean()

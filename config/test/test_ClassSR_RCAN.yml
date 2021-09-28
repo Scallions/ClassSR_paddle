@@ -14,18 +14,18 @@ datasets:
   test_1:
     name: test2k
     mode: LQGT_rcan
-    dataroot_GT: /data0/xtkong/data/test2k/HR/X4
-    dataroot_LQ: /data0/xtkong/data/test2k/LR/X4
-  test_2:
-    name: test4k
-    mode: LQGT_rcan
-    dataroot_GT: /data0/xtkong/data/test4k/HR/X4
-    dataroot_LQ: /data0/xtkong/data/test4k/LR/X4
-  test_3:
-    name: test8k
-    mode: LQGT_rcan
-    dataroot_GT: /data0/xtkong/data/test8k/HR/X4
-    dataroot_LQ: /data0/xtkong/data/test8k/LR/X4
+    dataroot_GT: dataset/test2k/HR/X4
+    dataroot_LQ: dataset/test2k/LR/X4
+  # test_2:
+  #   name: test4k
+  #   mode: LQGT_rcan
+  #   dataroot_GT: dataset/test4k/HR/X4
+  #   dataroot_LQ: dataset/test4k/LR/X4
+  # test_3:
+  #   name: test8k
+  #   mode: LQGT_rcan
+  #   dataroot_GT: dataset/test8k/HR/X4
+  #   dataroot_LQ: dataset/test8k/LR/X4
 
 
 #### network structures
@@ -37,8 +37,9 @@ network_G:
 
 #### path
 path:
-  pretrain_model_G: /data0/xtkong/ClassSR-github/experiments/pre_trained_models/ClassSR_RCAN.pth
+  # pretrain_model_G: experiments/ClassSR_RCAN/models/62000_G.pth
+  pretrain_model_G: dataset/200000_G.pth
   pretrain_model_classifier: ~
-  pretrain_model_G_branch1: ~
-  pretrain_model_G_branch2: ~
-  pretrain_model_G_branch3: ~
+  pretrain_model_G_branch1: ~ #dataset/500000_G.pth
+  pretrain_model_G_branch2: ~ #dataset/500000_G2.pth
+  pretrain_model_G_branch3: ~ #dataset/500000_G3.pth

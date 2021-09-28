@@ -64,7 +64,11 @@ def get_timestamp():
 
 def mkdir(path):
     if not os.path.exists(path):
-        os.makedirs(path)
+        try:
+            os.makedirs(path)
+        except FileExistsError:
+            pass
+            
 
 
 def mkdirs(paths):
@@ -89,7 +93,6 @@ def set_random_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
     paddle.seed(seed)
-    #torch.cuda.manual_seed_all(seed)
 
 
 def setup_logger(logger_name, root, phase, level=logging.INFO, screen=False, tofile=False):
@@ -160,11 +163,11 @@ def make_grid(tensor, nrow=8, padding=2,
     if tensor.dim() == 2:  # single image H x W
         tensor = tensor.unsqueeze(0)
     if tensor.dim() == 3:  # single image
-        if tensor.size(0) == 1:  # if single-channel, convert to 3-channel
+        if tensor.shape[0] == 1:  # if single-channel, convert to 3-channel
             tensor = paddle.concat((tensor, tensor, tensor), 0)
         tensor = tensor.unsqueeze(0)
 
-    if tensor.dim() == 4 and tensor.size(1) == 1:  # single-channel images
+    if tensor.dim() == 4 and tensor.shape[1] == 1:  # single-channel images
         tensor = paddle.concat((tensor, tensor, tensor), 1)
 
     if normalize is True:
@@ -175,7 +178,8 @@ def make_grid(tensor, nrow=8, padding=2,
 
         def norm_ip(img, min, max):
             img.clamp_(min=min, max=max)
-            img.add_(-min).div_(max - min + 1e-5)
+            img.add_(-min)
+            img = img.divide(max - min + 1e-5)
 
         def norm_range(t, range):
             if range is not None:
@@ -189,15 +193,15 @@ def make_grid(tensor, nrow=8, padding=2,
         else:
             norm_range(tensor, range)
 
-    if tensor.size(0) == 1:
+    if tensor.shape[0] == 1:
         return tensor.squeeze(0)
 
     # make the mini-batch of images into a grid
-    nmaps = tensor.size(0)
+    nmaps = tensor.shape[0]
     xmaps = min(nrow, nmaps)
     ymaps = int(math.ceil(float(nmaps) / xmaps))
-    height, width = int(tensor.size(2) + padding), int(tensor.size(3) + padding)
-    num_channels = tensor.size(1)
+    height, width = int(tensor.shape[2] + padding), int(tensor.shape[3] + padding)
+    num_channels = tensor.shape[1]
     grid = tensor.new_full((num_channels, height * ymaps + padding, width * xmaps + padding), pad_value)
     k = 0
     for y in range(ymaps):
@@ -206,21 +210,19 @@ def make_grid(tensor, nrow=8, padding=2,
                 break
             grid = paddle.slice(grid,[1],[y * height + padding],[height - padding])
             grid = paddle.slice(grid,[2],[x * width + padding], [width - padding]).copy_(tensor[k])
-            #grid.narrow(1, y * height + padding, height - padding)\
-            #    .narrow(2, x * width + padding, width - padding)\
-            #    .copy_(tensor[k])
             k = k + 1
     return grid
 
 
-# TODO: torch make grid
 def tensor2img(tensor, out_type=np.uint8, min_max=(0, 1)):
     '''
-    Converts a torch Tensor into an image Numpy array
+    Converts a Tensor into an image Numpy array
     Input: 4D(B,(3/1),H,W), 3D(C,H,W), or 2D(H,W), any range, RGB channel order
     Output: 3D(H,W,C) or 2D(H,W), [0,255], np.uint8 (default)
     '''
-    tensor = tensor.squeeze().float().cpu().clamp_(*min_max)  # clamp
+    #tensor = tensor.squeeze().float().cpu().clamp_(*min_max)  # clamp
+    tensor = tensor.squeeze().astype('float32')
+    tensor = paddle.clip(tensor, min=min_max[0], max=min_max[1])
     tensor = (tensor - min_max[0]) / (min_max[1] - min_max[0])  # to range [0,1]
     n_dim = tensor.dim()
     if n_dim == 4:
@@ -263,8 +265,8 @@ def DUF_downsample(x, scale=4):
         # gaussian-smooth the dirac, resulting in a gaussian filter mask
         return fi.gaussian_filter(inp, nsig)
 
-    B, T, C, H, W = x.size()
-    x = x.view(-1, 1, H, W)
+    B, T, C, H, W = x.shape
+    x = x.reshape([-1, 1, H, W])
     pad_w, pad_h = 6 + scale * 2, 6 + scale * 2  # 6 is the pad of the gaussian filter
     r_h, r_w = 0, 0
     if scale == 3:
@@ -275,7 +277,7 @@ def DUF_downsample(x, scale=4):
     gaussian_filter = paddle.to_tensor(gkern(13, 0.4 * scale)).type_as(x).unsqueeze(0).unsqueeze(0)
     x = F.conv2d(x, gaussian_filter, stride=scale)
     x = x[:, :, 2:-2, 2:-2]
-    x = x.view(B, T, C, x.size(2), x.size(3))
+    x = x.reshape([B, T, C, x.shape[2], x.shape[3]])
     return x
 
 
@@ -294,7 +296,7 @@ def single_forward(model, inp):
             output = model_output[0]
         else:
             output = model_output
-    output = output.data.float().cpu()
+    output = output.data.astype('float')#.float().cpu()
     return output
 
 

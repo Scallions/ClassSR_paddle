@@ -22,11 +22,13 @@ class classSR_3class_rcan(nn.Layer):
 
     def forward(self, x,is_train):
         if is_train:
-            self.net1.eval()
-            self.net2.eval()
-            self.net3.eval()
+            # self.net1.eval()
+            # self.net2.eval()
+            # self.net3.eval()
             class_type = self.classifier(x/255.)
             p = F.softmax(class_type, axis=1)
+            # p = p + paddle.rand(p.shape) * 3e-5
+            # p = F.softmax(p, axis=1)
             out1 = self.net1(x)
             out2 = self.net2(x)
             out3 = self.net3(x)
@@ -40,7 +42,8 @@ class classSR_3class_rcan(nn.Layer):
             for i in range(len(x)):
                 type = self.classifier(x[i].unsqueeze(0)/255.) #rcan
 
-                flag = paddle.max(type, 1)[1].squeeze()
+                flag = paddle.argmax(type, 1).squeeze().numpy()
+
                 p = F.softmax(type, axis=1)
                 # flag=np.random.randint(0,2)
                 #flag=0

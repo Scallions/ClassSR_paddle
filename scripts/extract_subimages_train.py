@@ -6,7 +6,8 @@ from multiprocessing import Pool
 import numpy as np
 import cv2
 from PIL import Image
-sys.path.append(osp.dirname(osp.dirname(osp.abspath(__file__))))
+# sys.path.append(osp.dirname(osp.dirname(osp.abspath(__file__))))
+sys.path.append(".")
 from utils.util import ProgressBar  # noqa: E402
 import data.util as data_util  # noqa: E402
 
@@ -23,10 +24,10 @@ def main():
     # compression time. If read raw images during training, use 0 for faster IO speed.
     if mode == 'pair':
         # cut training data
-        GT_folder = '/data0/xtkong/data/DIV2K800_scale/HR/x4'# fix to your path
-        LR_folder = '/data0/xtkong/data/DIV2K800_scale/LR/x4'# fix to your path
-        save_GT_folder = '/data0/xtkong/data/DIV2K_scale_sub/GT'
-        save_LR_folder = '/data0/xtkong/data/DIV2K_scale_sub/LR'
+        GT_folder = 'dataset/Set5_valid/HR/x4'# fix to your path
+        LR_folder = 'dataset/Set5_valid/LR/x4'# fix to your path
+        save_GT_folder = 'dataset/Set5_valid_sub/GT'
+        save_LR_folder = 'dataset/Set5_valid_sub/LR'
 
         scale_ratio = 4
         crop_sz = 128  # the size of each sub-image (GT)

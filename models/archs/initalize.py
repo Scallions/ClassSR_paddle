@@ -174,7 +174,6 @@ def xavier_normal_(tensor, gain=1., reverse=False):
     return _no_grad_normal_(tensor, 0, std)
 
 
-# reference: https://pytorch.org/docs/stable/_modules/torch/nn/init.html
 def _calculate_correct_fan(tensor, mode, reverse=False):
     mode = mode.lower()
     valid_modes = ['fan_in', 'fan_out']

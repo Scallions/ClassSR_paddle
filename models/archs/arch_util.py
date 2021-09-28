@@ -1,8 +1,9 @@
 import math
+from numpy import mod
 import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
-import initalize as init
+import models.archs.initalize as init
 
 
 
@@ -12,13 +13,17 @@ def initialize_weights(net_l, scale=1):
     for net in net_l:
         for m in net.sublayers():
             if isinstance(m, nn.Conv2D):
-                init.kaiming_normal_(m.weight, a=0, mode='fan_in')
-                m.weight.data *= scale  # for residual block
+                # init.kaiming_normal_(m.weight, a=0, mode='fan_in')
+                init.kaiming_uniform_(m.weight, a=0, mode='fan_in')
+                # m.weight.data *= scale  # for residual block
+                m.weight.set_value(scale*m.weight)
                 if m.bias is not None:
                     init.constant_(m.bias,value=0.)
             elif isinstance(m, nn.Linear):
-                init.kaiming_normal_(m.weight, a=0, mode='fan_in')
-                m.weight.data *= scale
+                # init.kaiming_normal_(m.weight, a=0, mode='fan_in')
+                init.kaiming_uniform_(m.weight, a=0, mode='fan_in')
+                # m.weight.data *= scale  # for residual block
+                m.weight.set_value(scale*m.weight)
                 if m.bias is not None:
                     init.constant_(m.bias,value=0.)
             elif isinstance(m, nn.BatchNorm2D):
@@ -73,7 +78,8 @@ def flow_warp(x, flow, interp_mode='bilinear', padding_mode='zeros'):
     # mesh grid
     grid_y, grid_x = paddle.meshgrid(paddle.arange(0, H), paddle.arange(0, W))
     grid = paddle.stack((grid_x, grid_y), 2).astype('float32') # W(x), H(y), 2
-    grid.requires_grad = False
+    # grid.requires_grad = False
+    grid.stop_gradient = True
     grid = grid.type_as(x)
     vgrid = grid + flow
     # scale grid to [-1,1]
@@ -95,11 +101,14 @@ class MeanShift(nn.Conv2D):
     def __init__(self, rgb_range, rgb_mean, rgb_std, sign=-1):
         super(MeanShift, self).__init__(3, 3, kernel_size=1)
         std = paddle.to_tensor(rgb_std)
-        self.weight.data = paddle.eye(3).view(3, 3, 1, 1)
-        self.weight.data.div_(std.view(3, 1, 1, 1))
-        self.bias.data = sign * rgb_range * paddle.to_tensor(rgb_mean)
-        self.bias.data.div_(std)
-        self.requires_grad = False
+        # self.weight.data = paddle.eye(3).view(3, 3, 1, 1)
+        # self.weight.data.div_(std.view(3, 1, 1, 1))
+        # self.bias.data = sign * rgb_range * paddle.Tensor(rgb_mean)
+        # self.bias.data.div_(std)
+        self.weight.set_value(paddle.divide(paddle.eye(3).reshape([3, 3, 1, 1]), std.reshape([3, 1, 1, 1])))
+        self.bias.set_value(paddle.divide(sign * rgb_range * paddle.to_tensor(rgb_mean), std))
+        # self.requires_grad = False
+        self.stop_gradient = True
 
 class BasicBlock(nn.Sequential):
     def __init__(
@@ -144,13 +153,11 @@ class Upsampler(nn.Sequential):
                 m.append(conv(n_feat, 4 * n_feat, 3, bias))
                 m.append(nn.PixelShuffle(2))
                 if bn: m.append(nn.BatchNorm2D(n_feat))
-                # TODO check original code act()
                 if act: m.append(act)
         elif scale == 3:
             m.append(conv(n_feat, 9 * n_feat, 3, bias))
             m.append(nn.PixelShuffle(3))
             if bn: m.append(nn.BatchNorm2D(n_feat))
-            # TODO check original code act()
             if act: m.append(act)
         else:
             raise NotImplementedError
@@ -187,13 +194,11 @@ class Upsampler(nn.Sequential):
                 m.append(conv(n_feat, 4 * n_feat, 3, bias))
                 m.append(nn.PixelShuffle(2))
                 if bn: m.append(nn.BatchNorm2D(n_feat))
-                # TODO check act
                 if act: m.append(act)
         elif scale == 3:
             m.append(conv(n_feat, 9 * n_feat, 3, bias))
             m.append(nn.PixelShuffle(3))
             if bn: m.append(nn.BatchNorm2D(n_feat))
-            # TODO check act
             if act: m.append(act)
         else:
             raise NotImplementedError
@@ -266,7 +271,8 @@ def flow_warp(x, flow, interp_mode='bilinear', padding_mode='zeros'):
     # mesh grid
     grid_y, grid_x = paddle.meshgrid(paddle.arange(0, H), paddle.arange(0, W))
     grid = paddle.stack((grid_x, grid_y), 2).astype('float32')  # W(x), H(y), 2
-    grid.requires_grad = False
+    # grid.requires_grad = False
+    grid.stop_gradient = True
     grid = grid.type_as(x)
     vgrid = grid + flow
     # scale grid to [-1,1]

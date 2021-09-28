@@ -17,7 +17,8 @@ import numpy as np
 
 def init_dist(backend='nccl', **kwargs):
     """initialization for distributed training"""
-    rank = int(os.environ['RANK'])
+    # rank = int(os.environ['RANK'])
+    rank = paddle.distributed.ParallelEnv().rank
     paddle.device.set_device(f"gpu:{rank}")
     strategy = fleet.DistributedStrategy()
     fleet.init(is_collective=True, strategy=strategy)
@@ -26,12 +27,13 @@ def init_dist(backend='nccl', **kwargs):
 def main():
     #### options
     parser = argparse.ArgumentParser()
-    parser.add_argument('-opt', type=str, help='Path to option YAML file.')
+    parser.add_argument('-opt', type=str, help='Path to option YAML file.', default="./config/train/train_RCAN.yml")
     parser.add_argument('--launcher', choices=['none', 'fleet'], default='none',
                         help='job launcher')
     parser.add_argument('--local_rank', type=int, default=0)
     args = parser.parse_args()
     opt = option.parse(args.opt, is_train=True)
+
     opt_net = opt['network_G']
     which_model = opt_net['which_model_G']
 
@@ -49,20 +51,18 @@ def main():
     #### loading resume state if exists
     if opt['path'].get('resume_state', None):
         # distributed resuming: all load into default GPU
-        # TODO: resume
-        device_id = paddle.distributed.ParallelEnv().device_id
-        resume_state = paddle.load(opt['path']['resume_state'],
-                                  map_location=lambda storage, loc: storage.cuda(device_id))
+        # device_id = paddle.distributed.ParallelEnv().device_id
+        resume_state = paddle.load(opt['path']['resume_state'])
         option.check_resume(opt, resume_state['iter'])  # check resume options
     else:
         resume_state = None
 
     #### mkdir and loggers
     if rank <= 0:  # normal training (rank -1) OR distributed training (rank 0)
-        if resume_state is None:
-            util.mkdir_and_rename(
-                opt['path']['experiments_root'])  # rename experiment folder if exists
-            util.mkdirs((path for key, path in opt['path'].items() if not key == 'experiments_root'
+        # if resume_state is None:
+        util.mkdir_and_rename(
+            opt['path']['experiments_root'])  # rename experiment folder if exists
+        util.mkdirs((path for key, path in opt['path'].items() if not key == 'experiments_root'
                          and 'pretrain_model' not in key and 'resume' not in key))
 
         # config loggers. Before it, the log will not work
@@ -90,7 +90,7 @@ def main():
     util.set_random_seed(seed)
 
     #### create train and val dataloader
-    dataset_ratio = 200  # enlarge the size of each epoch
+    dataset_ratio = 1  # enlarge the size of each epoch
     for phase, dataset_opt in opt['datasets'].items():
         if phase == 'train':
             train_set = create_dataset(dataset_opt)
@@ -98,9 +98,7 @@ def main():
             total_iters = int(opt['train']['niter'])
             total_epochs = int(math.ceil(total_iters / train_size))
             if opt['dist']:
-                # train_sampler = DistIterSampler(train_set, world_size, rank, dataset_ratio)
-                train_sampler = paddle.io.DistributedBatchSampler(
-                    train_set, batch_size=dataset_opt['batch_size'], shuffle=True, drop_last=True)
+                train_sampler = DistIterSampler(train_set, world_size, rank, dataset_ratio)
                 total_epochs = int(math.ceil(total_iters / (train_size * dataset_ratio)))
             else:
                 train_sampler = None
@@ -146,7 +144,6 @@ def main():
                 break
             #### update learning rate
             model.update_learning_rate(current_step, warmup_iter=opt['train']['warmup_iter'])
-
             #### training
             #print(train_data)
             model.feed_data(train_data)
@@ -168,149 +165,46 @@ def main():
                 if rank <= 0:
                     logger.info(message)
             ### validation
-            if opt['datasets'].get('val', None) and current_step % opt['train']['val_freq'] == 0:
-                if opt['model'] in ['vsr'] and rank <= 0:    # video restoration validation
-                    if opt['dist']:
-                        # multi-GPU testing
-                        psnr_rlt = {}  # with border and center frames
-                        if rank == 0:
-                            pbar = util.ProgressBar(len(val_set))
-                        for idx in range(rank, len(val_set), world_size):
-                            val_data = val_set[idx]
-                            val_data['LQs'].unsqueeze_(0)
-                            val_data['GT'].unsqueeze_(0)
-                            folder = val_data['folder']
-                            idx_d, max_idx = val_data['idx'].split('/')
-                            idx_d, max_idx = int(idx_d), int(max_idx)
-                            if psnr_rlt.get(folder, None) is None:
-                                psnr_rlt[folder] = paddle.zeros(max_idx, dtype=paddle.float32,
-                                                               device='cuda')
-                            # tmp = torch.zeros(max_idx, dtype=torch.float32, device='cuda')
-                            model.feed_data(val_data)
-                            model.test()
-                            visuals = model.get_current_visuals()
-                            rlt_img = util.tensor2img(visuals['rlt'])  # uint8
-                            gt_img = util.tensor2img(visuals['GT'])  # uint8
-                            # calculate PSNR
-                            psnr_rlt[folder][idx_d] = util.calculate_psnr(rlt_img, gt_img)
+            if rank <= 0 and opt['datasets'].get('val', None) and current_step % opt['train']['val_freq'] == 0:
+                # does not support multi-GPU validation
+                pbar = util.ProgressBar(len(val_loader))
+                avg_psnr = 0.
+                idx = 0
+                for val_data in val_loader:
+                    idx += 1
+                    img_name = os.path.splitext(os.path.basename(val_data['LQ_path'][0]))[0]
+                    img_dir = os.path.join(opt['path']['val_images'], img_name)
+                    util.mkdir(img_dir)
 
-                            if rank == 0:
-                                for _ in range(world_size):
-                                    pbar.update('Test {} - {}/{}'.format(folder, idx_d, max_idx))
-                        # # collect data
-                        for _, v in psnr_rlt.items():
-                            dist.reduce(v, 0)
-                        dist.barrier()
+                    model.feed_data(val_data)
+                    model.test()
 
-                        if rank == 0:
-                            psnr_rlt_avg = {}
-                            psnr_total_avg = 0.
-                            for k, v in psnr_rlt.items():
-                                psnr_rlt_avg[k] = paddle.mean(v).cpu().item()
-                                psnr_total_avg += psnr_rlt_avg[k]
-                            psnr_total_avg /= len(psnr_rlt)
-                            log_s = '# Validation # PSNR: {:.4e}:'.format(psnr_total_avg)
-                            for k, v in psnr_rlt_avg.items():
-                                log_s += ' {}: {:.4e}'.format(k, v)
-                            logger.info(log_s)
-                            if opt['use_tb_logger'] and 'debug' not in opt['name']:
-                                tb_logger.add_scalar('psnr_avg', psnr_total_avg, current_step)
-                                for k, v in psnr_rlt_avg.items():
-                                    tb_logger.add_scalar(k, v, current_step)
-                    else:# image restoration validation
-                        pbar = util.ProgressBar(len(val_loader))
-                        psnr_rlt = {}  # with border and center frames
-                        psnr_rlt_avg = {}
-                        psnr_total_avg = 0.
-                        for val_data in val_loader:
-                            folder = val_data['folder'][0]
-                            idx_d = val_data['idx'].item()
-                            # border = val_data['border'].item()
-                            if psnr_rlt.get(folder, None) is None:
-                                psnr_rlt[folder] = []
+                    visuals = model.get_current_visuals()
+                    if which_model =="RCAN":
+                        sr_img = util.tensor2img(visuals['rlt'], np.uint8, min_max=(0, 255))  # uint8
+                        gt_img = util.tensor2img(visuals['GT'], np.uint8, min_max=(0, 255))  # uint8
+                    else:
+                        sr_img = util.tensor2img(visuals['rlt'])  # uint8
+                        gt_img = util.tensor2img(visuals['GT'])  # uint8
 
-                            model.feed_data(val_data)
-                            model.test()
-                            visuals = model.get_current_visuals()
-                            rlt_img = util.tensor2img(visuals['rlt'])  # uint8
-                            gt_img = util.tensor2img(visuals['GT'])  # uint8
+                    # Save SR images for reference
+                    save_img_path = os.path.join(img_dir,
+                                                 '{:s}_{:d}.png'.format(img_name, current_step))
+                    util.save_img(sr_img, save_img_path)
 
-                            # calculate PSNR
-                            psnr = util.calculate_psnr(rlt_img, gt_img)
-                            psnr_rlt[folder].append(psnr)
-                            pbar.update('Test {} - {}'.format(folder, idx_d))
-                        for k, v in psnr_rlt.items():
-                            psnr_rlt_avg[k] = sum(v) / len(v)
-                            psnr_total_avg += psnr_rlt_avg[k]
-                        psnr_total_avg /= len(psnr_rlt)
-                        log_s = '# Validation # PSNR: {:.4e}:'.format(psnr_total_avg)
-                        for k, v in psnr_rlt_avg.items():
-                            log_s += ' {}: {:.4e}'.format(k, v)
-                        logger.info(log_s)
-                        if opt['use_tb_logger'] and 'debug' not in opt['name']:
-                            tb_logger.add_scalar('psnr_avg', psnr_total_avg, current_step)
-                            for k, v in psnr_rlt_avg.items():
-                                tb_logger.add_scalar(k, v, current_step)
-                else:
-                    # does not support multi-GPU validation
-                    pbar = util.ProgressBar(len(val_loader))
-                    avg_psnr = 0.
-                    idx = 0
-                    num_ress = [0, 0,0]
-                    psnr_ress=[0, 0,0]
-                    for val_data in val_loader:
-                        idx += 1
-                        img_name = os.path.splitext(os.path.basename(val_data['LQ_path'][0]))[0]
-                        img_dir = os.path.join(opt['path']['val_images'], img_name)
-                        util.mkdir(img_dir)
-                        model.feed_data(val_data)
-                        model.test()
-                        visuals = model.get_current_visuals()
-                        sr_img = visuals['rlt'] # uint8
-                        gt_img = visuals['GT'] # uint8
-                        num_res = visuals['num_res']
-                        psnr_res=visuals['psnr_res']
-                        num_ress[0] += num_res[0]
-                        num_ress[1] += num_res[1]
-                        num_ress[2] += num_res[2]
-                        psnr_ress[0] += psnr_res[0]
-                        psnr_ress[1] += psnr_res[1]
-                        psnr_ress[2] += psnr_res[2]
-                        # Save SR images for reference
-                        save_img_path = os.path.join(img_dir,
-                                                     '{:s}_{:d}.png'.format(img_name, current_step))
-                        util.save_img(sr_img, save_img_path)
-                        # calculate PSNR
-                        sr_img, gt_img = util.crop_border([sr_img, gt_img], opt['scale'])
-                        avg_psnr += util.calculate_psnr(sr_img, gt_img)
-                        pbar.update('Test {}'.format(img_name))
+                    # calculate PSNR
+                    sr_img, gt_img = util.crop_border([sr_img, gt_img], opt['scale'])
+                    avg_psnr += util.calculate_psnr(sr_img, gt_img)
+                    pbar.update('Test {}'.format(img_name))
 
-                    flops,percent=util.cal_FLOPs(which_model,num_ress)
-                    if num_ress[0]==0:
-                        num_ress[0]=1
-                    if num_ress[1]==0:
-                        num_ress[1]=1
-                    if num_ress[2]==0:
-                        num_ress[2]=1
+                avg_psnr = avg_psnr / idx
 
-                    # log
-                    logger.info('# Validation # PSNR: {:.4e}'.format(avg_psnr))
-                    logger.info('# Validation # FLOPs: {:.4e}'.format(flops))
-                    logger.info('# Validation # Percent: {:.4e}'.format(percent))
-                    logger.info('# Validation # TYPE num: {0} {1} {2} '.format(num_ress[0], num_ress[1],num_ress[2]))
-                    logger.info('# Validation # PSNR Class: {0} {1} {2}'.format(psnr_ress[0]/num_ress[0],psnr_ress[1]/num_ress[1],psnr_ress[2]/num_ress[2]))
-                    # tensorboard logger
-                    if opt['use_tb_logger'] and 'debug' not in opt['name']:
-                        tb_logger.add_scalar('PSNR', avg_psnr, current_step)
-                        tb_logger.add_scalar('FLOPs', flops, current_step)
-                        tb_logger.add_scalar('Percent', percent, current_step)
-                        tb_logger.add_scalar('class1_num', num_ress[0], current_step)
-                        tb_logger.add_scalar('class2_num', num_ress[1], current_step)
-                        tb_logger.add_scalar('class3_num', num_ress[2], current_step)
+                # log
+                logger.info('# Validation # PSNR: {:.4e}'.format(avg_psnr))
+                # tensorboard logger
+                if opt['use_tb_logger'] and 'debug' not in opt['name']:
+                    tb_logger.add_scalar('psnr', avg_psnr, current_step)
 
-                        tb_logger.add_scalar('Class1_PSNR', psnr_ress[0]/num_ress[0], current_step)
-                        tb_logger.add_scalar('Class1_PSNR', psnr_ress[1]/num_ress[1], current_step)
-                        tb_logger.add_scalar('class1_PSNR', psnr_ress[2]/num_ress[2], current_step)
 
             #### save models and training states
             if current_step % opt['logger']['save_checkpoint_freq'] == 0:

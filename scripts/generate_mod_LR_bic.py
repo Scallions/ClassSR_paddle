@@ -4,7 +4,8 @@ import cv2
 import numpy as np
 
 try:
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    sys.path.append('.')
     from data.util import imresize_np
 except ImportError:
     pass
@@ -15,8 +16,8 @@ def generate_mod_LR_bic():
     up_scale = 4
     mod_scale = 4
 
-    sourcedir = '/data0/xtkong/data/DIV2K800_scale/GT'
-    savedir = '/data0/xtkong/data/DIV2K800_scale'
+    sourcedir = 'dataset/Set5/HR'
+    savedir = 'dataset/Set5_valid'
 
     saveHRpath = os.path.join(savedir, 'HR', 'x' + str(mod_scale))
     saveLRpath = os.path.join(savedir, 'LR', 'x' + str(up_scale))

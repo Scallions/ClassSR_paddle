@@ -4,7 +4,6 @@ import paddle
 from paddle.io import Dataset
 import data.util as util
 
-# TODO
 class LQDataset(Dataset):
     '''Read LQ images only in the test phase.'''
 
@@ -14,7 +13,6 @@ class LQDataset(Dataset):
         self.data_type = self.opt['data_type']
         self.paths_LQ, self.paths_GT = None, None
         self.LQ_env = None  # environment for lmdb
-        # TODO: check utils files
         self.paths_LQ, self.sizes_LQ = util.get_image_paths(self.data_type, opt['dataroot_LQ'])
         assert self.paths_LQ, 'Error: LQ paths are empty.'
 
@@ -40,7 +38,7 @@ class LQDataset(Dataset):
         # BGR to RGB, HWC to CHW, numpy to tensor
         if img_LQ.shape[2] == 3:
             img_LQ = img_LQ[:, :, [2, 1, 0]]
-        img_LQ = paddle.to_tensor(np.ascontiguousarray(np.transpose(img_LQ, (2, 0, 1)))).float()
+        img_LQ = paddle.to_tensor(np.ascontiguousarray(np.transpose(img_LQ, (2, 0, 1)))).astype('float')#.float()
 
         return {'LQ': img_LQ, 'LQ_path': LQ_path}
 

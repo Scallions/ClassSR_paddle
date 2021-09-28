@@ -6,13 +6,13 @@ import numpy as np
 import glob
 import cv2
 import sys
-sys.path.append("..")
+sys.path.append(".")
 import data.util as util
 
 #we first downsample the original images with scaling factors 0.6, 0.7, 0.8, 0.9 to generate the HR/LR images.
 for scale in [1, 0.9, 0.8, 0.7, 0.6]:
-    GT_folder = '/data0/xtkong/data/DIV2K800_GT'
-    save_GT_folder = '/data0/xtkong/data/DIV2K800_scale/GT'
+    GT_folder = './dataset/DIV2K_train_HR'
+    save_GT_folder = './dataset/DIV2K_train_HR_GT'
     for i in [save_GT_folder]:
         if os.path.exists(i):
             pass
