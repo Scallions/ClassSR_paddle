@@ -40,16 +40,16 @@ python test_ClassSR.py -opt config/test/test_ClassSR_RCAN.yml
 ```
 ## 实验结果
 ### 训练结果
-<center class="half">
+<p float="left">
     <img src="figs/class_loss.png" width="300"/><img src="figs/FLOPs.png" width="300"/>
-</center>
-<center class="half">
+</p>
+<p float="left">
     <img src="figs/Percent.png" width="300"/><img src="figs/PSNR.png" width="300"/>
-</center>
+</p>
 ### 超分图片
-<center class="half">
+<p float="left">
     <img src="figs/1201HR.png" width="300"/><img src="figs/1201LR.png" width="300"/><img src="figs/1201SR.png" width="300"/>
-</center>
+</p>
 ## 复现指标
 |      | PSNR  | FLOPs | Percent |
 | ---- | ----- | ------------------ | ------------ |
